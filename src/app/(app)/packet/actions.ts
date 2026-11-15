@@ -6,7 +6,9 @@ import { actionAccess } from "@/lib/access";
 import { done, fail, failure, text, uuid, type Result } from "@/lib/result";
 import { createClient } from "@/lib/supabase/server";
 
-const KINDS = ["sign", "acknowledge", "upload", "outside"] as const;
+const KINDS = ["sign", "acknowledge", "upload", "outside", "bank"] as const;
+const BANK_WORDING =
+  "I authorise my brokerage to pay my commissions by direct deposit into the account named below, and to correct any payment made in error. This stays in effect until I cancel it in writing.";
 const MAX_BYTES = 10 * 1024 * 1024;
 
 /** Add a document or step to the brokerage's onboarding packet. */
@@ -39,7 +41,7 @@ export async function addPacketItem(_prev: Result, form: FormData): Promise<Resu
     workspace_id: ws,
     title,
     kind,
-    body: body || null,
+    body: body || (kind === "bank" ? BANK_WORDING : null),
     file_path: filePath,
     required: form.get("required") === "on",
     applies_to: form.get("team_only") === "on" ? "team" : "everyone",

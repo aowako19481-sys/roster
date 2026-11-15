@@ -3,7 +3,8 @@ import { ActionForm, Submit } from "@/components/ActionForm";
 import { ui } from "@/components/ui";
 import { BRAND } from "@/lib/brand";
 import { day, pct } from "@/lib/format";
-import { loadPacket, loadPortal, type PacketItem, type PortalState } from "@/lib/portal";
+import { ACK_TEXT, consentText } from "@/lib/esign";
+import { loadPacket, loadPortal, loadSignatures, type PacketItem, type PortalState } from "@/lib/portal";
 import { detailsStep, licenceStep, packetStep, riderStep, w9Step } from "./actions";
 import styles from "./portal.module.css";
 
@@ -59,7 +60,10 @@ export default async function WelcomePage({ params }: Props) {
   }
 
   const state = lookup.state;
-  const packet = await loadPacket(token);
+  const [packet, signatures] = await Promise.all([loadPacket(token), loadSignatures(token)]);
+  const disclosure = consentText(lookup.state.brokerage);
+  const copyOf = (subjectId: string) => [...signatures].reverse().find((entry) => entry.subject_id === subjectId);
+  const riderCopy = [...signatures].reverse().find((entry) => entry.subject === "rider");
   const steps = stepsOf(state, packet);
   const current = steps.find((step) => !step.done)?.key ?? null;
   const finished = current === null;
@@ -207,8 +211,9 @@ export default async function WelcomePage({ params }: Props) {
             </p>
             <label className={ui.check}>
               <input type="checkbox" name="consent" required />
-              <span>I agree to sign this rider electronically, and I understand this has the same effect as signing on paper.</span>
+              <span>I agree to sign this rider electronically.</span>
             </label>
+            <p className={ui.help}>{disclosure}</p>
             <label className={ui.field}>
               Type your full name to sign: {state.full_name}
               <input className={ui.input} name="typed_name" required maxLength={120} autoComplete="off" spellCheck={false} />
@@ -247,6 +252,11 @@ export default async function WelcomePage({ params }: Props) {
                       Open the document<span className="sr-only"> for {item.title} (opens in a new tab)</span>
                     </a>
                   )}
+                  {item.done && copyOf(item.id) && (
+                    <a className={styles.docLink} href={`/welcome/${token}/signed/${copyOf(item.id)?.id}`}>
+                      Download your copy<span className="sr-only"> of {item.title} (PDF)</span>
+                    </a>
+                  )}
                   {!item.done && (
                     <ActionForm action={packetStep}>
                       <input type="hidden" name="token" value={token} />
@@ -257,6 +267,7 @@ export default async function WelcomePage({ params }: Props) {
                             <input type="checkbox" name="agreed" required />
                             <span>I have read this document and agree to sign it electronically.</span>
                           </label>
+                          <p className={ui.help}>{disclosure}</p>
                           <label className={ui.field}>
                             Type your full name to sign: {state.full_name}
                             <input className={ui.input} name="typed_name" required maxLength={120} autoComplete="off" spellCheck={false} />
@@ -270,7 +281,7 @@ export default async function WelcomePage({ params }: Props) {
                         <>
                           <label className={ui.check}>
                             <input type="checkbox" name="agreed" required />
-                            <span>I have read and understood this.</span>
+                            <span>{ACK_TEXT.replace(/^[^.]*\.\s*/, "")}</span>
                           </label>
                           <Submit small>Confirm</Submit>
                         </>
@@ -283,6 +294,42 @@ export default async function WelcomePage({ params }: Props) {
                           </label>
                           <Submit small busy="Uploading…">
                             Upload
+                          </Submit>
+                        </>
+                      )}
+                      {item.kind === "bank" && (
+                        <>
+                          <p className={ui.help}>
+                            Only the bank&apos;s name and the last four digits are kept here, so your payments can be matched to you.
+                            Never type your full account or routing number on this page. Your brokerage will take the full
+                            details through its bank or payroll provider.
+                          </p>
+                          <label className={ui.field}>
+                            Bank name
+                            <input className={ui.input} name="bank_name" required minLength={2} maxLength={80} autoComplete="off" />
+                          </label>
+                          <label className={ui.field}>
+                            Account type
+                            <select className={ui.select} name="bank_type" defaultValue="checking">
+                              <option value="checking">Checking</option>
+                              <option value="savings">Savings</option>
+                            </select>
+                          </label>
+                          <label className={ui.field}>
+                            Last four digits of the account number
+                            <input className={ui.input} name="bank_last4" required inputMode="numeric" pattern="[0-9]{4}" maxLength={4} autoComplete="off" />
+                          </label>
+                          <label className={ui.check}>
+                            <input type="checkbox" name="agreed" required />
+                            <span>I authorise this and agree to sign it electronically.</span>
+                          </label>
+                          <p className={ui.help}>{disclosure}</p>
+                          <label className={ui.field}>
+                            Type your full name to sign: {state.full_name}
+                            <input className={ui.input} name="typed_name" required maxLength={120} autoComplete="off" spellCheck={false} />
+                          </label>
+                          <Submit small busy="Signing…">
+                            Sign authorisation
                           </Submit>
                         </>
                       )}
@@ -311,7 +358,17 @@ export default async function WelcomePage({ params }: Props) {
               <dt>W-9</dt>
               <dd>{state.w9_status === "received" ? "Received" : "Received · your brokerage will check the name"}</dd>
               <dt>Rider</dt>
-              <dd>Signed{state.rider ? ` at ${pct(state.rider.split_pct)}` : ""}</dd>
+              <dd>
+                Signed{state.rider ? ` at ${pct(state.rider.split_pct)}` : ""}
+                {riderCopy && (
+                  <>
+                    {" · "}
+                    <a className={styles.docLink} href={`/welcome/${token}/signed/${riderCopy.id}`}>
+                      Download your signed copy<span className="sr-only"> of the rider (PDF)</span>
+                    </a>
+                  </>
+                )}
+              </dd>
             </dl>
             <p className={ui.help}>You can close this page. Nothing else is needed from you today.</p>
           </>

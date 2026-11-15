@@ -7,7 +7,7 @@ import { AutofillDocument } from "@/components/finance/AutofillDocument";
 import { PrintButton } from "@/components/PrintButton";
 import { Badge, ButtonLink, Card, Empty, PageHeader, Tabs, ui } from "@/components/ui";
 import { requireCap } from "@/lib/access";
-import { buildBlocks, fillLabels, loadDealDocData, METHOD_LABEL } from "@/lib/autofill";
+import { buildBlocks, loadDealDocData, METHOD_LABEL, templateFillLabels } from "@/lib/autofill";
 import { day, dayTime } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { attachFile, removeFile, saveFilled } from "./actions";
@@ -29,7 +29,7 @@ export default async function DealDocumentsPage({ params, searchParams }: Props)
   if (!data) notFound();
 
   const [{ data: templates }, { data: values }] = await Promise.all([
-    supabase.from("doc_templates").select("id, name, body, purpose, attach_proof, attach_receipt").eq("workspace_id", ws).eq("active", true).order("purpose", { ascending: false }).order("name").limit(50),
+    supabase.from("doc_templates").select("id, name, body, purpose, attach_proof, attach_receipt, file_path, field_map, fields").eq("workspace_id", ws).eq("active", true).order("purpose", { ascending: false }).order("name").limit(50),
     supabase.from("deal_doc_values").select("template_id, filled").eq("deal_id", id).eq("workspace_id", ws).limit(50),
   ]);
   const list = templates ?? [];
@@ -39,6 +39,7 @@ export default async function DealDocumentsPage({ params, searchParams }: Props)
   const section = show === "proof" ? "proof" : show === "receipt" && wantsReceipt ? "receipt" : "record";
   const current = list.find((template) => template.id === doc) ?? list[0];
   const here = `/deals/${id}/documents`;
+  const labels = current ? templateFillLabels(current) : [];
 
   const canAttach = access.caps.has("payments.manage");
   const canFill = access.caps.has("deals.edit") && !["processed", "closed"].includes(data.deal.status);
@@ -113,11 +114,17 @@ export default async function DealDocumentsPage({ params, searchParams }: Props)
                   ))}
                 </nav>
               )}
-              <PrintButton />
+              {current.file_path ? (
+                <ButtonLink href={`${here}/pdf/${current.id}`} primary>
+                  Download filled PDF
+                </ButtonLink>
+              ) : (
+                <PrintButton />
+              )}
               {access.caps.has("payroll.manage") && <ButtonLink href={`/templates/${current.id}`}>Change the layout</ButtonLink>}
             </div>
 
-            {fillLabels(current.body).length > 0 && (
+            {labels.length > 0 && (
               <div data-no-print="">
                 <Card title="Fill in for this deal" aside={<span className={ui.soft}>Everything else fills itself in</span>}>
                   {canFill ? (
@@ -125,7 +132,7 @@ export default async function DealDocumentsPage({ params, searchParams }: Props)
                       <input type="hidden" name="deal" value={id} />
                       <input type="hidden" name="template" value={current.id} />
                       <div className={ui.formRow}>
-                        {fillLabels(current.body).map((label, index) => (
+                        {labels.map((label, index) => (
                           <label key={label} className={ui.field}>
                             {label}
                             <input className={ui.input} name={`fill_${index}`} defaultValue={filledOf.get(current.id)?.[label] ?? ""} maxLength={300} />
@@ -141,6 +148,14 @@ export default async function DealDocumentsPage({ params, searchParams }: Props)
               </div>
             )}
 
+            {current.file_path ? (
+              <Card title={current.name} aside={<Badge tone="plain">Your PDF form</Badge>}>
+                <p className={ui.help}>
+                  This is your brokerage&apos;s own PDF. It downloads filled in from this deal
+                  {labels.length ? ", with the boxes above added" : ""}. The downloaded copy is final and cannot be edited.
+                </p>
+              </Card>
+            ) : (
             <AutofillDocument
               title={current.name}
               blocks={buildBlocks(current.body, data)}
@@ -150,6 +165,7 @@ export default async function DealDocumentsPage({ params, searchParams }: Props)
               attachReceipt={current.attach_receipt}
               fileBase={here}
             />
+            )}
           </>
         ) : (
           <Card title="No deposit record set up yet">

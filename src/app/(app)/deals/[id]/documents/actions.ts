@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { actionAccess } from "@/lib/access";
-import { fillLabels } from "@/lib/autofill";
+import { templateFillLabels } from "@/lib/autofill";
 import { done, fail, failure, text, uuid, type Result } from "@/lib/result";
 import { storePaymentFile } from "@/lib/stored-file";
 import { createClient } from "@/lib/supabase/server";
@@ -56,11 +56,11 @@ export async function saveFilled(_prev: Result, form: FormData): Promise<Result>
   if (!deal || !template) return fail("Something went wrong. Reload the page and try again.");
 
   const supabase = await createClient();
-  const { data: row } = await supabase.from("doc_templates").select("body").eq("id", template).eq("workspace_id", ws).maybeSingle();
+  const { data: row } = await supabase.from("doc_templates").select("body, file_path, field_map, fields").eq("id", template).eq("workspace_id", ws).maybeSingle();
   if (!row) return fail("That document could not be found.");
   // Only the boxes the layout actually asks for are kept.
   const filled: Record<string, string> = {};
-  fillLabels(row.body).forEach((label, index) => {
+  templateFillLabels(row).forEach((label, index) => {
     const value = text(form, `fill_${index}`, 300);
     if (value) filled[label] = value;
   });

@@ -10,6 +10,7 @@ export const metadata: Metadata = { title: "Onboarding packet" };
 
 const KIND_LABEL: Record<string, string> = {
   sign: "Sign",
+  bank: "Direct deposit authorisation",
   acknowledge: "Read and acknowledge",
   upload: "Upload a file",
   outside: "Step outside the app",
@@ -110,6 +111,7 @@ export default async function PacketPage() {
                   <option value="sign">Sign it</option>
                   <option value="acknowledge">Read and acknowledge it</option>
                   <option value="upload">Upload a file</option>
+                  <option value="bank">Authorise direct deposit (last four digits only)</option>
                   <option value="outside">Do a step outside the app</option>
                 </select>
               </label>
@@ -131,7 +133,10 @@ export default async function PacketPage() {
               <span>Only for agents on a team</span>
             </label>
             <p className={ui.help}>
-              Do not add items that ask for a full Social Security number, bank details, a date of birth or an ID scan.
+              Do not add items that ask for a full Social Security number, a full bank account number, a date of birth or an
+              ID scan. For direct deposit, choose &quot;Authorise direct deposit&quot;: the agent signs the authorisation and gives
+              only the bank name and last four digits. Every signature keeps a record you can download from the agent&apos;s
+              paperwork page.
             </p>
             <Submit>Add to packet</Submit>
           </ActionForm>

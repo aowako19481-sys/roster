@@ -5,6 +5,7 @@ import { ButtonLink, Card, PageHeader, ui } from "@/components/ui";
 import { requireCap } from "@/lib/access";
 import { buildBlocks, fillLabels, sampleDocData, unknownTags } from "@/lib/autofill";
 import { createClient } from "@/lib/supabase/server";
+import { PdfMapForm } from "../PdfMapForm";
 import { TemplateForm } from "../TemplateForm";
 
 export const metadata: Metadata = { title: "Document layout" };
@@ -17,13 +18,26 @@ export default async function TemplatePage({ params }: { params: Promise<{ id: s
   const supabase = await createClient();
   const { data: template } = await supabase
     .from("doc_templates")
-    .select("id, name, body, purpose, attach_proof, attach_receipt, active")
+    .select("id, name, body, purpose, attach_proof, attach_receipt, active, file_path, fields, field_map")
     .eq("id", id)
     .eq("workspace_id", access.workspace.id)
     .maybeSingle();
   if (!template) notFound();
 
   const canManage = access.caps.has("payroll.manage");
+  if (template.file_path) {
+    return (
+      <div className={ui.stack}>
+        <PageHeader eyebrow="Autofill document · PDF form" title={template.name} sub="Your own PDF. Say what goes in each of its fields; every deal then downloads it filled in.">
+          <ButtonLink href={`/templates/${template.id}/sample`}>Download a sample copy</ButtonLink>
+          <ButtonLink href="/templates">All documents</ButtonLink>
+        </PageHeader>
+        <Card title={canManage ? "What goes in each field" : "Fields (read-only)"}>
+          <PdfMapForm template={template} canManage={canManage} />
+        </Card>
+      </div>
+    );
+  }
   const sample = sampleDocData(access.workspace.name);
   const unknown = unknownTags(template.body);
   const labels = fillLabels(template.body);

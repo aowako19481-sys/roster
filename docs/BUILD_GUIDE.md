@@ -122,6 +122,14 @@ section tags and `{{fill:Label}}` boxes (`src/lib/autofill.ts`). Each deal's Doc
 payment and bank receipt images. Layout text is always rendered as text blocks, never as HTML.
 Uploaded files are checked by their first bytes and served only through our own routes.
 
+## Signing
+
+Every signature and acknowledgement goes through `private.record_signature` (migration `0010`),
+which stores the exact wording, the disclosure from `src/lib/esign.ts`, time, address, browser
+and SHA-256 fingerprints in `signatures`. That table has no write access and a trigger refuses
+edits. Never add a signing flow that skips it. Never add a field for a full bank account, routing
+or taxpayer number. `pdf-lib` (in `src/lib/pdf.ts`) is the only package beyond the framework.
+
 ## Outside services are placeholders
 
 Nothing calls Stripe, a W-9 service, an email service, Dotloop, Google or a licence lookup. Where

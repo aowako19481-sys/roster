@@ -1,5 +1,7 @@
 import "server-only";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
+import { ACK_TEXT, consentText, type Evidence } from "@/lib/esign";
+import { signedRecordPdf, type SignatureRecord } from "@/lib/pdf";
 import { hashToken, TOKEN_PATTERN } from "@/lib/invite-token";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -67,8 +69,11 @@ export const saveDetails = (token: string, name: string, phone: string) =>
 export const saveW9 = (token: string, legal: string, last4: string) =>
   call(token, "portal_save_w9", { legal, last4, reference: "placeholder" });
 
-export const signRider = (token: string, typedName: string, consent: boolean) =>
-  call(token, "portal_sign_rider", { typed_name: typedName, consent, signer_note: "E-signature · typed name and consent" });
+export const signRider = (token: string, typedName: string, consent: boolean, brokerage: string, proof: Evidence) =>
+  call(token, "portal_sign_rider", {
+    typed_name: typedName, consent, signer_note: "E-signature · typed name and consent",
+    consent_text: consentText(brokerage), ip: proof.ip, agent_string: proof.userAgent,
+  });
 
 const UPLOAD_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "application/pdf": "pdf" };
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
@@ -118,7 +123,7 @@ export async function saveLicence(token: string, number: string, state: string, 
 export type PacketItem = {
   id: string;
   title: string;
-  kind: "sign" | "acknowledge" | "upload" | "outside";
+  kind: "sign" | "acknowledge" | "upload" | "outside" | "bank";
   body: string | null;
   required: boolean;
   has_file: boolean;
@@ -135,16 +140,61 @@ export async function loadPacket(token: string): Promise<PacketItem[]> {
   return data as PacketItem[];
 }
 
-export async function completeItem(token: string, item: string, typedName: string, agreed: boolean, file: File | null): Promise<Call> {
+export type BankDetails = { name: string; type: string; last4: string };
+
+/** The fingerprint of the brokerage's document for an item, taken at the moment of signing. */
+async function itemFileHash(token: string, item: string): Promise<string | null> {
+  const admin = client();
+  if (!admin) return null;
+  const { data: path } = await admin.rpc("portal_item_file", { token_hash: hashToken(token), item });
+  if (typeof path !== "string" || !path) return null;
+  const { data } = await admin.storage.from("documents").download(path);
+  if (!data) return null;
+  return createHash("sha256").update(Buffer.from(await data.arrayBuffer())).digest("hex");
+}
+
+export async function completeItem(
+  token: string, item: string, typedName: string, agreed: boolean, file: File | null,
+  proof: Evidence, bank: BankDetails | null,
+): Promise<Call> {
+  const lookup = await loadPortal(token);
+  if (lookup.kind !== "ok") return { error: { code: "P0001", message: "This link has expired. Ask your brokerage for a new one." } };
+  const kind = (await loadPacket(token)).find((entry) => entry.id === item)?.kind;
   let path: string | null = null;
-  if (file && file.size > 0) {
-    const lookup = await loadPortal(token);
-    if (lookup.kind !== "ok") return { error: { code: "P0001", message: "This link has expired. Ask your brokerage for a new one." } };
+  if (file && file.size > 0 && kind === "upload") {
     const stored = await storeUpload(lookup.state.upload_prefix, "paperwork", file);
     if ("message" in stored) return { error: { code: "P0001", message: stored.message } };
     path = stored.path;
   }
-  return call(token, "portal_complete_item", { item, typed_name: typedName, agreed, file_path: path });
+  return call(token, "portal_complete_item", {
+    item, typed_name: typedName, agreed, file_path: path,
+    consent_text: kind === "acknowledge" ? ACK_TEXT : consentText(lookup.state.brokerage),
+    ip: proof.ip, agent_string: proof.userAgent, file_hash: await itemFileHash(token, item),
+    bank: bank?.name ?? null, bank_type: bank?.type ?? null, bank_last4: bank?.last4 ?? null,
+  });
+}
+
+/** Everything this agent has signed or acknowledged. */
+export async function loadSignatures(token: string): Promise<SignatureRecord[]> {
+  if (!TOKEN_PATTERN.test(token)) return [];
+  const admin = client();
+  if (!admin) return [];
+  const { data, error } = await admin.rpc("portal_signatures", { token_hash: hashToken(token) });
+  if (error || !Array.isArray(data)) return [];
+  return data as SignatureRecord[];
+}
+
+/** The agent's own copy of one thing they signed, as a PDF. */
+export async function signedCopy(token: string, signatureId: string): Promise<{ bytes: Uint8Array; name: string } | null> {
+  const record = (await loadSignatures(token)).find((entry) => entry.id === signatureId);
+  const admin = client();
+  if (!record || !admin) return null;
+  let original: Uint8Array | null = null;
+  if (record.file_path?.endsWith(".pdf")) {
+    const { data } = await admin.storage.from("documents").download(record.file_path);
+    if (data) original = new Uint8Array(await data.arrayBuffer());
+  }
+  return { bytes: await signedRecordPdf(record, record.brokerage ?? "", original), name: `${record.title} - signed` };
 }
 
 /** A one-minute link to the brokerage's document for one packet item, for this agent only. */

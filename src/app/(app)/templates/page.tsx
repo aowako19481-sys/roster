@@ -6,7 +6,8 @@ import { requireCap } from "@/lib/access";
 import { PLACEHOLDERS } from "@/lib/autofill";
 import { day } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
-import { toggleTemplate } from "./actions";
+import { DropZone } from "@/components/DropZone";
+import { toggleTemplate, uploadPdfTemplate } from "./actions";
 import { TemplateForm } from "./TemplateForm";
 
 export const metadata: Metadata = { title: "Autofill documents" };
@@ -17,7 +18,7 @@ export default async function TemplatesPage() {
   const supabase = await createClient();
   const { data: templates } = await supabase
     .from("doc_templates")
-    .select("id, name, purpose, attach_proof, attach_receipt, active, updated_at")
+    .select("id, name, purpose, attach_proof, attach_receipt, active, updated_at, file_path")
     .eq("workspace_id", access.workspace.id)
     .order("name")
     .limit(100);
@@ -51,7 +52,10 @@ export default async function TemplatesPage() {
                         {template.name}
                       </Link>
                     </th>
-                    <td>{template.purpose === "deposit_record" ? "Deposit record" : "Deal document"}</td>
+                    <td>
+                      {template.purpose === "deposit_record" ? "Deposit record" : "Deal document"}
+                      {template.file_path ? " · PDF form" : ""}
+                    </td>
                     <td>
                       {[template.attach_proof && "Proof of payment", template.attach_receipt && "Bank receipt"].filter(Boolean).join(" · ") || "Nothing"}
                     </td>
@@ -110,9 +114,35 @@ export default async function TemplatesPage() {
         </Card>
       </div>
 
-      <Placeholder service="Your own PDF or Word file as the layout">
-        Today a layout is written as text with placeholders, and prints or saves as a PDF. Filling in a brokerage&apos;s
-        own designed PDF (logo, exact positions) needs a PDF tool to be added to the app.
+      {canManage && (
+        <Card title="Use your own PDF form" aside={<span className={ui.soft}>Managers only</span>}>
+          <p className={ui.help}>
+            Already have a designed PDF with fill-in fields? Drop it here. On the next screen you say what goes in each
+            field, and every deal can then download it filled in.
+          </p>
+          <ActionForm action={uploadPdfTemplate}>
+            <div className={ui.formRow}>
+              <label className={ui.field}>
+                Document name
+                <input className={ui.input} name="name" required minLength={2} maxLength={80} placeholder="Commission disbursement form" />
+              </label>
+              <label className={ui.field}>
+                Used as
+                <select className={ui.select} name="purpose" defaultValue="deal">
+                  <option value="deposit_record">The deposit record</option>
+                  <option value="deal">Another document for a deal</option>
+                </select>
+              </label>
+            </div>
+            <DropZone name="file" label="Your PDF form" accept="application/pdf" required />
+            <Submit busy="Reading the PDF…">Upload and set up fields</Submit>
+          </ActionForm>
+        </Card>
+      )}
+
+      <Placeholder service="Word files, and PDFs without fill-in fields">
+        A PDF needs fill-in fields for this to work (in Adobe Acrobat: Prepare a form). A flat PDF or a Word file has
+        nowhere to put the information: paste its wording into a text layout instead.
       </Placeholder>
     </div>
   );

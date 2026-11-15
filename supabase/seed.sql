@@ -292,7 +292,11 @@ insert into public.packet_items (id, workspace_id, title, kind, body, required, 
   ('00000000-0000-4000-8000-000000000a05', '00000000-0000-4000-8000-000000000001', 'Direct deposit set up with the payroll provider', 'outside',
    'Bank details are never entered here. Set up direct deposit in the brokerage''s payroll system using the separate email from Finance, then confirm.', true, 'everyone', 5),
   ('00000000-0000-4000-8000-000000000a06', '00000000-0000-4000-8000-000000000001', 'Team agreement', 'sign',
-   'For agents on a registered team: how the team works with the brokerage. How the team divides its split stays on the notices of contract.', true, 'team', 6);
+   'For agents on a registered team: how the team works with the brokerage. How the team divides its split stays on the notices of contract.', true, 'team', 6),
+  ('00000000-0000-4000-8000-000000000a07', '00000000-0000-4000-8000-000000000001', 'Direct deposit authorisation', 'bank',
+   'I authorise my brokerage to pay my commissions by direct deposit into the account named below, and to correct any payment made in error. This stays in effect until I cancel it in writing.', true, 'everyone', 7),
+  ('00000000-0000-4000-8000-000000000a08', '00000000-0000-4000-8000-000000000001', 'Anti-harassment policy', 'acknowledge',
+   'The brokerage does not tolerate harassment or discrimination of any kind. This policy explains what that covers, how to report a concern, and that no one is punished for reporting in good faith.', true, 'everyone', 8);
 
 -- Everyone who has already finished onboarding has completed their paperwork.
 insert into public.agent_packet (workspace_id, agent_id, item_id, signed_name, consent, done_by, done_at)

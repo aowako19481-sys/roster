@@ -10,9 +10,10 @@ service will connect. Nothing in this list is live yet. Each needs an account, a
 | Sign-in emails | Emailed link (few per hour), password for the builder | Branded email with a 6-digit code, higher limits | Resend via Supabase custom SMTP |
 | W-9 | Agent confirms legal name and last four digits; staff see status | The real W-9 form, held by the provider | Track1099, TaxBandits or Tax1099 |
 | Licence check | Agent enters number, expiry and a photo; a person confirms | Reading the number from the photo and checking the state record automatically | State licence lookup + document reading |
-| E-signature | Consent, typed name, time stamp, audit entry, rider version | Tamper seal, audit certificate, signed PDF | Self-hosted Documenso |
-| Documents | Managers write autofill layouts (deposit record and other deal documents) with placeholders and fill-in boxes; each deal fills itself in, with proof of payment and bank receipt attached; print or save as PDF from the browser | Filling a brokerage's own designed PDF or Word file; one-click PDF files stored on the deal; bulk "all deposit records for this payroll" | A PDF package (needs approval) |
+| E-signature | Disclosure and consent, typed legal name, time, internet address, browser, exact wording and document fingerprint kept in a record that cannot be edited; signed copy (PDF) for the agent and the brokerage | Cryptographic tamper seal on the PDF itself, independent audit certificate | Self-hosted Documenso (needs its own server) |
+| Documents | Managers write autofill layouts or upload their own PDF form and map its fields; each deal fills itself in, with proof of payment and bank receipt attached | Word files and PDFs without fill-in fields; bulk "all deposit records for this payroll" | – |
 | Payment proofs | Upload and manual entry, split across deals | Suggesting amount, date and method from the proof | Document reading |
+| Direct deposit | Signed authorisation, bank name, account type and last four digits only | Taking full account and routing numbers and sending payouts | The brokerage's bank or a payout provider (e.g. Stripe) |
 | Sheet sync | – | Writing each payroll to the brokerage's Google Sheet or Excel | Google / Microsoft |
 | Staff invitations | Recorded; existing users join at once | Creating the person's login automatically | Supabase secret key on the server |
 | Two-factor, Google and Microsoft sign-in | – | Required two-factor; step-up before granting big powers | Supabase Auth settings + provider apps |

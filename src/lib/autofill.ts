@@ -162,8 +162,70 @@ function valueOf(name: string, data: DealDocData): string | null {
     case "agents": return data.lines.map((line) => line.name).join(", ") || "–";
     case "parties": return deal.parties.map((party) => `${titleCase(party.kind)}: ${party.name}`).join("\n") || "–";
     case "today": return day(new Date());
+    case "payments_list":
+      return data.payments.map((p) => `${day(p.received_on)} ${METHOD_LABEL[p.method] ?? p.method}${p.reference ? ` ${p.reference}` : ""}: ${money(p.amount)}`).join("\n") || "–";
+    case "payouts_list":
+      return data.lines.map((line) => `${line.name}: ${line.share_pct}% of deal at ${line.split_pct}% = ${money(line.payout)}`).join("\n") || "–";
+    case "referral_list": return data.referrals.map((fee) => `${fee.payee}: ${money(fee.amount)}`).join("\n") || "–";
     default: return null;
   }
+}
+
+/** What a PDF form field can be filled with. */
+export const FIELD_SOURCES: { key: string; label: string }[] = [
+  { key: "brokerage", label: "Brokerage name" }, { key: "address", label: "Deal address" }, { key: "type", label: "Deal type" },
+  { key: "pp_number", label: "PP number" }, { key: "deposit_date", label: "Deposit date" }, { key: "gci", label: "Gross commission" },
+  { key: "net", label: "Net (GCI less fees)" }, { key: "total_received", label: "Total received" }, { key: "company_dollar", label: "Company dollar" },
+  { key: "agents", label: "Agent names" }, { key: "parties", label: "Parties" }, { key: "today", label: "Today's date" },
+  { key: "payments_list", label: "Payments received (one per line)" }, { key: "payouts_list", label: "Agent payouts (one per line)" },
+  { key: "referral_list", label: "Referral fees (one per line)" },
+];
+
+/** The value for one source, or null if it is not a known source. */
+export function sourceValue(key: string, data: DealDocData): string | null {
+  return FIELD_SOURCES.some((source) => source.key === key) ? valueOf(key, data) : null;
+}
+
+type TemplateShape = { body: string; file_path?: string | null; field_map?: unknown; fields?: unknown };
+
+/** The boxes a person fills in for each deal, for a text layout or a PDF form (in the PDF's own field order). */
+export function templateFillLabels(template: TemplateShape): string[] {
+  if (!template.file_path) return fillLabels(template.body);
+  const map = (template.field_map ?? {}) as Record<string, unknown>;
+  const order = Array.isArray(template.fields) ? (template.fields as { name?: unknown }[]).map((field) => String(field.name ?? "")) : [];
+  const names = [...order.filter((name) => name in map), ...Object.keys(map).filter((name) => !order.includes(name))];
+  const labels: string[] = [];
+  for (const name of names) {
+    const value = map[name];
+    if (typeof value === "string" && value.startsWith("fill:")) {
+      const label = value.slice(5).trim().slice(0, 60);
+      if (label && !labels.includes(label)) labels.push(label);
+    }
+  }
+  return labels.slice(0, 60);
+}
+
+/** Every PDF field's value for one deal: mapped sources plus what was typed in. */
+export function pdfValues(fieldMap: unknown, data: DealDocData, filled: Record<string, string>): Record<string, string> {
+  const values: Record<string, string> = {};
+  for (const [field, source] of Object.entries((fieldMap ?? {}) as Record<string, unknown>)) {
+    if (typeof source !== "string" || !source) continue;
+    const value = source.startsWith("fill:") ? filled[source.slice(5).trim().slice(0, 60)] ?? "" : sourceValue(source, data) ?? "";
+    if (value && value !== "–") values[field] = value;
+  }
+  return values;
+}
+
+/** A first guess at what belongs in a field, from its name. The manager confirms it. */
+export function guessSource(fieldName: string): string {
+  const name = fieldName.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+  if (FIELD_SOURCES.some((source) => source.key === name)) return name;
+  const hints: [RegExp, string][] = [
+    [/address|property/, "address"], [/gci|gross/, "gci"], [/^net|net_comm/, "net"], [/deposit_?date|date_of_deposit/, "deposit_date"],
+    [/pp_?(no|num)|transaction_?(no|num)/, "pp_number"], [/brokerage|company_name|firm/, "brokerage"], [/deal_?type|side/, "type"],
+    [/agent/, "agents"], [/total/, "total_received"], [/^date$|today|prepared_on/, "today"],
+  ];
+  return hints.find(([pattern]) => pattern.test(name))?.[1] ?? "";
 }
 
 /** The fill-in labels a layout asks for, in order, without repeats. */
