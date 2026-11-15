@@ -62,6 +62,14 @@
   gap: 18px;
 }
 .console {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;

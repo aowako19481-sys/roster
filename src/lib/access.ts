@@ -93,6 +93,12 @@ export const getAccess = cache(async (): Promise<Access | null> => {
   }
   if (!raw) return null;
 
+  // Kinu staff start outside every brokerage, on the console. They are only
+  // "inside" one after choosing to open it, and step back out when they leave.
+  if (raw.is_platform_admin && !(wanted && UUID.test(wanted))) {
+    raw = { ...raw, workspace: null, role: null, caps: [] };
+  }
+
   let caps = new Set(raw.caps.filter((cap): cap is Cap => (CAPS as readonly string[]).includes(cap)));
   let viewAs: string | null = null;
   const previewRole = jar.get(VIEW_AS_COOKIE)?.value;

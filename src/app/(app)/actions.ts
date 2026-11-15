@@ -42,6 +42,14 @@ export async function switchWorkspace(form: FormData) {
   redirect("/");
 }
 
+/** Kinu staff: step back out of a brokerage to the console. */
+export async function leaveWorkspace() {
+  const jar = await cookies();
+  jar.delete(WORKSPACE_COOKIE);
+  jar.delete(VIEW_AS_COOKIE);
+  redirect("/kinu");
+}
+
 /** Preview the app as another role. Owners and Kinu staff only; it never grants anything. */
 export async function setViewAs(form: FormData) {
   const role = String(form.get("role") ?? "");

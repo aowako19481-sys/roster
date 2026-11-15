@@ -6,7 +6,7 @@ import { getAccess } from "@/lib/access";
 import { BRAND } from "@/lib/brand";
 import { buildNav } from "@/lib/nav";
 import { BUILT_IN_ROLES, roleLabel } from "@/lib/roles";
-import { setViewAs, signOut, switchWorkspace } from "./actions";
+import { leaveWorkspace, setViewAs, signOut, switchWorkspace } from "./actions";
 import styles from "./shell.module.css";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -27,7 +27,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             {BRAND}
           </Link>
 
-          {access.workspaces.length > 1 ? (
+          {access.isPlatformAdmin && !ws ? (
+            <span className={styles.workspace}>Console · no brokerage open</span>
+          ) : access.workspaces.length > 1 ? (
             <form action={switchWorkspace} className={styles.pick}>
               <AutoSelect
                 name="ws"
@@ -58,9 +60,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
           <div className={styles.barEnd}>
             {access.isPlatformAdmin && (
-              <Link href="/kinu" className={styles.console}>
-                {BRAND} console
-              </Link>
+              ws ? (
+                <form action={leaveWorkspace}>
+                  <button type="submit" className={styles.console}>
+                    Leave {ws.name} · back to console
+                  </button>
+                </form>
+              ) : (
+                <Link href="/kinu" className={styles.console}>
+                  {BRAND} console
+                </Link>
+              )
             )}
             <form action={signOut} className={styles.account}>
               <span className={styles.avatar} aria-hidden="true">
