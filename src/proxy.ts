@@ -63,6 +63,29 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.has(pathname);
 
+  // A sign-in link can land on any page of the site (Supabase falls back to
+  // the site's home address when the exact landing address is not on its
+  // allow-list). Wherever it lands, hand it to the one route that handles it.
+  if (!user && !OPEN_PATHS.has(pathname)) {
+    const code = request.nextUrl.searchParams.get("code");
+    const failed = request.nextUrl.searchParams.has("error_code") || request.nextUrl.searchParams.has("error");
+    if ((code && code.length <= 512) || failed) {
+      const target = request.nextUrl.clone();
+      target.search = "";
+      if (code && !failed) {
+        target.pathname = "/auth/callback";
+        target.searchParams.set("code", code);
+      } else {
+        target.pathname = "/sign-in";
+        target.searchParams.set("link", "expired");
+      }
+      const handoff = NextResponse.redirect(target);
+      handoff.headers.set("Content-Security-Policy", csp);
+      handoff.headers.set("Cache-Control", "private, no-store");
+      return handoff;
+    }
+  }
+
   let redirectTo: string | null = null;
   if (!OPEN_PATHS.has(pathname)) {
     if (!user && !isPublic) redirectTo = "/sign-in";
