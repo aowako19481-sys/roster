@@ -1,0 +1,119 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.zone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px 20px;
+  border-radius: 18px;
+  border: 1.5px dashed rgba(18, 19, 22, 0.4);
+  background: rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    transform 220ms var(--ease-out);
+}
+.zone:focus-within {
+  outline: 2px solid var(--ink-strong);
+  outline-offset: 2px;
+}
+.over {
+  border-color: var(--ink);
+  border-style: solid;
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(1.01);
+}
+.holding {
+  border-style: solid;
+  border-color: rgba(18, 19, 22, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+}
+.label {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 0 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink-soft);
+}
+.waiting svg {
+  animation: breathe 2.6s ease-in-out infinite;
+}
+.strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+.hint {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--mute);
+}
+.held {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.preview {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--white);
+  box-shadow: 0 8px 18px rgba(18, 19, 22, 0.16);
+}
+.heldText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.fileName {
+  font-size: 15px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+/* The real input stays in the page for keyboards and screen readers, just out of sight. */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.problem {
+  font-size: 13px;
+  color: var(--red);
+}
+.problem:empty {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .waiting svg {
+    animation: none;
+  }
+  .over {
+    transform: none;
+  }
+}

@@ -1,81 +1,102 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AutoSelect } from "@/components/ActionForm";
 import { Dock } from "@/components/Dock";
+import { getAccess } from "@/lib/access";
 import { BRAND } from "@/lib/brand";
-import { getUser } from "@/lib/supabase/server";
-import { getMembership } from "@/lib/workspace";
-import { signOut } from "./actions";
+import { buildNav } from "@/lib/nav";
+import { BUILT_IN_ROLES, roleLabel } from "@/lib/roles";
+import { setViewAs, signOut, switchWorkspace } from "./actions";
 import styles from "./shell.module.css";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   // The proxy already redirects signed-out visitors. This second, server-side
   // check means a page can never render without a verified user.
-  const user = await getUser();
-  if (!user) redirect("/sign-in");
+  const access = await getAccess();
+  if (!access) redirect("/sign-in");
 
-  const membership = await getMembership();
-
-  if (!membership) {
-    return (
-      <div className={styles.page}>
-        <main id="content" className={styles.empty}>
-          <span className={`brandType ${styles.wordmark}`}>{BRAND}</span>
-          <h1 className={`display ${styles.emptyTitle}`}>No brokerage yet</h1>
-          <p className={styles.emptyText}>
-            You are signed in, but your account is not linked to a brokerage workspace. Ask your
-            brokerage admin to add you, then sign in again.
-          </p>
-          <form action={signOut}>
-            <button type="submit" className={`${styles.emptyButton} press`}>
-              Sign out
-            </button>
-          </form>
-        </main>
-      </div>
-    );
-  }
+  const ws = access.workspace;
+  const mayPreview = Boolean(ws) && (access.isPlatformAdmin || access.role === "owner_admin");
+  const nav = buildNav(access);
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-print-root="">
       <div className={styles.wrap}>
-        <header className={styles.bar}>
+        <header className={styles.bar} data-app-chrome="">
           <Link href="/" className={`brandType ${styles.wordmark}`}>
             {BRAND}
           </Link>
-          <span className={styles.workspace}>{membership.workspaceName}</span>
 
-          <form action="/agents" method="get" role="search" className={styles.search}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3.5-3.5" />
-            </svg>
-            <label htmlFor="app-search" className="sr-only">
-              Search agents, licence numbers and teams
-            </label>
-            <input id="app-search" type="search" name="q" placeholder="Agent, licence #, team" maxLength={80} autoComplete="off" />
-          </form>
+          {access.workspaces.length > 1 ? (
+            <form action={switchWorkspace} className={styles.pick}>
+              <AutoSelect
+                name="ws"
+                value={ws?.id ?? ""}
+                label="Brokerage"
+                className={styles.pickSelect}
+                options={access.workspaces.map((w) => ({ value: w.id, label: w.name }))}
+              />
+            </form>
+          ) : (
+            ws && <span className={styles.workspace}>{ws.name}</span>
+          )}
 
-          <form action={signOut} className={styles.account}>
-            <span className={styles.avatar} aria-hidden="true">
-              {membership.initials}
-            </span>
-            <span className={styles.accountText}>
-              <span className={styles.accountName}>{membership.displayName}</span>
-              <button type="submit" className={styles.signOut}>
-                Sign out
-              </button>
-            </span>
-          </form>
+          {mayPreview && (
+            <form action={setViewAs} className={styles.pick}>
+              <AutoSelect
+                name="role"
+                value={access.viewAs ?? ""}
+                label="View as role"
+                className={styles.pickSelect}
+                options={[
+                  { value: "", label: access.isPlatformAdmin ? "View as: Kinu staff (everything)" : "View as: myself" },
+                  ...BUILT_IN_ROLES.map((role) => ({ value: role, label: `View as: ${roleLabel(role)}` })),
+                ]}
+              />
+            </form>
+          )}
+
+          <div className={styles.barEnd}>
+            {access.isPlatformAdmin && (
+              <Link href="/kinu" className={styles.console}>
+                {BRAND} console
+              </Link>
+            )}
+            <form action={signOut} className={styles.account}>
+              <span className={styles.avatar} aria-hidden="true">
+                {access.initials}
+              </span>
+              <span className={styles.accountText}>
+                <span className={styles.accountName}>{access.displayName}</span>
+                <button type="submit" className={styles.signOut}>
+                  Sign out
+                </button>
+              </span>
+            </form>
+          </div>
         </header>
 
-        <div className={styles.body}>
-          <div className={styles.rail}>
-            <Dock />
+        {access.viewAs && (
+          <p className={styles.preview} role="status" data-app-chrome="">
+            Previewing as <strong>{roleLabel(access.viewAs)}</strong>. Pages and buttons are limited to what this role is
+            allowed. Nothing can be changed while previewing.
+          </p>
+        )}
+
+        {ws ? (
+          <div className={styles.body}>
+            <div className={styles.rail} data-app-chrome="">
+              <Dock groups={nav} />
+            </div>
+            <main id="content" className={styles.main}>
+              {children}
+            </main>
           </div>
+        ) : (
           <main id="content" className={styles.main}>
             {children}
           </main>
-        </div>
+        )}
       </div>
     </div>
   );

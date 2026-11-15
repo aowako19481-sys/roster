@@ -17,6 +17,12 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  // Uploads (licence photos, payment proofs, files) are capped at 10 MB in
+  // code; this lets a file of that size reach the code that checks it.
+  experimental: {
+    serverActions: { bodySizeLimit: "11mb" },
+    proxyClientMaxBodySize: "11mb",
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

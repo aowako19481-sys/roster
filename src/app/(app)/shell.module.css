@@ -23,7 +23,8 @@
 .bar {
   display: flex;
   align-items: center;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 12px 18px;
   padding-bottom: 14px;
   border-bottom: 1px solid rgba(18, 19, 22, 0.3);
   animation: rise 560ms var(--ease-out) both;
@@ -40,36 +41,43 @@
   font-weight: 300;
   color: var(--ink-soft);
 }
-.search {
+.pick {
+  min-width: 0;
+}
+.pickSelect {
+  max-width: 250px;
+  height: 38px;
+  padding: 0 34px 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.34);
+  font-size: 13px;
+  color: var(--ink);
+  text-overflow: ellipsis;
+}
+.barEnd {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 8px;
-  width: min(280px, 34vw);
-  height: 38px;
-  padding: 0 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.34);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  color: var(--mute);
+  gap: 18px;
 }
-.search:focus-within {
-  outline: 2px solid var(--ink-strong);
-  outline-offset: 2px;
+.console {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
-.search input {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  border: 0;
-  background: transparent;
-  outline: none;
+.preview {
+  margin-top: -10px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: 1px dashed rgba(18, 19, 22, 0.4);
+  background: rgba(255, 255, 255, 0.3);
   font-size: 14px;
   font-weight: 300;
-  color: var(--ink);
 }
-.search input::placeholder {
-  color: var(--mute);
+.preview strong {
+  font-weight: 500;
 }
 .account {
   display: flex;
@@ -132,42 +140,6 @@
 }
 
 /* Signed in, but not linked to a workspace */
-.empty {
-  max-width: 460px;
-  margin: 12vh auto 0;
-  padding: 34px;
-  border-radius: 28px;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  -webkit-backdrop-filter: blur(28px);
-  backdrop-filter: blur(28px);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.emptyTitle {
-  font-size: 40px;
-  font-weight: 200;
-  line-height: 1.05;
-}
-.emptyText {
-  font-size: 15px;
-  font-weight: 300;
-  line-height: 1.55;
-  color: var(--ink-soft);
-}
-.emptyButton {
-  height: 46px;
-  padding: 0 24px;
-  border-radius: 999px;
-  border: 0;
-  background: var(--ink-strong);
-  color: var(--white);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-}
 
 @media (max-width: 800px) {
   .body {
@@ -185,8 +157,19 @@
   .accountName {
     display: none;
   }
-  .search {
-    width: auto;
-    flex: 1;
+  .console {
+    display: none;
+  }
+  .pickSelect {
+    max-width: 150px;
+  }
+}
+
+@media print {
+  .body {
+    display: block;
+  }
+  .main {
+    gap: 0;
   }
 }

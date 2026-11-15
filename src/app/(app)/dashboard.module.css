@@ -654,9 +654,12 @@
   font-weight: 500;
   cursor: pointer;
 }
-.approve:disabled {
-  cursor: not-allowed;
-  background: rgba(30, 28, 25, 0.62);
+.approve,
+.approve:hover {
+  display: grid;
+  place-items: center;
+  color: var(--white);
+  text-decoration: none;
 }
 .ghost {
   flex: 1;

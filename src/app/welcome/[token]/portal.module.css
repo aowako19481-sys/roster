@@ -1,0 +1,171 @@
+.page {
+  min-height: 100vh;
+  padding: 30px 24px 48px;
+  background:
+    radial-gradient(1000px 700px at 78% 8%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(900px 700px at 0% 100%, rgba(112, 114, 118, 0.42), transparent 70%),
+    linear-gradient(160deg, #c6c7c9, #adaeb1);
+  background-attachment: fixed;
+}
+.bar {
+  max-width: 1040px;
+  margin: 0 auto 36px;
+}
+.mark {
+  font-size: 28px;
+  line-height: 1;
+}
+.main {
+  max-width: 1040px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
+  gap: 48px;
+  align-items: start;
+}
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: rise 700ms var(--ease-out) both;
+}
+.eyebrow {
+  color: var(--mute);
+}
+.title {
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+.lede {
+  max-width: 420px;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.steps {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 340px;
+}
+.stepDone,
+.stepNow,
+.stepTodo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(18, 19, 22, 0.16);
+  font-size: 15px;
+  color: var(--mute);
+}
+.stepNow {
+  color: var(--ink);
+  font-weight: 500;
+}
+.stepDone {
+  color: var(--ink-soft);
+}
+.stepNo {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid rgba(18, 19, 22, 0.4);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+}
+.stepNow .stepNo,
+.stepDone .stepNo {
+  background: var(--ink-strong);
+  border-color: var(--ink-strong);
+  color: var(--white);
+}
+.card {
+  padding: 34px 32px;
+  border-radius: 30px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.32));
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 1px 0 var(--white),
+    0 50px 100px rgba(18, 19, 22, 0.22);
+  -webkit-backdrop-filter: blur(26px);
+  backdrop-filter: blur(26px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: rise 700ms var(--ease-out) 120ms both;
+}
+.h2 {
+  font-size: 28px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+.h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+}
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 0;
+  border-top: 1px solid rgba(18, 19, 22, 0.16);
+}
+.itemHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.docLink {
+  align-self: flex-start;
+  font-size: 14px;
+  font-weight: 500;
+}
+.file {
+  padding: 10px 0;
+  font-size: 14px;
+}
+.split {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 0;
+}
+.splitValue {
+  font-size: 72px;
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+@media (max-width: 860px) {
+  .main {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .card {
+    padding: 26px 22px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro,
+  .card {
+    animation-name: fade;
+  }
+}

@@ -22,3 +22,14 @@ export const sessionCookieOptions = {
   sameSite: "lax" as const,
   path: "/",
 };
+
+/**
+ * The Supabase secret key, if one has been added on the server. It is NEVER
+ * given a NEXT_PUBLIC_ name, so it cannot reach the browser. Only a few
+ * server-only jobs use it (creating a login for an invited person, and the
+ * agent onboarding portal, where the visitor has no login). Returns null when
+ * it has not been set, and those features say so instead of failing.
+ */
+export function supabaseSecretKey(): string | null {
+  return process.env.SUPABASE_SECRET_KEY || null;
+}

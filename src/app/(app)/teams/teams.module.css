@@ -1,0 +1,35 @@
+/* The team structure: a nested list, each level indented under the person above. */
+.tree,
+.tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.tree ul ul {
+  margin-left: 14px;
+  padding-left: 18px;
+  border-left: 1px solid var(--line-strong);
+}
+.node {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 9px 0;
+}
+.teamLink {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.teamLink:hover .teamName {
+  text-decoration: underline;
+}
+.teamName {
+  font-size: 18px;
+  font-weight: 400;
+}
+.current {
+  outline: 2px solid var(--ink-strong);
+  outline-offset: -2px;
+}

@@ -1,0 +1,200 @@
+/* A deposit record: a plain white sheet that prints cleanly on one page. */
+.sheet {
+  max-width: 820px;
+  padding: 44px 48px;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #111214;
+  box-shadow: 0 30px 70px rgba(18, 19, 22, 0.22);
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1.5px solid #111214;
+}
+.brokerage {
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.title {
+  margin-top: 8px;
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.meta {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px 14px;
+  font-size: 12px;
+}
+.meta dt,
+.facts dt {
+  color: #55575c;
+}
+.meta dd,
+.facts dd {
+  margin: 0;
+}
+.note {
+  white-space: pre-line;
+  color: #2c2d30;
+}
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 6px 18px;
+}
+.pair {
+  display: contents;
+}
+.h3 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #55575c;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.table th,
+.table td {
+  padding: 7px 8px 7px 0;
+  border-top: 1px solid #d9dadc;
+  font-weight: 400;
+  vertical-align: top;
+}
+.table thead th {
+  border-top: 0;
+  font-size: 12px;
+  color: #55575c;
+}
+.table tfoot th,
+.table tfoot td {
+  border-top: 1.5px solid #111214;
+  font-weight: 500;
+}
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.none {
+  color: #55575c;
+}
+.signatures {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr;
+  gap: 28px;
+  padding-top: 26px;
+  font-size: 12px;
+  color: #55575c;
+}
+.line {
+  display: block;
+  height: 30px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #111214;
+}
+.receipts {
+  padding-top: 18px;
+  border-top: 1px dashed #8d8e92;
+  break-before: auto;
+}
+.receipt {
+  display: block;
+  max-width: 100%;
+  margin-top: 10px;
+  border: 1px solid #d9dadc;
+}
+@media (max-width: 700px) {
+  .sheet {
+    padding: 26px 20px;
+  }
+  .facts {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .facts dd {
+    margin-bottom: 8px;
+  }
+  .signatures {
+    grid-template-columns: 1fr;
+  }
+}
+@media print {
+  .sheet {
+    max-width: none;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+  }
+}
+
+.line {
+  white-space: pre-wrap;
+}
+.space {
+  height: 10px;
+}
+.rule {
+  width: 100%;
+  margin: 12px 0;
+  border: 0;
+  border-top: 1.5px solid #111214;
+}
+.sheet .title {
+  margin: 0 0 4px;
+}
+.sheet .h3 {
+  margin: 14px 0 4px;
+}
+.filled {
+  padding: 0 2px;
+  border-bottom: 1px solid #111214;
+  font-weight: 500;
+}
+.blank {
+  display: inline-block;
+  min-width: 180px;
+  height: 1.1em;
+  border-bottom: 1px solid #111214;
+  vertical-align: baseline;
+}
+.unknown {
+  background: #f3e3a3;
+  color: #111214;
+}
+.sigLine {
+  display: block;
+  height: 30px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #111214;
+}
+.attached {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed #8d8e92;
+}
+.image {
+  display: block;
+  max-width: 100%;
+  margin-top: 10px;
+  border: 1px solid #d9dadc;
+}
