@@ -61,7 +61,8 @@ export async function requestCode(_prev: RequestState, formData: FormData): Prom
       return {
         status: "error",
         email,
-        message: "Too many attempts. Wait a minute, then try again.",
+        message:
+          "Too many sign-in emails for now. Check your inbox for one we already sent and use its link. Otherwise wait a while (up to an hour) and try again.",
       };
     }
     // An unknown email comes back as a 4xx "not allowed" error. We answer the
