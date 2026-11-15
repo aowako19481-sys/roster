@@ -63,6 +63,12 @@ export function AutofillDocument({
             return <div key={index} className={styles.space} />;
           case "rule":
             return <hr key={index} className={styles.rule} />;
+          case "page_break":
+            return (
+              <div key={index} className={styles.pageBreak}>
+                <span>Next page</span>
+              </div>
+            );
           case "title":
           case "heading":
           case "line": {

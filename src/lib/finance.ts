@@ -229,6 +229,8 @@ export function searchPattern(query: string) {
 
 /** The exact urgent-action email for a deal with documents missing. */
 export function urgentEmail(input: {
+  /** The system the brokerage keeps deal files in, if it named one. */
+  system?: string;
   agentFirstNames: string[];
   address: string;
   missing: string[];
@@ -246,8 +248,8 @@ export function urgentEmail(input: {
     ...input.missing.map((item) => `  - ${item}`),
     "",
     input.payDate && input.deadline
-      ? `To be paid in the ${weekDay(input.payDate)} payroll, please upload these to Dotloop by the end of ${weekDay(input.deadline)}. Anything that arrives later moves to the following payroll.`
-      : "Please upload these to Dotloop as soon as you can so the deal can go into the next payroll.",
+      ? `To be paid in the ${weekDay(input.payDate)} payroll, please ${input.system ? `upload these to ${input.system}` : "send these in"} by the end of ${weekDay(input.deadline)}. Anything that arrives later moves to the following payroll.`
+      : `Please ${input.system ? `upload these to ${input.system}` : "send these in"} as soon as you can so the deal can go into the next payroll.`,
     "",
     "Reply to this email if anything is unclear. Your reply is filed on the deal.",
     "",

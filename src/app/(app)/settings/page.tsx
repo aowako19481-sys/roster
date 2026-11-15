@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ActionForm, Submit } from "@/components/ActionForm";
-import { Badge, Card, Empty, PageHeader, Tabs, ui } from "@/components/ui";
+import { Badge, Card, Empty, PageHeader, Tabs, ui, ButtonLink } from "@/components/ui";
 import { requireWorkspace } from "@/lib/access";
 import { ADDONS, WEEKDAYS, settingsTabs, timeValue, timezoneOptions } from "@/lib/admin-pages";
 import { BRAND } from "@/lib/brand";
@@ -58,6 +58,19 @@ export default async function SettingsPage() {
           Products and add-ons are switched on by {BRAND}, not here. Ask your {BRAND} contact if you want to add or remove one.
         </p>
       </Card>
+
+      {access.workspace.hasFinance && (
+        <Card title="Make it yours">
+          <p className={ui.help}>
+            Set the checklist every new deal starts with, name the system your deal files live in, and lay out your own documents.
+          </p>
+          <div className={ui.inline}>
+            <ButtonLink href="/settings/checklist">Deal checklist</ButtonLink>
+            <ButtonLink href="/templates">Autofill documents</ButtonLink>
+            <ButtonLink href="/packet">Onboarding paperwork</ButtonLink>
+          </div>
+        </Card>
+      )}
 
       {canManage ? (
         <>

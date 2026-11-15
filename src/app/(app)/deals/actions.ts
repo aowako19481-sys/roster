@@ -121,11 +121,15 @@ export async function createDeal(_prev: DealFormState, form: FormData): Promise<
   if (dealError || !deal) return failure(dealError);
   const dealId = (deal as { id: string }).id;
 
+  // Every new deal starts with the brokerage's own checklist. One that has not set its own gets the standard four.
+  const { data: ownItems } = await supabase.from("checklist_items").select("label").eq("workspace_id", ws).eq("active", true).order("position").limit(40);
+  const checklist: string[] = ownItems?.length ? ownItems.map((item) => item.label as string) : [...DEFAULT_CHECKLIST];
+
   // The rider check and the payouts are worked out by the database as these rows are saved.
   const steps = [
     supabase.from("deal_agents").insert(lines.map((line) => ({ ...line, deal_id: dealId, workspace_id: ws }))),
     fees.length ? supabase.from("deal_fees").insert(fees.map((fee) => ({ ...fee, deal_id: dealId, workspace_id: ws }))) : null,
-    supabase.from("deal_checklist").insert(DEFAULT_CHECKLIST.map((label, position) => ({ deal_id: dealId, workspace_id: ws, label, position }))),
+    supabase.from("deal_checklist").insert(checklist.map((label, position) => ({ deal_id: dealId, workspace_id: ws, label, position }))),
   ];
   for (const step of steps) {
     if (!step) continue;

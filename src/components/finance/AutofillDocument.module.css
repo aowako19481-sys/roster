@@ -198,3 +198,31 @@
   margin-top: 10px;
   border: 1px solid #d9dadc;
 }
+
+/* A new page: a marked gap on screen, a real page break on paper. */
+.pageBreak {
+  margin: 34px calc(clamp(22px, 4vw, 54px) * -1);
+  border-top: 2px dashed #b6b7b9;
+  text-align: center;
+}
+.pageBreak span {
+  position: relative;
+  top: -0.8em;
+  background: #fff;
+  padding: 0 12px;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #585a5f;
+}
+@media print {
+  .pageBreak {
+    break-after: page;
+    border: 0;
+    margin: 0;
+    height: 0;
+  }
+  .pageBreak span {
+    display: none;
+  }
+}

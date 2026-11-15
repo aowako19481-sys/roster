@@ -56,6 +56,7 @@ export const PLACEHOLDERS: { group: string; items: { tag: string; means: string 
       { tag: "# Title", means: "A line starting with # is the document's title" },
       { tag: "## Heading", means: "A line starting with ## is a section heading" },
       { tag: "---", means: "A line of three dashes draws a rule" },
+      { tag: "{{page_break}}", means: "Starts a new page: everything after it prints on page 2 (use it again for page 3)" },
     ],
   },
 ];
@@ -141,7 +142,7 @@ export function sampleDocData(brokerage: string): DealDocData {
 type Inline = { kind: "text"; text: string } | { kind: "fill"; label: string } | { kind: "unknown"; text: string };
 export type Block =
   | { kind: "title" | "heading" | "line"; parts: Inline[] }
-  | { kind: "rule" | "space" }
+  | { kind: "rule" | "space" | "page_break" }
   | { kind: "payments_table" | "agents_table" | "payouts_table" | "referral_lines" | "signature_lines" | "proof_of_payment" | "bank_receipt" };
 
 const SECTIONS = ["payments_table", "agents_table", "payouts_table", "referral_lines", "signature_lines", "proof_of_payment", "bank_receipt"] as const;
@@ -248,7 +249,7 @@ export function unknownTags(body: string): string[] {
     const name = (match[1] ?? "").trim();
     const lower = name.toLowerCase();
     if (lower.startsWith("fill:")) continue;
-    if ((SECTIONS as readonly string[]).includes(lower)) continue;
+    if ((SECTIONS as readonly string[]).includes(lower) || lower === "page_break" || lower === "new_page") continue;
     if (valueOf(lower, sampleDocData("x")) === null) unknown.add(`{{${name}}}`);
   }
   return [...unknown];
@@ -280,6 +281,7 @@ export function buildBlocks(body: string, data: DealDocData): Block[] {
     const bare = line.trim();
     if (bare === "") { blocks.push({ kind: "space" }); continue; }
     if (/^-{3,}$/.test(bare)) { blocks.push({ kind: "rule" }); continue; }
+    if (/^\{\{\s*(page_break|new_page|page 2)\s*\}\}$/i.test(bare)) { blocks.push({ kind: "page_break" }); continue; }
     const section = bare.match(/^\{\{\s*([a-z_]+)\s*\}\}$/i)?.[1]?.toLowerCase();
     if (section && (SECTIONS as readonly string[]).includes(section)) { blocks.push({ kind: section as (typeof SECTIONS)[number] }); continue; }
     if (bare.startsWith("## ")) blocks.push({ kind: "heading", parts: inline(bare.slice(3), data) });

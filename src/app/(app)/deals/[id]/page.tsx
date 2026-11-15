@@ -66,7 +66,7 @@ export default async function DealSheetPage({ params, searchParams }: Props) {
     supabase.from("deal_fees").select("id, kind, payee, amount").eq("deal_id", id).eq("workspace_id", ws).order("kind"),
     supabase.from("deal_checklist").select("id, label, done, done_at, position").eq("deal_id", id).eq("workspace_id", ws).order("position"),
     supabase.from("payment_allocations").select("payment_id, amount").eq("deal_id", id).eq("workspace_id", ws),
-    supabase.from("workspaces").select("payroll_weekdays").eq("id", ws).maybeSingle(),
+    supabase.from("workspaces").select("payroll_weekdays, deal_system").eq("id", ws).maybeSingle(),
   ]);
   const lines = (linesRes.data ?? []) as Line[];
   const fees = (feesRes.data ?? []) as Fee[];
@@ -111,6 +111,7 @@ export default async function DealSheetPage({ params, searchParams }: Props) {
   const missing = items.filter((item) => !item.done);
   const failing = lines.filter((line) => failsCheck(line.check_status));
 
+  const system = ((settingsRes.data as { deal_system?: string } | null)?.deal_system ?? "").trim();
   const target = targetPayroll((settingsRes.data as { payroll_weekdays: number[] } | null)?.payroll_weekdays, todayIso(access.workspace.timezone));
   const email = urgentEmail({
     agentFirstNames: lines.map((line) => agentById.get(line.agent_id)?.full_name.split(" ")[0]).filter((n): n is string => Boolean(n)),
@@ -119,6 +120,7 @@ export default async function DealSheetPage({ params, searchParams }: Props) {
     payDate: target?.payDate ?? null,
     deadline: target?.deadline ?? null,
     brokerage: access.workspace.name,
+    system,
   });
   const recipients = lines.map((line) => agentById.get(line.agent_id)).filter((a): a is NonNullable<typeof a> => Boolean(a));
   const here = `/deals/${deal.id}`;
@@ -396,10 +398,13 @@ export default async function DealSheetPage({ params, searchParams }: Props) {
       </div>
 
       <Card
-        title="Dotloop checklist"
+        title={system ? `${system} checklist` : "Deal checklist"}
         aside={items.length ? <Badge tone={missing.length ? "warn" : "ok"}>{missing.length ? `${missing.length} missing` : "All in"}</Badge> : undefined}
       >
-        <p className={ui.help} style={{ marginBottom: 8 }}>Tick each item after checking it in Dotloop.</p>
+        <p className={ui.help} style={{ marginBottom: 8 }}>
+          Tick each item after checking it{system ? ` in ${system}` : ""}.{" "}
+          {access.caps.has("payroll.manage") && <Link href="/settings/checklist" className={ui.linkBtn}>Change what is on this list</Link>}
+        </p>
         {items.length ? (
           <ul className={ui.list}>
             {items.map((item) => (
