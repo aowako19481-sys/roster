@@ -157,7 +157,7 @@ export async function inviteMember(_prev: Result, form: FormData): Promise<Resul
   }
 
   revalidatePath(PAGE);
-  if (joined) return done("Added. They can sign in with that email now.");
+  if (joined) return done("Added. Ask them to open kinu.pro/sign-in and choose “First time here”. They get a code by email, then create their own password.");
   if (loginProblem) return done("Invitation recorded, but their login could not be created just now. Invite them again in a moment.");
   return done("Invitation recorded. They will be able to sign in once the server key is added.");
 }

@@ -383,3 +383,6 @@
     animation-name: fade;
   }
 }
+
+.remember { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; cursor: pointer; }
+.remember input { width: 18px; height: 18px; accent-color: #17181a; }

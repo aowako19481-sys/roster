@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SessionGuard } from "@/components/SessionGuard";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { FounderBackdrop } from "@/components/FounderBackdrop";
@@ -140,6 +141,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </main>
         )}
       </div>
+      <SessionGuard />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { BRAND } from "@/lib/brand";
 import { useActionState, useEffect, useRef, useState } from "react";
-import { requestCode, verifyCode, verifyPassword, type RequestState, type VerifyState } from "./actions";
+import { forgetDevice, requestCode, verifyCode, type RequestState, type VerifyState } from "./actions";
 import defaultStyles from "./sign-in.module.css";
 
 type Styles = Record<string, string>;
@@ -10,136 +10,116 @@ type Styles = Record<string, string>;
 const CODE_LENGTH = 6;
 const EMPTY_CODE = Array.from({ length: CODE_LENGTH }, () => "");
 
-export function SignInForm({ styles = defaultStyles, notice }: { styles?: Styles; notice?: string }) {
+export function SignInForm({ styles = defaultStyles, notice, remembered }: { styles?: Styles; notice?: string; remembered?: string | null }) {
   const [request, requestAction, requestPending] = useActionState<RequestState, FormData>(
     requestCode,
     { status: "idle", email: "" },
   );
   // The send the person chose to leave by pressing "Use a different email".
   const [dismissedSend, setDismissedSend] = useState<number | undefined>(undefined);
-  const onCodeStep = request.status === "sent" && request.sentAt !== dismissedSend;
+  // "Use a different account" on a remembered device shows the plain form.
+  const [other, setOther] = useState(false);
+  // First time here, or forgot the password: a code by email, then create a password.
+  const [firstTime, setFirstTime] = useState(false);
 
-  if (request.status === "password" && request.sentAt !== dismissedSend) {
-    return (
-      <PasswordStep
-        key={request.sentAt}
-        email={request.email}
-        styles={styles}
-        requestAction={requestAction}
-        onBack={() => setDismissedSend(request.sentAt)}
-      />
-    );
-  }
-
-  if (onCodeStep) {
-    return (
-      <CodeStep
-        key={request.sentAt}
-        email={request.email}
-        styles={styles}
-        onBack={() => setDismissedSend(request.sentAt)}
-      />
-    );
+  if (request.status === "sent" && request.sentAt !== dismissedSend) {
+    return <CodeStep key={request.sentAt} email={request.email} styles={styles} onBack={() => setDismissedSend(request.sentAt)} />;
   }
 
   const error = request.status === "error" ? request.message : request.status === "idle" ? notice : undefined;
-
-  return (
-    <form action={requestAction} className={styles.step} noValidate>
-      <h2 className={styles.title}>Sign in</h2>
-
-      <label className={styles.field}>
-        Work email
-        <input
-          className={styles.input}
-          type="email"
-          name="email"
-          autoComplete="email"
-          inputMode="email"
-          autoCapitalize="none"
-          spellCheck={false}
-          placeholder="you@brokerage.com"
-          defaultValue={request.email}
-          required
-          maxLength={254}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? "email-error" : undefined}
-        />
-      </label>
-
-      <p id="email-error" role="alert" className={styles.error}>
-        {error}
-      </p>
-
-      <button type="submit" className={`${styles.primary} press`} disabled={requestPending}>
-        {requestPending ? "Sending code…" : "Continue"}
-      </button>
-    </form>
-  );
-}
-
-function PasswordStep({
-  email,
-  styles,
-  requestAction,
-  onBack,
-}: {
-  email: string;
-  styles: Styles;
-  requestAction: (formData: FormData) => void;
-  onBack: () => void;
-}) {
-  const [state, action, pending] = useActionState<VerifyState, FormData>(verifyPassword, { status: "idle" });
-  const error = state.status === "error" ? state.message : undefined;
+  const known = remembered && !other ? remembered : null;
 
   return (
     <div className={styles.step}>
-      <form action={action} className={styles.step} noValidate>
+      <form action={requestAction} className={styles.step} noValidate>
         <div>
-          <h2 className={styles.title}>Welcome back</h2>
-          <p className={styles.sub}>
-            <strong className={styles.email}>{email}</strong>
-          </p>
+          <h2 className={styles.title}>{firstTime ? "Create or reset your password" : known ? "Welcome back" : "Sign in"}</h2>
+          {known ? (
+            <p className={styles.sub}>
+              Sign in as <strong className={styles.email}>{known}</strong>
+            </p>
+          ) : null}
+          {firstTime ? <p className={styles.sub}>We will email you a 6-digit code. After you enter it, you choose your own password.</p> : null}
         </div>
 
-        <input type="hidden" name="email" value={email} />
-        {/* Lets password managers match the account. */}
-        <input type="text" name="username" autoComplete="username" value={email} readOnly hidden />
+        {known ? (
+          <>
+            <input type="hidden" name="email" value={known} />
+            {/* Lets password managers match the account. */}
+            <input type="text" name="username" autoComplete="username" value={known} readOnly hidden />
+            <input type="hidden" name="remember" value="on" />
+          </>
+        ) : (
+          <label className={styles.field}>
+            Work email
+            <input
+              className={styles.input}
+              type="email"
+              name="email"
+              autoComplete="username"
+              inputMode="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              placeholder="you@brokerage.com"
+              defaultValue={request.email}
+              required
+              maxLength={254}
+              aria-invalid={request.status === "error" ? true : undefined}
+              aria-describedby={error ? "email-error" : undefined}
+            />
+          </label>
+        )}
 
-        <label className={styles.field}>
-          Password
-          <input
-            className={styles.input}
-            type="password"
-            name="password"
-            autoComplete="current-password"
-            autoFocus
-            required
-            maxLength={200}
-            aria-invalid={error ? true : undefined}
-            aria-describedby={error ? "password-error" : undefined}
-          />
-        </label>
+        {firstTime ? (
+          <input type="hidden" name="mode" value="code" />
+        ) : (
+          <label className={styles.field}>
+            Password
+            <input
+              className={styles.input}
+              type="password"
+              name="password"
+              autoComplete="current-password"
+              required
+              maxLength={200}
+              aria-invalid={request.status === "error" ? true : undefined}
+              aria-describedby={error ? "email-error" : undefined}
+            />
+          </label>
+        )}
 
-        <p id="password-error" role="alert" className={styles.error}>
+        {known ? null : (
+          <label className={styles.remember}>
+            <input type="checkbox" name="remember" defaultChecked={Boolean(remembered)} />
+            <span>Remember me on this device</span>
+          </label>
+        )}
+
+        <p id="email-error" role="alert" className={styles.error}>
           {error}
         </p>
 
-        <button type="submit" className={`${styles.primary} press`} disabled={pending}>
-          {pending ? "Signing in…" : "Sign in"}
+        <button type="submit" className={`${styles.primary} press`} disabled={requestPending}>
+          {requestPending ? "One moment…" : firstTime ? "Email me a code" : "Continue"}
         </button>
+        {firstTime ? null : <p className={styles.sub}>Next, we email you a 6-digit code to confirm it is you.</p>}
       </form>
 
-      <form action={requestAction}>
-        <input type="hidden" name="email" value={email} />
-        <input type="hidden" name="mode" value="link" />
-        <button type="submit" className={styles.linkButton}>
-          Email me a link instead
-        </button>
-      </form>
-      <button type="button" className={styles.linkButton} onClick={onBack}>
-        Use a different email
+      <button type="button" className={styles.linkButton} onClick={() => setFirstTime(!firstTime)}>
+        {firstTime ? "Back to sign in" : "First time here, or forgot your password?"}
       </button>
+      {known ? (
+        <>
+          <button type="button" className={styles.linkButton} onClick={() => setOther(true)}>
+            Use a different account
+          </button>
+          <form action={forgetDevice}>
+            <button type="submit" className={styles.linkButton}>
+              Forget this account on this device
+            </button>
+          </form>
+        </>
+      ) : null}
     </div>
   );
 }
@@ -203,8 +183,8 @@ function CodeStep({ email, styles, onBack }: { email: string; styles: Styles; on
       <div>
         <h2 className={styles.title}>Check your email</h2>
         <p className={styles.sub}>
-          If <strong className={styles.email}>{email}</strong> is set up for {BRAND}, a sign-in email is on
-          its way. Open the link in it using this browser, or type the 6-digit code if it shows one.
+          If <strong className={styles.email}>{email}</strong> is set up for {BRAND}, we have emailed you a
+          6-digit code. Type it below. It works once and expires after a short while.
         </p>
       </div>
 

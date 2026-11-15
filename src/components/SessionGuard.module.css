@@ -1,0 +1,12 @@
+.veil { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 16px; background: rgba(11, 12, 14, 0.72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.box { width: min(440px, 100%); padding: 28px; border-radius: 24px; background: linear-gradient(160deg, #ececee, #c9cacc); color: #17181a; border: 1px solid #fff; box-shadow: 0 50px 110px rgba(0, 0, 0, 0.5); display: grid; gap: 14px; }
+.title { margin: 0; font-size: 1.7rem; font-weight: 300; letter-spacing: -0.02em; }
+.text { margin: 0; color: #36373a; line-height: 1.5; }
+.track { height: 6px; border-radius: 6px; background: rgba(18, 19, 22, 0.16); overflow: hidden; }
+.bar { display: block; height: 100%; background: #17181a; transform-origin: left; transition: transform 1s linear; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.primary, .quiet { font: inherit; min-height: 44px; padding: 0 20px; border-radius: 999px; cursor: pointer; }
+.primary { background: #101113; color: #fff; border: 1px solid #101113; }
+.quiet { background: transparent; color: #17181a; border: 1px solid rgba(18, 19, 22, 0.3); }
+.primary:focus-visible, .quiet:focus-visible { outline: 2px solid #17181a; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .bar { transition: none; } }

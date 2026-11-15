@@ -71,6 +71,8 @@ export function initialsOf(name: string) {
 export const getAccess = cache(async (): Promise<Access | null> => {
   const user = await getUser();
   if (!user) return null;
+  // Everyone has their own password: nothing opens until one has been created.
+  if (user.user_metadata?.has_password !== true) redirect("/set-password");
 
   const jar = await cookies();
   const wanted = jar.get(WORKSPACE_COOKIE)?.value;

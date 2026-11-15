@@ -2,7 +2,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { cache } from "react";
-import { sessionCookieOptions, supabaseEnv } from "./env";
+import { sessionCookieOptions, supabaseEnv, untilBrowserCloses } from "./env";
 
 /**
  * Supabase client for server components, server actions and route handlers.
@@ -22,7 +22,7 @@ export async function createClient() {
       setAll(cookiesToSet) {
         try {
           for (const { name, value, options } of cookiesToSet) {
-            cookieStore.set(name, value, { ...options, ...sessionCookieOptions });
+            cookieStore.set(name, value, { ...untilBrowserCloses(value, options), ...sessionCookieOptions });
           }
         } catch {
           // Server components cannot write cookies. The proxy refreshes the

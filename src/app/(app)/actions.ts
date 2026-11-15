@@ -17,6 +17,15 @@ export async function signOut() {
   redirect("/sign-in");
 }
 
+/** The "Still there?" countdown ran out. Same as signing out, with a note on the sign-in page saying why. */
+export async function signOutIdle() {
+  const supabase = await createClient();
+  await supabase.auth.signOut({ scope: "local" });
+  const jar = await cookies();
+  for (const name of [WORKSPACE_COOKIE, VIEW_AS_COOKIE, "kinu_seen", "kinu_alive"]) jar.delete(name);
+  redirect("/sign-in?ended=idle");
+}
+
 /**
  * Records that the signed-in person has seen the first-run tour. The database
  * function stamps only the caller's own row, with the server's time.

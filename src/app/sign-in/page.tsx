@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BRAND, TAGLINE } from "@/lib/brand";
+import { rememberedEmail } from "@/lib/session-start";
 import { SignInForm } from "./SignInForm";
 import styles from "./sign-in.module.css";
 
@@ -13,10 +14,17 @@ const THREADS = Array.from({ length: 22 }, (_, i) => {
   return `M -80 ${y + 150} C 320 ${y - lift}, 760 ${y + dip}, 1520 ${y - 170 + i * 5}`;
 });
 
-export default async function SignInPage({ searchParams }: { searchParams: Promise<{ link?: string }> }) {
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ link?: string; ended?: string }> }) {
   // A fixed message when an emailed link did not work. The text never comes from the address bar.
-  const { link } = await searchParams;
-  const notice = link ? "That sign-in link has expired or was opened in a different browser. Enter your email to get a new one." : undefined;
+  const { link, ended } = await searchParams;
+  const remembered = await rememberedEmail();
+  const notice = link
+    ? "That sign-in link has expired or was opened in a different browser. Enter your email to get a new code."
+    : ended === "idle"
+      ? "You were signed out after 30 minutes without activity. Sign in to carry on."
+      : ended === "closed"
+        ? "Kinu signs you out when you close it, to keep your records safe. Sign in to carry on."
+        : undefined;
 
   return (
     <div className={styles.page}>
@@ -56,7 +64,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
           <span className={styles.monogram} aria-hidden="true">
             {BRAND.charAt(0)}
           </span>
-          <SignInForm styles={styles} notice={notice} />
+          <SignInForm styles={styles} notice={notice} remembered={remembered} />
         </main>
       </div>
     </div>

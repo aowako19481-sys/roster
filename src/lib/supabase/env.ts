@@ -33,3 +33,16 @@ export const sessionCookieOptions = {
 export function supabaseSecretKey(): string | null {
   return process.env.SUPABASE_SECRET_KEY || null;
 }
+
+/**
+ * Sign-in cookies last only as long as the browser stays open: the expiry
+ * Supabase would give them is removed. A deletion (empty value) keeps its
+ * expiry so the browser really drops the cookie.
+ */
+export function untilBrowserCloses<T extends object>(value: string, options: T): T {
+  if (!value) return options;
+  const copy = { ...options } as T & { maxAge?: number; expires?: Date };
+  delete copy.maxAge;
+  delete copy.expires;
+  return copy;
+}

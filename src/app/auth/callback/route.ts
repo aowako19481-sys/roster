@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { startSession } from "@/lib/session-start";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -17,8 +18,9 @@ export async function GET(request: NextRequest) {
 
   if (code && code.length <= 512) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      await startSession(data.user?.email);
       target.pathname = "/";
       return NextResponse.redirect(target);
     }

@@ -1,11 +1,15 @@
 "use server";
 
-import { headers } from "next/headers";
+import { createClient as createPlainClient } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { REMEMBER_COOKIE, WHO_COOKIE } from "@/lib/session-clock";
+import { startSession } from "@/lib/session-start";
+import { sessionCookieOptions, supabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 export type RequestState = {
-  status: "idle" | "sent" | "password" | "error";
+  status: "idle" | "sent" | "error";
   email: string;
   message?: string;
   /** Changes on every successful send so the form can react to a re-send. */
@@ -19,7 +23,7 @@ export type VerifyState = {
 
 /**
  * TEMPORARY, for the builder only: emails allowed to sign in with a password
- * instead of an emailed link. Read from a server-side setting, so the list is
+ * alone, without the emailed code. Read from a server-side setting, so the list is
  * never in the code or the browser. Remove the setting to switch this off.
  */
 function passwordEmails(): Set<string> {
@@ -46,81 +50,69 @@ function isRateLimit(error: { status?: number; code?: string }) {
   return error.status === 429 || (error.code ?? "").includes("rate_limit");
 }
 
-/** Step 1: email a sign-in link (and code) to an existing user. Never creates accounts. */
+/**
+ * Step 1. Two ways in:
+ *   - email and password: the password is checked first, then a 6-digit code
+ *     is emailed, so a stolen password alone is not enough;
+ *   - "first time here, or forgot your password": a code is emailed, and after
+ *     it is entered the person must create a password before anything else.
+ * Never creates accounts.
+ */
 export async function requestCode(_prev: RequestState, formData: FormData): Promise<RequestState> {
   const email = readEmail(formData);
-  if (!email) {
-    const typed = formData.get("email");
-    return {
-      status: "error",
-      email: typeof typed === "string" ? typed.slice(0, 254) : "",
-      message: "Enter a valid work email, like you@brokerage.com.",
-    };
-  }
+  const typed = formData.get("email");
+  const back = typeof typed === "string" ? typed.slice(0, 254) : "";
+  if (!email) return { status: "error", email: back, message: "Enter a valid work email, like you@brokerage.com." };
+  const codeOnly = formData.get("mode") === "code";
 
-  // The builder's own account can use a password. No email is sent for it,
-  // unless they ask for a link instead.
-  if (passwordEmails().has(email) && formData.get("mode") !== "link") {
-    return { status: "password", email, sentAt: Date.now() };
-  }
+  // "Remember me on this device" is carried to the moment the sign-in succeeds.
+  const jar = await cookies();
+  if (formData.get("remember") === "on") jar.set(REMEMBER_COOKIE, "1", { ...sessionCookieOptions, maxAge: 15 * 60 });
+  else jar.delete(REMEMBER_COOKIE);
 
-  // Where the link in the email should land. Next.js has already checked that
-  // this request came from our own site, and Supabase only honours addresses
-  // on its allow-list, so a forged value cannot send anyone elsewhere.
-  const origin = (await headers()).get("origin");
-  const emailRedirectTo = origin && /^https?:\/\/[^/]+$/.test(origin) ? `${origin}/auth/callback` : undefined;
+  if (!codeOnly) {
+    const password = formData.get("password");
+    const wrong: RequestState = { status: "error", email, message: "That email and password do not match. First time here? Use the link below to create your password." };
+    if (typeof password !== "string" || password.length === 0 || password.length > 200) return wrong;
+    // Checked with a throwaway connection that keeps nothing: passing this
+    // step does not sign anyone in.
+    const { url, key } = supabaseEnv();
+    const check = createPlainClient(url, key, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+    const tried = await check.auth.signInWithPassword({ email, password });
+    if (tried.error) {
+      if (isRateLimit(tried.error)) return { status: "error", email, message: "Too many attempts. Wait a few minutes, then try again." };
+      return wrong;
+    }
+    if (tried.data.user?.user_metadata?.has_password !== true) await check.auth.updateUser({ data: { has_password: true } });
+    await check.auth.signOut({ scope: "local" });
+
+    // TEMPORARY, for the builder only (see passwordEmails): no emailed code.
+    if (passwordEmails().has(email)) {
+      const direct = await createClient();
+      const { error } = await direct.auth.signInWithPassword({ email, password });
+      if (error) return wrong;
+      await startSession(email);
+      redirect("/");
+    }
+  }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: false, emailRedirectTo },
-  });
+  const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
 
   if (error) {
     if (isRateLimit(error)) {
-      return {
-        status: "error",
-        email,
-        message:
-          "Too many sign-in emails for now. Check your inbox for one we already sent and use its link. Otherwise wait a while (up to an hour) and try again.",
-      };
+      return { status: "error", email, message: "Too many sign-in emails for now. Check your inbox for a code we already sent. Otherwise wait a while (up to an hour) and try again." };
     }
     // An unknown email comes back as a 4xx "not allowed" error. We answer the
     // same way as for a known email, so nobody can test which emails exist.
     const isServerProblem = !error.status || error.status >= 500;
     if (isServerProblem) {
       console.error("sign-in: could not send code", error.status, error.code);
-      return {
-        status: "error",
-        email,
-        message: "We could not send a code just now. Please try again in a moment.",
-      };
+      return { status: "error", email, message: "We could not send a code just now. Please try again in a moment." };
     }
   }
 
   return { status: "sent", email, sentAt: Date.now() };
-}
-
-/** Password sign-in, only for emails on the server-side allow-list. */
-export async function verifyPassword(_prev: VerifyState, formData: FormData): Promise<VerifyState> {
-  const email = readEmail(formData);
-  const password = formData.get("password");
-  const wrong = { status: "error" as const, message: "That email and password do not match." };
-
-  if (!email || typeof password !== "string" || password.length === 0 || password.length > 200) return wrong;
-  // Checked again here: the browser cannot unlock the password route for other accounts.
-  if (!passwordEmails().has(email)) return wrong;
-
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    if (isRateLimit(error)) {
-      return { status: "error", message: "Too many attempts. Wait a few minutes, then try again." };
-    }
-    return wrong;
-  }
-
-  redirect("/");
 }
 
 /** Step 2: check the code. On success the session cookie is set and we go home. */
@@ -137,7 +129,7 @@ export async function verifyCode(_prev: VerifyState, formData: FormData): Promis
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+  const { data, error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
 
   if (error) {
     if (isRateLimit(error)) {
@@ -149,6 +141,52 @@ export async function verifyCode(_prev: VerifyState, formData: FormData): Promis
     };
   }
 
-  // Fixed destination: never redirect to an address taken from the request.
+  await startSession(email);
+  // Fixed destinations: never redirect to an address taken from the request.
+  redirect(data.user?.user_metadata?.has_password === true ? "/" : "/set-password");
+}
+
+/** "Forget this account": removes the remembered email from this device. Nothing else changes. */
+export async function forgetDevice() {
+  const jar = await cookies();
+  jar.delete(WHO_COOKIE);
+  jar.delete(REMEMBER_COOKIE);
+  redirect("/sign-in");
+}
+
+export type PasswordState = { status: "idle" | "error"; message?: string };
+
+/**
+ * Create or replace your own password. Only for the person who is signed in
+ * (they have just proved they own the email with a code).
+ */
+export async function setPassword(_prev: PasswordState, formData: FormData): Promise<PasswordState> {
+  const password = formData.get("password");
+  const again = formData.get("again");
+  if (typeof password !== "string" || typeof again !== "string") return { status: "error", message: "Enter a password." };
+  if (password.length < 10) return { status: "error", message: "Use at least 10 characters. A few words together works well." };
+  if (password.length > 200) return { status: "error", message: "That password is too long." };
+  if (new Set(password).size < 5) return { status: "error", message: "That password is too easy to guess. Mix more characters." };
+  if (password !== again) return { status: "error", message: "The two passwords do not match." };
+
+  const supabase = await createClient();
+  const { data: who } = await supabase.auth.getUser();
+  if (!who.user) redirect("/sign-in");
+  const name = (who.user.email ?? "").split("@")[0]?.toLowerCase() ?? "";
+  if (name.length >= 4 && password.toLowerCase().includes(name)) return { status: "error", message: "Do not use your email name in your password." };
+  const { error } = await supabase.auth.updateUser({ password, data: { has_password: true } });
+  if (error) {
+    if (error.code === "same_password") return { status: "error", message: "That is your current password. Choose a new one." };
+    if (error.code === "weak_password") return { status: "error", message: "That password is too easy to guess. Try a longer one." };
+    console.error("set-password: failed", error.status, error.code);
+    return { status: "error", message: "We could not save your password just now. Please try again." };
+  }
   redirect("/");
+}
+
+/** Leave the create-password page without finishing. */
+export async function leave() {
+  const supabase = await createClient();
+  await supabase.auth.signOut({ scope: "local" });
+  redirect("/sign-in");
 }

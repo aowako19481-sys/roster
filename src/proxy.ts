@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { sessionCookieOptions, supabaseEnv } from "@/lib/supabase/env";
+import { ALIVE_COOKIE, CLOSED_MS, IDLE_MS, SEEN_COOKIE } from "@/lib/session-clock";
+import { sessionCookieOptions, supabaseEnv, untilBrowserCloses } from "@/lib/supabase/env";
 
 const PUBLIC_PATHS = new Set(["/sign-in"]);
 // Reachable while signed out, and left alone when signed in.
@@ -54,7 +55,7 @@ export async function proxy(request: NextRequest) {
         requestHeaders.set("cookie", request.cookies.toString());
         response = NextResponse.next({ request: { headers: requestHeaders } });
         for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, { ...options, ...sessionCookieOptions });
+          response.cookies.set(name, value, { ...untilBrowserCloses(value, options), ...sessionCookieOptions });
         }
       },
     },
@@ -105,10 +106,40 @@ export async function proxy(request: NextRequest) {
     return site;
   }
 
+  // Sensitive records: a session ends after 30 minutes without activity, and
+  // when Kinu has been closed (opening a page with no Kinu page open just before).
+  if (user && !isOpen && !isPublic) {
+    const now = Date.now();
+    const seen = Number(request.cookies.get(SEEN_COOKIE)?.value);
+    const alive = Number(request.cookies.get(ALIVE_COOKIE)?.value);
+    const openingPage = request.method === "GET" && request.headers.get("sec-fetch-dest") === "document";
+    const idle = !Number.isFinite(seen) || now - seen > IDLE_MS;
+    const closed = openingPage && (!Number.isFinite(alive) || now - alive > CLOSED_MS);
+    if (idle || closed) {
+      await supabase.auth.signOut({ scope: "local" });
+      const target = request.nextUrl.clone();
+      target.pathname = "/sign-in";
+      target.search = "";
+      target.searchParams.set("ended", idle ? "idle" : "closed");
+      const ended = NextResponse.redirect(target);
+      for (const cookie of response.cookies.getAll()) ended.cookies.set(cookie);
+      for (const name of [SEEN_COOKIE, ALIVE_COOKIE, "kinu_ws", "kinu_as"]) ended.cookies.delete(name);
+      ended.headers.set("Content-Security-Policy", csp);
+      ended.headers.set("Cache-Control", "private, no-store");
+      return ended;
+    }
+    response.cookies.set(SEEN_COOKIE, String(now), sessionCookieOptions);
+  }
+
   let redirectTo: string | null = null;
   if (!isOpen) {
     if (!user && !isPublic) redirectTo = "/sign-in";
     if (user && isPublic) redirectTo = "/";
+    // Everyone has their own password. Someone who came in by emailed code
+    // alone (first time, or after forgetting it) creates one before anything else.
+    const needsPassword = Boolean(user) && user?.user_metadata?.has_password !== true;
+    if (needsPassword && pathname !== "/set-password") redirectTo = "/set-password";
+    if (user && !needsPassword && pathname === "/set-password") redirectTo = "/";
   }
 
   if (redirectTo) {
