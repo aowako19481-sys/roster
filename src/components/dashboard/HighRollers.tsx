@@ -8,13 +8,13 @@ import styles from "@/app/(app)/dashboard.module.css";
 // Where each of the five visible cards sits: centre, then left and right.
 const SLOTS: Record<number, { transform: string; opacity: number; z: number }> = {
   0: { transform: "translateX(-50%) translateY(-16px) translateZ(70px)", opacity: 1, z: 5 },
-  1: { transform: "translateX(calc(-50% - 215px)) rotateY(22deg) translateZ(-10px) scale(0.9)", opacity: 1, z: 4 },
-  2: { transform: "translateX(calc(-50% + 215px)) rotateY(-22deg) translateZ(-10px) scale(0.9)", opacity: 1, z: 4 },
-  3: { transform: "translateX(calc(-50% - 392px)) rotateY(32deg) translateZ(-90px) scale(0.8)", opacity: 0.92, z: 3 },
-  4: { transform: "translateX(calc(-50% + 392px)) rotateY(-32deg) translateZ(-90px) scale(0.8)", opacity: 0.92, z: 3 },
+  1: { transform: "translateX(calc(-50% - 186px)) rotateY(22deg) translateZ(-10px) scale(0.9)", opacity: 1, z: 4 },
+  2: { transform: "translateX(calc(-50% + 186px)) rotateY(-22deg) translateZ(-10px) scale(0.9)", opacity: 1, z: 4 },
+  3: { transform: "translateX(calc(-50% - 338px)) rotateY(32deg) translateZ(-90px) scale(0.8)", opacity: 0.92, z: 3 },
+  4: { transform: "translateX(calc(-50% + 338px)) rotateY(-32deg) translateZ(-90px) scale(0.8)", opacity: 0.92, z: 3 },
 };
-const OFF_LEFT = { transform: "translateX(calc(-50% - 560px)) rotateY(40deg) translateZ(-160px) scale(0.7)", opacity: 0, z: 1 };
-const OFF_RIGHT = { transform: "translateX(calc(-50% + 560px)) rotateY(-40deg) translateZ(-160px) scale(0.7)", opacity: 0, z: 1 };
+const OFF_LEFT = { transform: "translateX(calc(-50% - 490px)) rotateY(40deg) translateZ(-160px) scale(0.7)", opacity: 0, z: 1 };
+const OFF_RIGHT = { transform: "translateX(calc(-50% + 490px)) rotateY(-40deg) translateZ(-160px) scale(0.7)", opacity: 0, z: 1 };
 const PEARLS = [styles.pearl0, styles.pearl1, styles.pearl2];
 
 export function HighRollers({ rollers }: { rollers: Roller[] }) {
@@ -25,7 +25,7 @@ export function HighRollers({ rollers }: { rollers: Roller[] }) {
   const range = atTop ? `top ${Math.min(5, rollers.length)}` : `#${offset + 1}–#${offset + 5}`;
 
   return (
-    <section aria-labelledby="rollers-title" className={styles.rollers}>
+    <section aria-labelledby="rollers-title" className={`${styles.card} ${styles.rollers}`}>
       <div className={styles.rollersHead}>
         <h2 id="rollers-title" className={styles.h2}>
           High rollers{" "}
@@ -90,7 +90,7 @@ export function HighRollers({ rollers }: { rollers: Roller[] }) {
                 <Link href="/agents" className={`${styles.hr} ${PEARLS[index % 3]}`} tabIndex={visible ? 0 : -1}>
                   <span className={styles.sheen} aria-hidden="true" />
                   <span className={styles.hrTop}>
-                    <span className={styles.hrRank}>
+                    <span className={`display ${styles.hrRank}`}>
                       <span className="sr-only">Rank </span>
                       <span aria-hidden="true">#</span>
                       {agent.rank}

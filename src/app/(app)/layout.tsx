@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Sidebar } from "@/components/Sidebar";
+import { Dock } from "@/components/Dock";
+import { BRAND } from "@/lib/brand";
 import { getUser } from "@/lib/supabase/server";
 import { getMembership } from "@/lib/workspace";
 import { signOut } from "./actions";
@@ -17,8 +19,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     return (
       <div className={styles.page}>
         <main id="content" className={styles.empty}>
-          <span className={styles.wordmark}>ROSTER</span>
-          <h1 className={styles.emptyTitle}>No brokerage yet</h1>
+          <span className={`display ${styles.wordmark}`}>{BRAND}</span>
+          <h1 className={`display ${styles.emptyTitle}`}>No brokerage yet</h1>
           <p className={styles.emptyText}>
             You are signed in, but your account is not linked to a brokerage workspace. Ask your
             brokerage admin to add you, then sign in again.
@@ -35,19 +37,42 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className={styles.page}>
-      <div className={styles.frame}>
-        <div className={styles.side}>
-          <Sidebar
-            displayName={membership.displayName}
-            initials={membership.initials}
-            waitingApprovals={membership.waitingApprovals}
-            signOut={signOut}
-          />
-        </div>
+      <div className={styles.wrap}>
+        <header className={styles.bar}>
+          <Link href="/" className={`display ${styles.wordmark}`}>
+            {BRAND}
+          </Link>
+          <span className={styles.workspace}>{membership.workspaceName}</span>
+
+          <form action="/agents" method="get" role="search" className={styles.search}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" />
+            </svg>
+            <label htmlFor="app-search" className="sr-only">
+              Search agents, licence numbers and teams
+            </label>
+            <input id="app-search" type="search" name="q" placeholder="Agent, licence #, team" maxLength={80} autoComplete="off" />
+          </form>
+
+          <form action={signOut} className={styles.account}>
+            <span className={styles.avatar} aria-hidden="true">
+              {membership.initials}
+            </span>
+            <span className={styles.accountText}>
+              <span className={styles.accountName}>{membership.displayName}</span>
+              <button type="submit" className={styles.signOut}>
+                Sign out
+              </button>
+            </span>
+          </form>
+        </header>
+
         <main id="content" className={styles.main}>
           {children}
         </main>
       </div>
+      <Dock />
     </div>
   );
 }

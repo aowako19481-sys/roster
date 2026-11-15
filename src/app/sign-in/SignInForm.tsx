@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { requestCode, verifyCode, type RequestState, type VerifyState } from "./actions";
 import defaultStyles from "./sign-in.module.css";
@@ -143,7 +144,7 @@ function CodeStep({ email, styles, onBack }: { email: string; styles: Styles; on
       <div>
         <h2 className={styles.title}>Check your email</h2>
         <p className={styles.sub}>
-          If <strong className={styles.email}>{email}</strong> is set up for Roster, a 6-digit code is on
+          If <strong className={styles.email}>{email}</strong> is set up for {BRAND}, a 6-digit code is on
           its way. It expires soon, so use it now.
         </p>
       </div>

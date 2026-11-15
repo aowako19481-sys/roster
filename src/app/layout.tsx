@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { geist, geistMono, instrumentSerif } from "./fonts";
+import { BRAND } from "@/lib/brand";
+import { archivo, geistMono, outfit } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Roster", template: "%s · Roster" },
+  title: { default: BRAND, template: `%s · ${BRAND}` },
   description: "Agent onboarding and commission payroll for real estate brokerages.",
   robots: { index: false, follow: false },
 };
@@ -20,7 +21,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} ${geistMono.variable} ${instrumentSerif.variable}`}>
+    <html lang="en" className={`${outfit.variable} ${archivo.variable} ${geistMono.variable}`}>
       <body>
         <a href="#content" className="skip-link">
           Skip to content

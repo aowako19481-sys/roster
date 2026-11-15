@@ -38,8 +38,14 @@ export function LiveCounter({
   const countdown = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}`;
 
   return (
-    <section aria-label="Live onboarding counter" className={`${styles.card} ${styles.live}`}>
-      <div className={styles.liveLeft}>
+    <section aria-label="Live onboarding counter" className={styles.live}>
+      {/* Oversized figure behind the glass. Decorative: the same number is in the panel. */}
+      <span className="orb" aria-hidden="true" style={{ width: 150, height: 150, right: -30, top: -40 }} />
+      <span key={`g${ready}`} className={`display metal ${styles.giant}`} aria-hidden="true">
+        {ready}
+      </span>
+
+      <div className={`${styles.card} ${styles.livePanel}`}>
         <div className={styles.liveTitle}>
           <span className={styles.liveDot} aria-hidden="true" />
           Onboarding right now
@@ -47,16 +53,8 @@ export function LiveCounter({
         </div>
         <div className={styles.liveNumbers} aria-live="polite">
           <div>
-            <div className={styles.label}>Links out (recent batches)</div>
-            <div className={styles.big}>
-              <span key={`s${sent}`} className={styles.tick}>
-                {sent}
-              </span>
-            </div>
-          </div>
-          <div>
             <div className={styles.label}>Ready to go live</div>
-            <div className={styles.big}>
+            <div className={`display ${styles.big}`}>
               <span key={`r${ready}`} className={styles.tick}>
                 {ready}
               </span>
@@ -67,14 +65,16 @@ export function LiveCounter({
               </span>
             </div>
           </div>
+          <div>
+            <div className={styles.label}>Links out (recent batches)</div>
+            <div className={`display ${styles.big}`}>
+              <span key={`s${sent}`} className={styles.tick}>
+                {sent}
+              </span>
+            </div>
+          </div>
         </div>
-        <div className={styles.liveMeta}>
-          <span>LAST READ {lastRead}</span>
-          <span suppressHydrationWarning>NEXT IN {countdown}</span>
-        </div>
-      </div>
 
-      <div className={styles.liveRight}>
         <div className={styles.batchHead} aria-hidden="true">
           <span>Batch</span>
           <span>Ready / sent</span>
@@ -100,6 +100,10 @@ export function LiveCounter({
           })}
         </ul>
         {batches.length === 0 && <p className={styles.emptyNote}>No batches sent yet.</p>}
+        <div className={styles.liveMeta}>
+          <span>LAST READ {lastRead}</span>
+          <span suppressHydrationWarning>NEXT IN {countdown}</span>
+        </div>
       </div>
     </section>
   );

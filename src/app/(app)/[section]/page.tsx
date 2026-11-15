@@ -33,8 +33,8 @@ export default async function SectionPage({ params }: Props) {
 
   return (
     <div className={`${styles.soon} ${styles.r}`}>
-      <p className={styles.crumb}>ROSTER / COMING LATER</p>
-      <h1 className={styles.soonTitle}>{info.title}</h1>
+      <p className={styles.crumb}>COMING LATER</p>
+      <h1 className={`display ${styles.soonTitle}`}>{info.title}</h1>
       <p className={styles.soonText}>
         This page is designed but not built yet. It arrives with the “{info.step}” build step. Tonight’s
         build covers sign-in and the dashboard.

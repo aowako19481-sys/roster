@@ -26,9 +26,9 @@
   --control: rgba(255, 255, 255, 0.36);
   --control-border: rgba(255, 255, 255, 0.7);
 
-  --sans: var(--font-geist), system-ui, sans-serif;
+  --sans: var(--font-outfit), system-ui, sans-serif;
+  --display: var(--font-archivo), "Arial Black", system-ui, sans-serif;
   --mono: var(--font-geist-mono), ui-monospace, monospace;
-  --serif: var(--font-instrument-serif), Georgia, serif;
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -50,6 +50,7 @@ body {
   background: var(--bg);
   font-family: var(--sans);
   color: var(--ink);
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -149,5 +150,53 @@ p {
   }
   .press:active {
     transform: none;
+  }
+}
+
+/* Wide, heavy display type: wordmark, titles and big figures. */
+.display {
+  font-family: var(--display);
+  font-stretch: 125%;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Brushed-metal fill for oversized decorative type. Decorative only: it is
+   low contrast on purpose, so the same information is always in plain text. */
+.metal {
+  color: transparent;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f1f2 35%, #8f9094 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 30px 40px rgba(18, 19, 22, 0.18));
+  user-select: none;
+}
+
+/* Matte spheres that sit behind the glass. */
+@keyframes bob {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -14px;
+  }
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 26%, #ffffff 0%, #eeeff0 18%, #c2c3c6 55%, #8d8e92 100%);
+  box-shadow:
+    0 60px 80px rgba(18, 19, 22, 0.26),
+    inset -24px -36px 70px rgba(18, 19, 22, 0.16);
+  animation: bob 10s ease-in-out infinite;
+  pointer-events: none;
+}
+.orbDark {
+  background: radial-gradient(circle at 32% 26%, #6a6b6f 0%, #2b2c2f 45%, #121315 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .orb {
+    animation: none;
   }
 }

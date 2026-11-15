@@ -41,6 +41,13 @@ export default async function DashboardPage() {
   const [lead, ...otherApprovals] = data.approvals;
   const peak = data.timeline ? Math.max(...data.timeline.counts) : 0;
 
+  const quick = [
+    { href: "/riders", label: "Tier approvals", meta: String(membership.waitingApprovals) },
+    { href: "/welcome-email", label: "Welcome email", meta: "view" },
+    { href: "/agent-onboarding", label: "Agent’s onboarding view", meta: "test" },
+    { href: "/reports", label: "Year-end 1099s", meta: String(now.getFullYear()) },
+  ];
+
   const notes = [
     ...data.approvals.slice(0, 1).map((a) => ({
       id: `a-${a.id}`,
@@ -58,46 +65,52 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <header className={`${styles.header} ${styles.r} ${styles.d1}`}>
-        <div>
-          <h1 className={styles.h1}>
-            {greeting(now, tz)}, {firstName}
-          </h1>
-          <p className={styles.sub}>
+      <section className={styles.hero} aria-label="Today">
+        <div className={`${styles.heroText} ${styles.r} ${styles.d1}`}>
+          <p className={styles.eyebrow}>
             {longDate(now, tz)} · {data.cohortLabel}
           </p>
+          <h1 className={styles.h1}>
+            {greeting(now, tz)},
+            <br />
+            {firstName}
+          </h1>
+          <div className={styles.actions}>
+            <Link href="/invite" className={`${styles.cta} press`}>
+              Invite agents
+              <span className={styles.ctaIcon} aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </span>
+            </Link>
+            <Link href="/files" className={`${styles.pill} press`}>
+              Files
+            </Link>
+            <NotificationsBell notes={notes} />
+          </div>
+          <ul className={styles.quick} aria-label="Quick actions">
+            {quick.map((item) => (
+              <li key={item.label}>
+                <Link href={item.href} className={styles.quickLink}>
+                  {item.label}
+                  <span className={styles.quickMeta}>{item.meta}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
-        <div className={styles.actions}>
-          <Link href="/invite" className={`${styles.pill} press`}>
-            <span className={`${styles.pillIcon} ${styles.pillIconDark}`}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-            </span>
-            Invite agents
-          </Link>
-          <Link href="/files" className={`${styles.pill} press`}>
-            <span className={styles.pillIcon}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              </svg>
-            </span>
-            Files
-          </Link>
-          <NotificationsBell notes={notes} />
+        <div className={`${styles.r} ${styles.d2}`}>
+          <LiveCounter batches={data.batches} sent={data.totalSent} ready={data.totalReady} lastRead={lastRead} />
         </div>
-      </header>
-
-      <div className={`${styles.r} ${styles.d2}`}>
-        <HighRollers rollers={data.rollers} />
-      </div>
+      </section>
 
       <section aria-label={`${data.cohortLabel} progress`} className={`${styles.card} ${styles.stats} ${styles.r} ${styles.d3}`}>
         {data.stats.map((stat) => (
           <div key={stat.label} className={styles.stat}>
             <div className={styles.statMain}>
               <span className={styles.label}>{stat.label}</span>
-              <span className={styles.statValue}>
+              <span className={`display ${styles.statValue}`}>
                 {stat.value}
                 {stat.of !== null && (
                   <span className={styles.faint}>
@@ -113,41 +126,11 @@ export default async function DashboardPage() {
         ))}
       </section>
 
-      <div className={`${styles.r} ${styles.d4}`}>
-        <LiveCounter batches={data.batches} sent={data.totalSent} ready={data.totalReady} lastRead={lastRead} />
-      </div>
-
-      <div className={styles.trio}>
-        <section className={`${styles.card} ${styles.pad} ${styles.chartCard} ${styles.r} ${styles.d5}`} aria-labelledby="chart-title">
-          <div className={styles.cardHead}>
-            <h2 id="chart-title" className={styles.h2}>
-              Ready, every five minutes
-            </h2>
-            {data.timeline && <span className={styles.label}>Invited {data.timeline.invitedAt}</span>}
-          </div>
-          {data.timeline ? (
-            <>
-              <div role="img" aria-label={data.timeline.summary} className={styles.bars}>
-                {data.timeline.counts.map((value, index) => (
-                  <div
-                    key={index}
-                    className={`${styles.bar} ${value === peak ? styles.barPeak : ""}`}
-                    style={{ height: `${peak ? (value / peak) * 100 : 0}%`, animationDelay: `${300 + index * 35}ms` }}
-                  />
-                ))}
-              </div>
-              <div className={styles.axis} aria-hidden="true">
-                {data.timeline.axis.map((tick) => (
-                  <span key={tick}>{tick}</span>
-                ))}
-              </div>
-            </>
-          ) : (
-            <p className={styles.emptyNote}>No invites have gone out yet.</p>
-          )}
-        </section>
-
-        <section className={`${styles.card} ${styles.pad} ${styles.tierCard} ${styles.r} ${styles.d5}`} aria-labelledby="tier-title">
+      <div className={styles.bento}>
+        <div className={`${styles.span8} ${styles.r} ${styles.d4}`}>
+          <HighRollers rollers={data.rollers} />
+        </div>
+        <section className={`${styles.card} ${styles.pad} ${styles.tierCard} ${styles.span4} ${styles.r} ${styles.d4}`} aria-labelledby="tier-title">
           <div className={styles.cardHead}>
             <h2 id="tier-title" className={styles.h2}>
               Tier clearance
@@ -162,7 +145,7 @@ export default async function DashboardPage() {
                 <span className={styles.tierWho}>
                   {lead.name} {lead.reason}
                 </span>
-                <span className={styles.tierMove}>
+                <span className={`display ${styles.tierMove}`}>
                   <span className={styles.faint}>
                     {lead.fromPct}% <span aria-hidden="true">→</span>
                     <span className="sr-only">to</span>
@@ -198,8 +181,39 @@ export default async function DashboardPage() {
             <p className={styles.emptyNote}>Nothing is waiting for approval.</p>
           )}
         </section>
+      </div>
 
-        <section className={`${styles.card} ${styles.pad} ${styles.flagCard} ${styles.r} ${styles.d6}`} aria-labelledby="flags-title">
+      <div className={styles.bento}>
+        <section className={`${styles.card} ${styles.pad} ${styles.chartCard} ${styles.span5} ${styles.r} ${styles.d5}`} aria-labelledby="chart-title">
+          <div className={styles.cardHead}>
+            <h2 id="chart-title" className={styles.h2}>
+              Ready, every five minutes
+            </h2>
+            {data.timeline && <span className={styles.label}>Invited {data.timeline.invitedAt}</span>}
+          </div>
+          {data.timeline ? (
+            <>
+              <div role="img" aria-label={data.timeline.summary} className={styles.bars}>
+                {data.timeline.counts.map((value, index) => (
+                  <div
+                    key={index}
+                    className={`${styles.bar} ${value === peak ? styles.barPeak : ""}`}
+                    style={{ height: `${peak ? (value / peak) * 100 : 0}%`, animationDelay: `${300 + index * 35}ms` }}
+                  />
+                ))}
+              </div>
+              <div className={styles.axis} aria-hidden="true">
+                {data.timeline.axis.map((tick) => (
+                  <span key={tick}>{tick}</span>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className={styles.emptyNote}>No invites have gone out yet.</p>
+          )}
+        </section>
+
+        <section className={`${styles.card} ${styles.pad} ${styles.flagCard} ${styles.span7} ${styles.r} ${styles.d5}`} aria-labelledby="flags-title">
           <div className={styles.cardHead}>
             <h2 id="flags-title" className={styles.h2}>
               Needs a human
