@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import { initialsOf } from "@/lib/workspace";
+import { initialsOf } from "@/lib/access";
 
 export type Tone = "ink" | "mute" | "red" | "green";
 
@@ -128,7 +128,7 @@ export async function getDashboardData(workspaceId: string, timeZone: string): P
       .limit(12),
     supabase
       .from("attention_items")
-      .select("id, tag, detail, position, agents ( full_name )")
+      .select("id, tag, detail, position, agent_id")
       .eq("workspace_id", workspaceId)
       .order("position", { ascending: true })
       .limit(5),
@@ -231,10 +231,19 @@ export async function getDashboardData(workspaceId: string, timeZone: string): P
     };
   }
 
-  const flags: Flag[] = (flagResult.data ?? []).map((f) => {
-    const agent = Array.isArray(f.agents) ? f.agents[0] : f.agents;
-    return { id: f.id, name: agent?.full_name ?? "Agent", tag: f.tag, detail: f.detail };
-  });
+  const flagRows = flagResult.data ?? [];
+  const flagAgentIds = [...new Set(flagRows.map((f) => f.agent_id as string))];
+  const flagNames = new Map<string, string>();
+  if (flagAgentIds.length) {
+    const { data: named } = await supabase.from("agents").select("id, full_name").in("id", flagAgentIds);
+    for (const agent of named ?? []) flagNames.set(agent.id, agent.full_name);
+  }
+  const flags: Flag[] = flagRows.map((f) => ({
+    id: f.id,
+    name: flagNames.get(f.agent_id as string) ?? "Agent",
+    tag: f.tag,
+    detail: f.detail,
+  }));
 
   const approvals: Approval[] = (approvalResult.data ?? []).map((t) => ({
     id: t.id,

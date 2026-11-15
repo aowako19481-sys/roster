@@ -6,8 +6,8 @@ import { LiveCounter } from "@/components/dashboard/LiveCounter";
 import { NotificationsBell } from "@/components/dashboard/NotificationsBell";
 import { getDashboardData, type Tone } from "@/lib/dashboard";
 import { Tour } from "@/components/Tour";
-import { createClient, getUser } from "@/lib/supabase/server";
-import { getMembership } from "@/lib/workspace";
+import { requireCap } from "@/lib/access";
+import { createClient } from "@/lib/supabase/server";
 import { completeTour } from "./actions";
 import styles from "./dashboard.module.css";
 
@@ -32,30 +32,25 @@ function toneClass(tone: Tone) {
 }
 
 export default async function DashboardPage() {
-  const membership = await getMembership();
-  if (!membership) return null; // The layout shows the "no brokerage" message.
-
+  const access = await requireCap("agents.view");
   const now = new Date();
-  const tz = membership.timezone;
-  const data = await getDashboardData(membership.workspaceId, tz);
-  const firstName = membership.displayName.split(" ")[0] ?? membership.displayName;
+  const tz = access.workspace.timezone;
+  const data = await getDashboardData(access.workspace.id, tz);
+  const firstName = access.displayName.split(" ")[0] ?? access.displayName;
   const lastRead = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: tz }).format(now);
 
   // Has this person seen the first-run tour? Row-level security returns only
   // their own row. If the lookup fails, stay quiet rather than nag.
-  const user = await getUser();
   const supabase = await createClient();
-  const prefs = user
-    ? await supabase.from("user_prefs").select("tour_seen_at").eq("user_id", user.id).maybeSingle()
-    : null;
-  const showTour = Boolean(prefs && !prefs.error && !prefs.data?.tour_seen_at);
+  const prefs = await supabase.from("user_prefs").select("tour_seen_at").eq("user_id", access.userId).maybeSingle();
+  const showTour = !access.viewAs && !prefs.error && !prefs.data?.tour_seen_at;
 
   const [lead, ...otherApprovals] = data.approvals;
   const peak = data.timeline ? Math.max(...data.timeline.counts) : 0;
 
   const quick = [
     { href: "/invite", label: "Invite agents", meta: "new batch" },
-    { href: "/riders", label: "Tier approvals", meta: `${membership.waitingApprovals} waiting` },
+    { href: "/riders", label: "Tier approvals", meta: `${data.approvals.length} waiting` },
     { href: "/welcome-email", label: "Welcome email", meta: "preview" },
     { href: "/agent-onboarding", label: "Agent’s onboarding view", meta: "test it" },
     { href: "/reports", label: "Year-end 1099s", meta: String(now.getFullYear()) },
