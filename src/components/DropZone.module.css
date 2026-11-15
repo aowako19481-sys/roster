@@ -117,3 +117,13 @@
     transform: none;
   }
 }
+
+/* inside the founder console */
+:global([data-founder]) .zone {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+:global([data-founder]) .zone:hover,
+:global([data-founder]) .zone:focus-within {
+  background: rgba(255, 255, 255, 0.1);
+}

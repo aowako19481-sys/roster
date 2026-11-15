@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 import type { Result } from "@/lib/result";
 import { sendLead } from "./actions";
 
-function Send() {
-  const { pending } = useFormStatus();
+function Send({ busy }: { busy: boolean }) {
+  const status = useFormStatus();
+  const pending = busy || status.pending;
   return (
     <button className="btn dark" type="submit" disabled={pending}>
       {pending ? "Sending…" : "Send to the team"}
@@ -16,7 +17,8 @@ function Send() {
 
 /** The Get started form. It posts to our own server; nothing goes to another company. */
 export function ContactForm() {
-  const [state, action] = useActionState<Result, FormData>(sendLead, { ok: null });
+  const [state, action, sending] = useActionState<Result, FormData>(sendLead, { ok: null });
+  const [waiting, startTransition] = useTransition();
   if (state.ok === true) {
     return (
       <p className="sent" role="status">
@@ -25,7 +27,16 @@ export function ContactForm() {
     );
   }
   return (
-    <form action={action}>
+    <form
+      action={action}
+      onSubmit={(event) => {
+        // Sent from here so a refused message does not clear what was typed.
+        if (!event.currentTarget.reportValidity()) return event.preventDefault();
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        startTransition(() => action(data));
+      }}
+    >
       <div className="row">
         <label htmlFor="s-name">
           Your name
@@ -65,7 +76,7 @@ export function ContactForm() {
           <input id="s-web" name="website" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
-      <Send />
+      <Send busy={sending || waiting} />
       <p className="err" role="alert">
         {state.ok === false ? state.message : ""}
       </p>

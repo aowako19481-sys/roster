@@ -181,3 +181,62 @@
     gap: 0;
   }
 }
+
+/* --- while the next page loads --- */
+.loading {
+  position: relative;
+}
+.loadingBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  z-index: 50;
+  overflow: hidden;
+  background: rgba(18, 19, 22, 0.08);
+}
+.loadingBar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 30%;
+  background: var(--ink);
+  animation: kinu-slide 1.1s ease-in-out infinite;
+}
+.skeleton {
+  display: grid;
+  gap: 14px;
+}
+.skeleton span {
+  display: block;
+  border-radius: 20px;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.22));
+}
+@media (prefers-reduced-motion: reduce) {
+  .loadingBar::after {
+    animation: none;
+    width: 100%;
+    opacity: 0.4;
+  }
+}
+
+/* --- the founder console's frame --- */
+.page[data-founder] {
+  background: #07060d;
+}
+.page[data-founder] .wrap {
+  position: relative;
+  z-index: 1;
+}
+.page[data-founder] .bar {
+  border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+.page[data-founder] .loadingBar::after,
+.page[data-founder] .avatar {
+  background: linear-gradient(140deg, #b9a3ff, #6f55d9);
+  color: #0b0a12;
+}
+.page[data-founder] .skeleton span {
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
+}

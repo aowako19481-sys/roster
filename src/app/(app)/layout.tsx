@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { FounderBackdrop } from "@/components/FounderBackdrop";
 import { AutoSelect } from "@/components/ActionForm";
 import { Dock } from "@/components/Dock";
 import { getAccess } from "@/lib/access";
@@ -16,11 +18,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!access) redirect("/sign-in");
 
   const ws = access.workspace;
+  // The founder's own look, on the console pages only.
+  const path = (await headers()).get("x-kinu-path") ?? "";
+  const founderView = access.isFounder && !ws && (path === "/kinu" || path.startsWith("/kinu/"));
   const mayPreview = Boolean(ws) && (access.isPlatformAdmin || access.role === "owner_admin");
   const nav = buildNav(access);
 
   return (
-    <div className={styles.page} data-print-root="">
+    <div className={styles.page} data-print-root="" data-founder={founderView ? "" : undefined}>
+      {founderView && <FounderBackdrop />}
       <div className={styles.wrap}>
         <header className={styles.bar} data-app-chrome="">
           <Link href="/" className={`brandType ${styles.wordmark}`}>

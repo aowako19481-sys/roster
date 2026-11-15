@@ -59,6 +59,7 @@ export async function storeBillingFile(
   if (file.size > MAX_BYTES) return { message: "That file is larger than 10 MB." };
   const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
   if (!looksLike(file.type, head)) return { message: "That file is not a valid PDF or photo." };
+  // The founder's own filing cabinet is kept under its own folder, which only the founder can reach.
   const path = `${workspaceId}/${randomUUID()}.${extension}`;
   const { error } = await supabase.storage.from(BILLING_BUCKET).upload(path, file, { contentType: file.type, upsert: false });
   if (error) return { message: "We could not store that file. Please try again." };

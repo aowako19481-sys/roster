@@ -36,6 +36,8 @@ export async function proxy(request: NextRequest) {
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  // Lets the app's frame know which page is being shown (it cannot be set by the visitor: this overwrites it).
+  requestHeaders.set("x-kinu-path", request.nextUrl.pathname);
   requestHeaders.set("Content-Security-Policy", csp);
 
   let response = NextResponse.next({ request: { headers: requestHeaders } });

@@ -40,7 +40,7 @@ export default async function BrokeragePage({ params, searchParams }: Props) {
   const supabase = await createClient();
   const { data: ws } = await supabase
     .from("workspaces")
-    .select("id, name, timezone, status, has_ops, has_finance, addons, created_at, plan_name, owner_seats, agent_seats, quoted_monthly")
+    .select("id, account_no, name, timezone, status, has_ops, has_finance, addons, created_at, plan_name, owner_seats, agent_seats, quoted_monthly")
     .eq("id", id)
     .maybeSingle();
   if (!ws) notFound();
@@ -91,7 +91,7 @@ export default async function BrokeragePage({ params, searchParams }: Props) {
 
       <section className={kinu.file} aria-label="Account file">
         <div>
-          <span className={kinu.no}>ID {ws.id.slice(0, 8).toUpperCase()} · since {day(ws.created_at)}</span>
+          <span className={kinu.no}>Account KN-{ws.account_no} · since {day(ws.created_at)}</span>
           <h2>{ws.name}</h2>
           <div className={`${ui.inline} ${kinu.tags}`}>
             <Badge tone={STATUS_TONE[ws.status] ?? "plain"}>{titleCase(ws.status)}</Badge>

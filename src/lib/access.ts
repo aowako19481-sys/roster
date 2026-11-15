@@ -23,6 +23,8 @@ export type Access = {
   userId: string;
   email: string;
   isPlatformAdmin: boolean;
+  /** Kinu's founder: sees the founder console. Other Kinu staff get the standard one. */
+  isFounder: boolean;
   /** The brokerage being looked at, or null if the person belongs to none. */
   workspace: Workspace | null;
   workspaces: { id: string; name: string }[];
@@ -111,11 +113,18 @@ export const getAccess = cache(async (): Promise<Access | null> => {
     }
   }
 
+  let isFounder = false;
+  if (raw.is_platform_admin) {
+    const { data: consoleRole } = await supabase.rpc("console_role");
+    isFounder = consoleRole === "founder";
+  }
+
   const displayName = raw.display_name?.trim() || nameFromEmail(user.email);
   return {
     userId: user.id,
     email: user.email ?? "",
     isPlatformAdmin: raw.is_platform_admin,
+    isFounder,
     workspace: raw.workspace
       ? {
           id: raw.workspace.id,

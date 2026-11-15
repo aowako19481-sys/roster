@@ -7,12 +7,13 @@ import { BRAND } from "@/lib/brand";
 import { day, money, titleCase } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { switchWorkspace } from "../actions";
+import { FounderDashboard, type Pulse } from "./FounderDashboard";
 import styles from "./kinu.module.css";
 
 export const metadata: Metadata = { title: "Console" };
 
 type Row = {
-  id: string; name: string; status: string; has_ops: boolean; has_finance: boolean; addons: string[] | null; created_at: string;
+  id: string; account_no?: number; name: string; status: string; has_ops: boolean; has_finance: boolean; addons: string[] | null; created_at: string;
   plan_name: string; owner_seats: number; agent_seats: number | null; quoted_monthly: number | null; billing: string;
   agents: number; offices: number; members: number; owners: number; contract_ends: string | null;
 };
@@ -25,7 +26,7 @@ const PAGE_SIZE = 24;
 type Props = { searchParams: Promise<{ q?: string; status?: string; billing?: string; page?: string }> };
 
 export default async function ConsolePage({ searchParams }: Props) {
-  await requirePlatformAdmin();
+  const access = await requirePlatformAdmin();
   const params = await searchParams;
   const q = (params.q ?? "").trim().slice(0, 80);
   const status = (WORKSPACE_STATUSES as readonly string[]).includes(params.status ?? "") ? params.status! : "";
@@ -37,6 +38,8 @@ export default async function ConsolePage({ searchParams }: Props) {
     search: q || null, only_status: status || null, only_billing: billing || null, page_no: page, page_size: PAGE_SIZE,
   });
   const found = (data ?? { total: 0, all: 0, unpaid: 0, rows: [] }) as Found;
+  // The founder also gets the whole-business view above the list.
+  const pulse = access.isFounder ? ((await supabase.rpc("platform_pulse")).data as Pulse | null) : null;
   const pages = Math.max(1, Math.ceil(found.total / PAGE_SIZE));
   const link = (to: number) => {
     const next = new URLSearchParams();
@@ -50,6 +53,10 @@ export default async function ConsolePage({ searchParams }: Props) {
 
   return (
     <div className={ui.stack}>
+      {pulse ? (
+        <FounderDashboard pulse={pulse} firstName={access.displayName.split(" ")[0] ?? access.displayName} />
+      ) : (
+        <>
       <PageHeader eyebrow={`${BRAND} staff`} title="Console" sub="Every brokerage account. Nothing inside a brokerage is shown until you open it.">
         <ButtonLink href="/kinu/inbox">Website inbox</ButtonLink>
         <ButtonLink href="/kinu/new" primary>
@@ -63,11 +70,14 @@ export default async function ConsolePage({ searchParams }: Props) {
         <Stat label="Not yet paid this month" value={found.unpaid.toLocaleString("en-US")} note="active accounts in this search" />
       </section>
 
+        </>
+      )}
+
       <Card title="Find a brokerage">
         <form className={styles.filters} action="/kinu" method="get" role="search">
           <label className={styles.search}>
-            Name
-            <input className={ui.input} type="search" name="q" defaultValue={q} placeholder="Start typing a brokerage name" maxLength={80} />
+            Name or account number
+            <input className={ui.input} type="search" name="q" defaultValue={q} placeholder="A brokerage name, or KN-100001" maxLength={80} />
           </label>
           <label>
             Status
@@ -107,7 +117,7 @@ export default async function ConsolePage({ searchParams }: Props) {
                 <article key={row.id} className={styles.id}>
                   <div className={styles.idHead}>
                     <div style={{ minWidth: 0 }}>
-                      <span className={styles.no}>ID {row.id.slice(0, 8).toUpperCase()} · since {day(row.created_at)}</span>
+                      <span className={styles.no}>{row.account_no ? `KN-${row.account_no}` : `ID ${row.id.slice(0, 8).toUpperCase()}`} · since {day(row.created_at)}</span>
                       <h2 className={styles.idName}>
                         <Link href={`/kinu/${row.id}`}>{row.name}</Link>
                       </h2>
