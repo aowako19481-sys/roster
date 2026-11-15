@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     return (
       <div className={styles.page}>
         <main id="content" className={styles.empty}>
-          <span className={`display ${styles.wordmark}`}>{BRAND}</span>
+          <span className={`brandType ${styles.wordmark}`}>{BRAND}</span>
           <h1 className={`display ${styles.emptyTitle}`}>No brokerage yet</h1>
           <p className={styles.emptyText}>
             You are signed in, but your account is not linked to a brokerage workspace. Ask your
@@ -39,7 +39,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className={styles.page}>
       <div className={styles.wrap}>
         <header className={styles.bar}>
-          <Link href="/" className={`display ${styles.wordmark}`}>
+          <Link href="/" className={`brandType ${styles.wordmark}`}>
             {BRAND}
           </Link>
           <span className={styles.workspace}>{membership.workspaceName}</span>

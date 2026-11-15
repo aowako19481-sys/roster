@@ -36,8 +36,7 @@ export default function SignInPage() {
       </div>
 
       <header className={styles.bar}>
-        <span className={styles.mark}>{BRAND}</span>
-        <span className={styles.barRight}>Ops + Finance for brokerages</span>
+        <span className={`brandType ${styles.mark}`}>{BRAND}</span>
       </header>
 
       <div className={styles.stage}>
@@ -47,7 +46,6 @@ export default function SignInPage() {
             <br />
             <span className={styles.headlineSoft}>{TAGLINE[1]}</span>
           </h1>
-          <p className={styles.lede}>Licences, W-9s and riders, collected, checked and filed while your team gets on with the day.</p>
         </div>
 
         <main id="content" className={styles.card}>
@@ -57,11 +55,6 @@ export default function SignInPage() {
           <SignInForm styles={styles} />
         </main>
       </div>
-
-      <footer className={styles.foot}>
-        <span>Test site · sample data only</span>
-        <span>Roles decide who can see splits, W-9s and payouts</span>
-      </footer>
     </div>
   );
 }

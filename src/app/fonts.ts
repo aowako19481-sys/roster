@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 // Self-hosted font files (see assets/fonts/LICENSES.txt). Nothing is fetched
 // from Google or any other third party, at build time or in the browser.
 
-/** Text: a light geometric sans. */
+/** One light geometric sans for everything: text, titles and the spaced-out wordmark. */
 export const outfit = localFont({
   src: "../../assets/fonts/Outfit-latin.woff2",
   weight: "100 900",
@@ -11,17 +11,6 @@ export const outfit = localFont({
   display: "swap",
   variable: "--font-outfit",
   fallback: ["system-ui", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"],
-});
-
-/** Display: a wide, heavy grotesque for the wordmark and big numbers. */
-export const archivo = localFont({
-  src: "../../assets/fonts/Archivo-latin.woff2",
-  weight: "100 900",
-  style: "normal",
-  display: "swap",
-  variable: "--font-archivo",
-  declarations: [{ prop: "font-stretch", value: "62% 125%" }],
-  fallback: ["Arial Black", "system-ui", "sans-serif"],
 });
 
 /** Figures that must line up: licence fragments, counts, times. */

@@ -47,7 +47,7 @@ function DockLink({ item, pathname }: { item: Item; pathname: string }) {
   return (
     <li>
       <Link href={item.href} aria-current={current ? "page" : undefined} className={`${styles.item} ${current ? styles.on : ""}`}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
           <path d={item.icon} />
         </svg>
         <span>{item.label}</span>
@@ -62,11 +62,14 @@ export function Dock() {
   return (
     <nav aria-label="Main" className={styles.dock}>
       <ul className={styles.list}>
+        <li className={`brandLabel ${styles.heading}`} role="presentation">
+          Onboarding
+        </li>
         {CORE.map((item) => (
           <DockLink key={item.href} item={item} pathname={pathname} />
         ))}
-        <li className={styles.divider} role="presentation">
-          <span className="sr-only">Add-ons, unlocked for testing</span>
+        <li className={`brandLabel ${styles.heading} ${styles.headingGap}`} role="presentation">
+          Add-ons
         </li>
         {ADDONS.map((item) => (
           <DockLink key={item.href} item={item} pathname={pathname} />

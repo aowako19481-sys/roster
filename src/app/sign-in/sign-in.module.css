@@ -82,7 +82,7 @@
   position: relative;
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 20px;
   font-size: 13px;
   font-weight: 300;
@@ -92,10 +92,8 @@
   animation: fade 900ms ease both;
 }
 .mark {
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: 0.5em;
-  text-transform: uppercase;
+  font-size: clamp(26px, 3vw, 40px);
+  line-height: 1;
   color: var(--ink);
 }
 .foot {
@@ -122,10 +120,11 @@
   animation: rise 900ms var(--ease-out) 120ms both;
 }
 .headline {
-  font-size: clamp(42px, 5.6vw, 84px);
-  font-weight: 200;
-  line-height: 1.02;
-  letter-spacing: -0.035em;
+  font-size: clamp(20px, 2.5vw, 36px);
+  font-weight: 300;
+  line-height: 1.5;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
 }
 .headlineSoft {
   color: var(--mute);

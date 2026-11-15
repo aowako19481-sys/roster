@@ -34,10 +34,7 @@ export function SignInForm({ styles = defaultStyles }: { styles?: Styles }) {
 
   return (
     <form action={requestAction} className={styles.step} noValidate>
-      <div>
-        <h2 className={styles.title}>Sign in</h2>
-        <p className={styles.sub}>Use the email your brokerage set up for you.</p>
-      </div>
+      <h2 className={styles.title}>Sign in</h2>
 
       <label className={styles.field}>
         Work email
@@ -65,22 +62,6 @@ export function SignInForm({ styles = defaultStyles }: { styles?: Styles }) {
       <button type="submit" className={`${styles.primary} press`} disabled={requestPending}>
         {requestPending ? "Sending code…" : "Continue"}
       </button>
-
-      <div className={styles.or} aria-hidden="true">
-        <span />
-        or
-        <span />
-      </div>
-
-      <button type="button" className={styles.secondary} disabled>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-          <rect x="3" y="5" width="18" height="14" rx="2" />
-          <path d="m3 7 9 6 9-6" />
-        </svg>
-        Google Workspace sign-in · coming soon
-      </button>
-
-      <p className={styles.small}>New brokerage? Setup calls open soon.</p>
     </form>
   );
 }

@@ -39,7 +39,6 @@ export function LiveCounter({
 
   return (
     <section aria-label="Live onboarding counter" className={styles.live}>
-      <span className="orb" aria-hidden="true" style={{ width: 170, height: 170, right: -34, top: -44 }} />
       <div className={`${styles.card} ${styles.livePanel}`}>
         <div className={styles.liveTitle}>
           <span className={styles.liveDot} aria-hidden="true" />

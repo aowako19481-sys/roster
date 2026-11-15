@@ -8,13 +8,13 @@ import styles from "@/app/(app)/dashboard.module.css";
 // Where each of the five visible cards sits: centre, then left and right.
 const SLOTS: Record<number, { transform: string; opacity: number; z: number }> = {
   0: { transform: "translateX(-50%) translateY(-16px) translateZ(70px)", opacity: 1, z: 5 },
-  1: { transform: "translateX(calc(-50% - 168px)) rotateY(22deg) translateZ(-10px) scale(0.9)", opacity: 1, z: 4 },
-  2: { transform: "translateX(calc(-50% + 168px)) rotateY(-22deg) translateZ(-10px) scale(0.9)", opacity: 1, z: 4 },
-  3: { transform: "translateX(calc(-50% - 300px)) rotateY(32deg) translateZ(-90px) scale(0.8)", opacity: 0.92, z: 3 },
-  4: { transform: "translateX(calc(-50% + 300px)) rotateY(-32deg) translateZ(-90px) scale(0.8)", opacity: 0.92, z: 3 },
+  1: { transform: "translateX(calc(-50% - 215px)) rotateY(22deg) translateZ(-10px) scale(0.9)", opacity: 1, z: 4 },
+  2: { transform: "translateX(calc(-50% + 215px)) rotateY(-22deg) translateZ(-10px) scale(0.9)", opacity: 1, z: 4 },
+  3: { transform: "translateX(calc(-50% - 392px)) rotateY(32deg) translateZ(-90px) scale(0.8)", opacity: 0.92, z: 3 },
+  4: { transform: "translateX(calc(-50% + 392px)) rotateY(-32deg) translateZ(-90px) scale(0.8)", opacity: 0.92, z: 3 },
 };
-const OFF_LEFT = { transform: "translateX(calc(-50% - 440px)) rotateY(40deg) translateZ(-160px) scale(0.7)", opacity: 0, z: 1 };
-const OFF_RIGHT = { transform: "translateX(calc(-50% + 440px)) rotateY(-40deg) translateZ(-160px) scale(0.7)", opacity: 0, z: 1 };
+const OFF_LEFT = { transform: "translateX(calc(-50% - 560px)) rotateY(40deg) translateZ(-160px) scale(0.7)", opacity: 0, z: 1 };
+const OFF_RIGHT = { transform: "translateX(calc(-50% + 560px)) rotateY(-40deg) translateZ(-160px) scale(0.7)", opacity: 0, z: 1 };
 const PEARLS = [styles.pearl0, styles.pearl1, styles.pearl2];
 
 export function HighRollers({ rollers }: { rollers: Roller[] }) {

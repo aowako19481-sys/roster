@@ -27,7 +27,6 @@
   --control-border: rgba(255, 255, 255, 0.7);
 
   --sans: var(--font-outfit), system-ui, sans-serif;
-  --display: var(--font-archivo), "Arial Black", system-ui, sans-serif;
   --mono: var(--font-geist-mono), ui-monospace, monospace;
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -153,12 +152,24 @@ p {
   }
 }
 
-/* Wide, heavy display type: wordmark, titles and big figures. */
+/* Big figures and titles: the same typeface, thin. */
 .display {
-  font-family: var(--display);
-  font-stretch: 125%;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 300;
+  letter-spacing: -0.025em;
+}
+
+/* The Kinu signature: capitals, set wide apart. Used for the wordmark and,
+   smaller, for labels throughout the app. */
+.brandType {
+  font-weight: 400;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+}
+.brandLabel {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
 }
 
 /* Brushed-metal fill for oversized decorative type. Decorative only: it is

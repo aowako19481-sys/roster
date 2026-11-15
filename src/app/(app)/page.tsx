@@ -68,7 +68,7 @@ export default async function DashboardPage() {
     <>
       <section className={styles.hero} aria-label="Today">
         <div className={`${styles.heroText} ${styles.r} ${styles.d1}`}>
-          <p className={styles.eyebrow}>
+          <p className={`brandLabel ${styles.eyebrow}`}>
             {longDate(now, tz)} · {data.cohortLabel}
           </p>
           <h1 className={styles.h1}>
@@ -118,7 +118,7 @@ export default async function DashboardPage() {
       </section>
 
       <div className={styles.bento}>
-        <div className={`${styles.span8} ${styles.r} ${styles.d4}`}>
+        <div className={`${styles.span12} ${styles.r} ${styles.d4}`}>
           <HighRollers rollers={data.rollers} />
         </div>
         <section className={`${styles.card} ${styles.pad} ${styles.tierCard} ${styles.span4} ${styles.r} ${styles.d4}`} aria-labelledby="tier-title">
@@ -172,10 +172,7 @@ export default async function DashboardPage() {
             <p className={styles.emptyNote}>Nothing is waiting for approval.</p>
           )}
         </section>
-      </div>
-
-      <div className={styles.bento}>
-        <section className={`${styles.card} ${styles.pad} ${styles.chartCard} ${styles.span5} ${styles.r} ${styles.d5}`} aria-labelledby="chart-title">
+        <section className={`${styles.card} ${styles.pad} ${styles.chartCard} ${styles.span4} ${styles.r} ${styles.d5}`} aria-labelledby="chart-title">
           <div className={styles.cardHead}>
             <h2 id="chart-title" className={styles.h2}>
               Ready, every five minutes
@@ -204,7 +201,7 @@ export default async function DashboardPage() {
           )}
         </section>
 
-        <section className={`${styles.card} ${styles.pad} ${styles.flagCard} ${styles.span7} ${styles.r} ${styles.d5}`} aria-labelledby="flags-title">
+        <section className={`${styles.card} ${styles.pad} ${styles.flagCard} ${styles.span4} ${styles.r} ${styles.d5}`} aria-labelledby="flags-title">
           <div className={styles.cardHead}>
             <h2 id="flags-title" className={styles.h2}>
               Needs a human
@@ -245,7 +242,7 @@ export default async function DashboardPage() {
           {quick.map((item) => (
             <li key={item.label}>
               <Link href={item.href} className={`${styles.card} ${styles.jumpLink}`}>
-                <span className={styles.jumpMeta}>{item.meta}</span>
+                <span className={`brandLabel ${styles.jumpMeta}`}>{item.meta}</span>
                 <span className={`display ${styles.jumpLabel}`}>{item.label}</span>
                 <span className={styles.jumpArrow} aria-hidden="true">
                   →

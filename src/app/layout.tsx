@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { BRAND } from "@/lib/brand";
-import { archivo, geistMono, outfit } from "./fonts";
+import { geistMono, outfit } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${outfit.variable} ${archivo.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${outfit.variable} ${geistMono.variable}`}>
       <body>
         <a href="#content" className="skip-link">
           Skip to content
