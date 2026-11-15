@@ -36,7 +36,7 @@ function SummaryTable({ caption, first, groups }: { caption: string; first: stri
   return (
     <div className={ui.tableWrap}>
       <table className={ui.table}>
-        <caption className={ui.soft}>{caption}</caption>
+        <caption className={ui.soft} style={{ textAlign: "left", paddingBottom: 8 }}>{caption}</caption>
         <thead>
           <tr>
             <th scope="col">{first}</th>

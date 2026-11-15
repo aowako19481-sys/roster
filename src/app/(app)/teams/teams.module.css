@@ -5,7 +5,7 @@
   margin: 0;
   padding: 0;
 }
-.tree ul {
+.tree ul ul {
   margin-left: 14px;
   padding-left: 18px;
   border-left: 1px solid var(--line-strong);

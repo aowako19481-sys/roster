@@ -7,6 +7,7 @@ import {
 } from "@/lib/admin-pages";
 import { todayIso } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import styles from "../settings/settings.module.css";
 
 export const metadata: Metadata = { title: "Retention Insights" };
 
@@ -101,7 +102,7 @@ export default async function RetentionPage() {
               <tbody>
                 {atRisk.map(({ agent, score, band, signals }) => (
                   <tr key={agent.id}>
-                    <th scope="row">
+                    <th scope="row" className={styles.rowHead}>
                       <span className={ui.strong}>{agent.full_name}</span>
                       <br />
                       <span className={ui.soft}>{agent.office ?? "No office"}</span>

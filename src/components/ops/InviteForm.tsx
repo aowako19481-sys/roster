@@ -69,7 +69,7 @@ export function InviteForm({ action, example, offices }: { action: Action; examp
               </p>
               <div className={ui.tableWrap}>
                 <table className={ui.table}>
-                  <caption className={ui.soft}>Private onboarding links for this batch</caption>
+                  <caption className={ui.soft} style={{ textAlign: "left", paddingBottom: 8 }}>Private onboarding links for this batch</caption>
                   <thead>
                     <tr>
                       <th scope="col">Agent</th>
@@ -81,11 +81,11 @@ export function InviteForm({ action, example, offices }: { action: Action; examp
                   <tbody>
                     {state.sent.map((row) => (
                       <tr key={row.email}>
-                        <th scope="row">
+                        <td>
                           <span className={ui.strong}>{row.name}</span>
                           <br />
                           <span className={ui.soft}>{row.email}</span>
-                        </th>
+                        </td>
                         <td>{row.office}</td>
                         <td className={ui.num}>{row.split}%</td>
                         <td>

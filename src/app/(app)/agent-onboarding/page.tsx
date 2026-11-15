@@ -31,7 +31,7 @@ export default async function AgentOnboardingPage() {
     .eq("workspace_id", access.workspace.id).neq("onboarding_status", "ready").neq("status", "exited")
     .order("invite_sent_at", { ascending: false, nullsFirst: false }).limit(300);
   const rows = (data ?? []) as Row[];
-  const now = Date.now();
+  const now = new Date().getTime();
   const linkState = (row: Row) => {
     if (!row.invite_expires_at) return <Badge tone="muted">No link yet</Badge>;
     return Date.parse(row.invite_expires_at) > now

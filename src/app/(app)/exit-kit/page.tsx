@@ -6,6 +6,7 @@ import { requireAddon } from "@/lib/access";
 import { day, money, moneyWhole, titleCase } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { markExited } from "./actions";
+import styles from "../settings/settings.module.css";
 
 export const metadata: Metadata = { title: "Exit Kit" };
 
@@ -197,7 +198,7 @@ export default async function ExitKitPage({ searchParams }: Props) {
                     <tbody>
                       {openDeals.map((deal) => (
                         <tr key={deal.id}>
-                          <th scope="row"><Link href={`/deals/${deal.id}`} className={ui.rowLink}>{deal.address}</Link></th>
+                          <th scope="row" className={styles.rowHead}><Link href={`/deals/${deal.id}`} className={ui.rowLink}>{deal.address}</Link></th>
                           <td>{titleCase(deal.deal_type)}</td>
                           <td><Badge tone={deal.status === "held" ? "warn" : "plain"}>{titleCase(deal.status)}</Badge></td>
                           <td className={ui.num}>{money(deal.gci)}</td>

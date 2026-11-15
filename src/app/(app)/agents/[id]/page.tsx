@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/ops/StatusBadge";
 import { Badge, ButtonLink, Card, Empty, PageHeader, Placeholder, Stat, ui } from "@/components/ui";
 import { requireCap } from "@/lib/access";
 import { day, dayTime, money, moneyWhole, pct, titleCase } from "@/lib/format";
-import { auditText, docKind, maskTin, readTiers, tiersToText, UUID_RE } from "@/lib/ops";
+import { auditText, cohortLabel, docKind, maskTin, readTiers, tiersToText, UUID_RE } from "@/lib/ops";
 import { createClient } from "@/lib/supabase/server";
 import { reissueInvite } from "../../invite/actions";
 import { draftRider, recordSignature } from "../../riders/actions";
@@ -107,7 +107,7 @@ export default async function AgentCardPage({ params }: Props) {
       </PageHeader>
 
       <div className={ui.grid4}>
-        <Stat label="Office" value={agent.office} />
+        <Stat label="Cohort" value={cohortLabel(agent.cohort)} />
         <Stat label="Joined" value={day(agent.joined_on)} note={agent.exited_on ? `Exited ${day(agent.exited_on)}` : undefined} />
         <Stat label="Onboarding" value={titleCase(agent.onboarding_status)} />
         {showDeals && <Stat label="Commission this year" value={moneyWhole(agent.gci_ytd)} note="From closed payrolls" />}
@@ -191,7 +191,7 @@ export default async function AgentCardPage({ params }: Props) {
               {tiers.length > 0 && (
                 <div className={ui.tableWrap}>
                   <table className={ui.table}>
-                    <caption className={ui.soft}>Tiers on the {current ? "current" : "waiting"} rider</caption>
+                    <caption className={ui.soft} style={{ textAlign: "left", paddingBottom: 8 }}>Tiers on the {current ? "current" : "waiting"} rider</caption>
                     <thead>
                       <tr>
                         <th scope="col">Commission this year</th>
@@ -201,7 +201,7 @@ export default async function AgentCardPage({ params }: Props) {
                     <tbody>
                       {tiers.map((tier) => (
                         <tr key={`${tier.from}-${tier.pct}`}>
-                          <th scope="row">{tier.to === null ? `${moneyWhole(tier.from)} and above` : `${moneyWhole(tier.from)} to ${moneyWhole(tier.to)}`}</th>
+                          <td>{tier.to === null ? `${moneyWhole(tier.from)} and above` : `${moneyWhole(tier.from)} to ${moneyWhole(tier.to)}`}</td>
                           <td className={ui.num}>{pct(tier.pct)}</td>
                         </tr>
                       ))}
@@ -216,7 +216,7 @@ export default async function AgentCardPage({ params }: Props) {
               {riders.length > 0 && (
                 <div className={ui.tableWrap}>
                   <table className={ui.table}>
-                    <caption className={ui.soft}>Every version of this rider</caption>
+                    <caption className={ui.soft} style={{ textAlign: "left", paddingBottom: 8 }}>Every version of this rider</caption>
                     <thead>
                       <tr>
                         <th scope="col">Version</th>
@@ -228,7 +228,7 @@ export default async function AgentCardPage({ params }: Props) {
                     <tbody>
                       {riders.map((rider) => (
                         <tr key={rider.id}>
-                          <th scope="row">v{rider.version}</th>
+                          <td>v{rider.version}</td>
                           <td className={ui.num}>{pct(rider.split_pct)}</td>
                           <td>
                             <StatusBadge kind="rider" value={rider.status === "sent" ? "sent" : rider.status} />
@@ -339,14 +339,14 @@ export default async function AgentCardPage({ params }: Props) {
                   <tbody>
                     {deals.map((deal) => (
                       <tr key={deal.id}>
-                        <th scope="row">
+                        <td>
                           <Link href={`/deals/${deal.id}`} className={ui.rowLink}>{deal.address}</Link>
                           <br />
                           <span className={ui.soft}>
                             {titleCase(deal.deal_type)}
                             {lineOf.get(deal.id)?.basis === "team" ? " · on the team rider" : ""}
                           </span>
-                        </th>
+                        </td>
                         <td><StatusBadge kind="deal" value={deal.status} /></td>
                         <td className={ui.num}>{money(deal.gci)}</td>
                         {can("payouts.view") && <td className={ui.num}>{money(lineOf.get(deal.id)?.payout)}</td>}

@@ -97,10 +97,11 @@ export const failsCheck = (status: string) => status === "incorrect" || status =
 /** One word for a whole deal, from what the database decided for each line. */
 export function checkSummary(lines: { check_status: string }[]): { label: string; tone: Tone } {
   if (lines.length === 0) return { label: "No agents", tone: "muted" };
+  const skipped = { label: "Not checked", tone: "muted" as Tone };
   for (const status of ["incorrect", "needs_approval", "overridden", "correct"]) {
-    if (lines.some((line) => line.check_status === status)) return CHECK[status];
+    if (lines.some((line) => line.check_status === status)) return CHECK[status] ?? skipped;
   }
-  return CHECK.skipped;
+  return skipped;
 }
 
 // ------------------------------------------------------------------ dates --
@@ -178,8 +179,8 @@ export type ScratchLine = { share: number; split: number };
  * company dollar = net - payouts. Whole cents and exact arithmetic throughout.
  */
 export function scratchCalc(gci: number, fees: number[], lines: ScratchLine[]) {
-  const cents = (value: number) => BigInt(Math.round((Number.isFinite(value) ? Math.max(value, 0) : 0) * 100));
-  const hundredths = (value: number) => BigInt(Math.round((Number.isFinite(value) ? Math.min(Math.max(value, 0), 100) : 0) * 100));
+  const cents = (value: number) => BigInt(Math.round(((Number.isFinite(value) ? Math.max(value, 0) : 0) + Number.EPSILON) * 100));
+  const hundredths = (value: number) => BigInt(Math.round(((Number.isFinite(value) ? Math.min(Math.max(value, 0), 100) : 0) + Number.EPSILON) * 100));
   const feeTotal = fees.reduce((sum, fee) => sum + cents(fee), BigInt(0));
   const gross = cents(gci);
   const net = gross > feeTotal ? gross - feeTotal : BigInt(0);

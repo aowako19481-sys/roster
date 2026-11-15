@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ActionForm, Submit } from "@/components/ActionForm";
 import { Badge, ButtonLink, Card, Empty, PageHeader, Placeholder, Stat, ui, type Tone } from "@/components/ui";
 import { requirePlatformAdmin } from "@/lib/access";
-import { ADDONS, MONTHLY_MINIMUM, WORKSPACE_STATUSES, priceEstimate, type AuditRow } from "@/lib/admin-pages";
+import { MONTHLY_MINIMUM, PLAN_PIECES, WORKSPACE_STATUSES, pieceUnlocked, priceEstimate, type AuditRow } from "@/lib/admin-pages";
 import { BRAND } from "@/lib/brand";
 import { day, money, titleCase } from "@/lib/format";
 import { roleLabel } from "@/lib/roles";
@@ -11,6 +11,8 @@ import { createClient } from "@/lib/supabase/server";
 import { switchWorkspace } from "../../actions";
 import { AuditTable } from "../../settings/audit/AuditTable";
 import { inviteOwner, updateBrokerage } from "../actions";
+import { PieceToggle } from "../PieceToggle";
+import styles from "../../settings/settings.module.css";
 
 export const metadata: Metadata = { title: "Brokerage" };
 
@@ -76,8 +78,28 @@ export default async function BrokeragePage({ params }: Props) {
         <Stat label="Estimate" value={money(price.total)} note="per month" />
       </section>
 
+      <Card title="Plan" aside={<span className={ui.soft}>{PLAN_PIECES.filter((piece) => pieceUnlocked(ws, piece.key)).length} of {PLAN_PIECES.length} unlocked</span>}>
+        <ul className={ui.list}>
+          {PLAN_PIECES.map((piece) => (
+            <li key={piece.key}>
+              <div className={ui.inline}>
+                <span className={ui.strong}>{piece.label}</span>
+                <span className={ui.soft}>{piece.kind === "product" ? "Product" : "Add-on"} · {money(piece.perAgent)} per agent a month</span>
+                <PieceToggle brokerageId={ws.id} brokerageName={ws.name} piece={piece.key} label={piece.label} unlocked={pieceUnlocked(ws, piece.key)} />
+              </div>
+              <span className={ui.soft}>When locked: {piece.locks}</span>
+            </li>
+          ))}
+        </ul>
+        <p className={ui.help}>
+          Locking takes effect for everyone in the brokerage at once and deletes nothing; unlocking brings everything back as it
+          was. Products are enforced by the database for every role. Add-ons are gated by the app’s pages and navigation. Ops
+          and Finance cannot both be locked: pause the brokerage instead.
+        </p>
+      </Card>
+
       <div className={ui.grid2}>
-        <Card title="Plan and status">
+        <Card title="Name and status">
           <ActionForm action={updateBrokerage}>
             <input type="hidden" name="id" value={ws.id} />
             <div className={ui.formRow}>
@@ -94,25 +116,11 @@ export default async function BrokeragePage({ params }: Props) {
                 </select>
               </label>
             </div>
-            <div role="group" aria-labelledby="plan-products" className={ui.inline}>
-              <span id="plan-products" className={ui.help}>Products</span>
-              <label className={ui.check}><input type="checkbox" name="ops" defaultChecked={ws.has_ops} /> Ops</label>
-              <label className={ui.check}><input type="checkbox" name="finance" defaultChecked={ws.has_finance} /> Finance</label>
-            </div>
-            <div role="group" aria-labelledby="plan-addons" className={ui.inline}>
-              <span id="plan-addons" className={ui.help}>Add-ons</span>
-              {ADDONS.map((addon) => (
-                <label key={addon.key} className={ui.check}>
-                  <input type="checkbox" name={`addon_${addon.key}`} defaultChecked={addons.includes(addon.key)} /> {addon.label}
-                </label>
-              ))}
-            </div>
             <p className={ui.help}>
-              Switching a product off hides its pages and blocks its actions for everyone in the brokerage at once. Nothing
-              is deleted. Paused and closed brokerages cannot be used by their own people; staff can still open them.
+              Paused and closed brokerages cannot be used by their own people; staff can still open them. Nothing is deleted.
             </p>
             <div>
-              <Submit>Save plan</Submit>
+              <Submit>Save</Submit>
             </div>
           </ActionForm>
         </Card>
@@ -131,18 +139,18 @@ export default async function BrokeragePage({ params }: Props) {
                 <tbody>
                   {price.lines.map((line) => (
                     <tr key={line.label}>
-                      <th scope="row">{line.label}</th>
+                      <th scope="row" className={styles.rowHead}>{line.label}</th>
                       <td className={ui.num}>{money(line.perAgent)}</td>
                       <td className={ui.num}>{money(line.monthly)}</td>
                     </tr>
                   ))}
                   <tr>
-                    <th scope="row">Subtotal</th>
+                    <th scope="row" className={styles.rowHead}>Subtotal</th>
                     <td className={ui.num}>{money(price.perAgent)}</td>
                     <td className={ui.num}>{money(price.subtotal)}</td>
                   </tr>
                   <tr>
-                    <th scope="row" className={ui.strong}>Estimate per month</th>
+                    <th scope="row" className={`${styles.rowHead} ${ui.strong}`}>Estimate per month</th>
                     <td />
                     <td className={`${ui.num} ${ui.strong}`}>{money(price.total)}</td>
                   </tr>
@@ -184,7 +192,7 @@ export default async function BrokeragePage({ params }: Props) {
                 <tbody>
                   {members.map((member) => (
                     <tr key={member.user_id}>
-                      <th scope="row">
+                      <th scope="row" className={styles.rowHead}>
                         <span className={ui.strong}>{member.display_name ?? member.email ?? "No name yet"}</span>
                         {member.display_name && member.email && <><br /><span className={ui.soft}>{member.email}</span></>}
                       </th>

@@ -6,7 +6,6 @@ import styles from "../dashboard.module.css";
 // Pages that exist in the design but are built in later steps. Listing them
 // here keeps every sidebar link real and honest about what is not ready.
 const SECTIONS: Record<string, { title: string; step: string }> = {
-  payouts: { title: "Payout checks", step: "Finance core" },
 };
 
 type Props = { params: Promise<{ section: string }> };

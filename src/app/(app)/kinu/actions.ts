@@ -53,19 +53,19 @@ export async function updateBrokerage(_prev: Result, form: FormData): Promise<Re
   if (!id) return fail("That brokerage could not be found.");
   const name = text(form, "name", 120);
   if (name.length < 2) return fail("Give the brokerage a name.");
-  const ops = ticked(form, "ops");
-  const finance = ticked(form, "finance");
-  if (!ops && !finance) return fail("A brokerage needs at least one product.");
   const status = text(form, "status", 12);
   if (!(WORKSPACE_STATUSES as readonly string[]).includes(status)) return fail("Choose a status from the list.");
 
   const supabase = await createClient();
+  const { data: ws } = await supabase.from("workspaces").select("id, addons").eq("id", id).maybeSingle();
+  if (!ws) return fail("That brokerage could not be found.");
+  // Products and add-ons are changed piece by piece (setPlanPiece). The current
+  // add-on list is sent back unchanged, because the database replaces it with
+  // whatever list it is given.
   const { error } = await supabase.rpc("platform_update_workspace", {
     ws: id,
     ws_name: name,
-    ws_ops: ops,
-    ws_finance: finance,
-    ws_addons: addonsField(form),
+    ws_addons: ADDONS.map((addon) => addon.key as string).filter((key) => ((ws.addons ?? []) as string[]).includes(key)),
     ws_status: status,
   });
   if (error) return failure(error);
@@ -116,18 +116,19 @@ export async function setPlanPiece(_prev: Result, form: FormData): Promise<Resul
   if (!ws) return fail("That brokerage could not be found.");
   if (pieceUnlocked(ws, piece.key) === unlock) return done(`${piece.label} is already ${want}.`);
 
-  // Send only the one thing that changes; the database keeps the rest.
-  const args: { ws: string; ws_ops?: boolean; ws_finance?: boolean; ws_addons?: string[] } = { ws: id };
+  // Only the one piece changes. The add-on list is always sent in full, because
+  // the database replaces it with whatever list it is given.
+  const current: string[] = ws.addons ?? [];
+  const args: { ws: string; ws_addons: string[]; ws_ops?: boolean; ws_finance?: boolean } = {
+    ws: id,
+    ws_addons: ADDONS.map((addon) => addon.key as string).filter((key) => (key === piece.key ? unlock : current.includes(key))),
+  };
   if (piece.key === "ops" || piece.key === "finance") {
     const other = piece.key === "ops" ? ws.has_finance : ws.has_ops;
     if (!unlock && !other) {
       return fail("A brokerage cannot have both Ops and Finance locked. To stop it being used, set its status to Paused instead.");
     }
     if (piece.key === "ops") args.ws_ops = unlock; else args.ws_finance = unlock;
-  } else {
-    const current: string[] = ws.addons ?? [];
-    args.ws_addons = ADDONS.map((addon) => addon.key as string)
-      .filter((key) => (key === piece.key ? unlock : current.includes(key)));
   }
 
   const { error } = await supabase.rpc("platform_update_workspace", args);

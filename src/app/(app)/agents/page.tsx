@@ -120,7 +120,7 @@ export default async function AgentsPage({ searchParams }: Props) {
               <tbody>
                 {rows.map((agent) => (
                   <tr key={agent.id}>
-                    <th scope="row">
+                    <td>
                       <Link href={`/agents/${agent.id}`} className={ui.rowLink}>
                         {agent.full_name}
                       </Link>
@@ -130,7 +130,7 @@ export default async function AgentsPage({ searchParams }: Props) {
                           <span className={ui.soft}>{agent.email}</span>
                         </>
                       )}
-                    </th>
+                    </td>
                     <td>{agent.office}</td>
                     <td>{teamText(agent) ? <Badge>{teamText(agent)}</Badge> : <span className={ui.soft}>Solo</span>}</td>
                     <td><StatusBadge kind="agent" value={agent.status} /></td>

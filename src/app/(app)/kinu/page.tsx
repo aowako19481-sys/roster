@@ -3,12 +3,14 @@ import Link from "next/link";
 import { ActionForm, Submit } from "@/components/ActionForm";
 import { Badge, Card, Empty, PageHeader, Stat, ui, type Tone } from "@/components/ui";
 import { requirePlatformAdmin } from "@/lib/access";
-import { ADDONS, TIMEZONES, addonLabel } from "@/lib/admin-pages";
+import { ADDONS, MONTHLY_MINIMUM, PLAN_PIECES, TIMEZONES, addonLabel, pieceUnlocked, priceEstimate } from "@/lib/admin-pages";
 import { BRAND } from "@/lib/brand";
-import { day, titleCase } from "@/lib/format";
+import { day, money, titleCase } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { switchWorkspace } from "../actions";
 import { createBrokerage } from "./actions";
+import { PieceToggle } from "./PieceToggle";
+import styles from "../settings/settings.module.css";
 
 export const metadata: Metadata = { title: "Console" };
 
@@ -33,6 +35,8 @@ export default async function ConsolePage() {
   const { data, error } = await supabase.rpc("platform_overview");
   const rows = (Array.isArray(data) ? data : []) as Row[];
 
+  const estimate = (row: Row) =>
+    priceEstimate({ hasOps: row.has_ops, hasFinance: row.has_finance, addons: row.addons ?? [] }, Number(row.agents ?? 0));
   const total = (pick: (row: Row) => number) => rows.reduce((sum, row) => sum + Number(pick(row) ?? 0), 0);
 
   return (
@@ -72,7 +76,7 @@ export default async function ConsolePage() {
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.id}>
-                    <th scope="row">
+                    <th scope="row" className={styles.rowHead}>
                       <Link href={`/kinu/${row.id}`} className={ui.rowLink}>{row.name}</Link>
                     </th>
                     <td><Badge tone={STATUS_TONE[row.status] ?? "plain"}>{titleCase(row.status)}</Badge></td>
@@ -109,6 +113,59 @@ export default async function ConsolePage() {
         ) : (
           <Empty>No brokerages yet. Create the first one below.</Empty>
         )}
+      </Card>
+
+      <Card title="Plans" aside={<span className={ui.soft}>Lock or unlock any piece in one click</span>}>
+        {rows.length ? (
+          <div className={ui.tableWrap}>
+            <table className={ui.table}>
+              <caption className="sr-only">Which pieces of the plan each brokerage has, with its estimated monthly price</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Brokerage</th>
+                  {PLAN_PIECES.map((piece) => (
+                    <th key={piece.key} scope="col">{piece.label}</th>
+                  ))}
+                  <th scope="col" className={ui.num}>Estimate / month</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.id}>
+                    <th scope="row" className={styles.rowHead}>
+                      <Link href={`/kinu/${row.id}`} className={ui.rowLink}>{row.name}</Link>
+                      <br />
+                      <span className={ui.soft}>{Number(row.agents) === 1 ? "1 agent" : `${row.agents} agents`}</span>
+                    </th>
+                    {PLAN_PIECES.map((piece) => (
+                      <td key={piece.key}>
+                        <PieceToggle brokerageId={row.id} brokerageName={row.name} piece={piece.key} label={piece.label} unlocked={pieceUnlocked(row, piece.key)} />
+                      </td>
+                    ))}
+                    <td className={ui.num}>{money(estimate(row).total)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th scope="row" className={`${styles.rowHead} ${ui.strong}`}>Total</th>
+                  {PLAN_PIECES.map((piece) => (
+                    <td key={piece.key} className={ui.soft}>{rows.filter((row) => pieceUnlocked(row, piece.key)).length} unlocked</td>
+                  ))}
+                  <td className={`${ui.num} ${ui.strong}`}>{money(rows.reduce((sum, row) => sum + estimate(row).total, 0))}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        ) : (
+          <Empty>No brokerages yet.</Empty>
+        )}
+        <p className={ui.help}>
+          A locked product or add-on shows to the brokerage’s people as a locked preview, and its actions are refused. Ops and
+          Finance cannot both be locked: pause the brokerage instead. Estimates use the starting prices per agent per month
+          and each brokerage’s agent count, with the minimum of about {money(MONTHLY_MINIMUM)} a month applied; paused and
+          closed brokerages are included. They are estimates, not invoices.
+        </p>
       </Card>
 
       <Card title="New brokerage">

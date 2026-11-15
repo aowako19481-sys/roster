@@ -127,7 +127,7 @@ export default async function PeoplePage() {
                 return (
                   <tbody key={member.user_id}>
                     <tr>
-                      <th scope="row" className={ui.strong}>
+                      <th scope="row" className={`${styles.rowHead} ${ui.strong}`}>
                         {nameOf(member)}
                         {member.user_id === access.userId && <span className={ui.soft}> (you)</span>}
                       </th>
@@ -327,7 +327,7 @@ export default async function PeoplePage() {
               <tbody>
                 {active.map((member) => (
                   <tr key={member.user_id}>
-                    <th scope="row" className={ui.strong}>{nameOf(member)}</th>
+                    <th scope="row" className={`${styles.rowHead} ${ui.strong}`}>{nameOf(member)}</th>
                     <td>{roleOf(member)}</td>
                     {POWERS.map((power) => {
                       if (member.role === "owner_admin") {
@@ -441,7 +441,7 @@ export default async function PeoplePage() {
                 </tr>
                 {group.caps.map((entry) => (
                   <tr key={entry.cap}>
-                    <th scope="row">{entry.label}</th>
+                    <th scope="row" className={styles.rowHead}>{entry.label}</th>
                     {BUILT_IN_ROLES.map((role) => (
                       <td key={role}>
                         {roleCaps.get(role)?.has(entry.cap) ? "Yes" : <span className={ui.soft}>No</span>}
@@ -457,7 +457,7 @@ export default async function PeoplePage() {
               </tr>
               {POWERS.map((power) => (
                 <tr key={power.key}>
-                  <th scope="row">{power.label}</th>
+                  <th scope="row" className={styles.rowHead}>{power.label}</th>
                   {BUILT_IN_ROLES.map((role) => (
                     <td key={role}>{role === "owner_admin" ? "Yes" : <span className={ui.soft}>Only if granted</span>}</td>
                   ))}

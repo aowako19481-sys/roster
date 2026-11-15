@@ -76,3 +76,15 @@
   gap: 12px;
   margin-top: 16px;
 }
+/* Row headers read as ordinary cells; only column headers are small capitals. */
+.rowHead.rowHead {
+  padding: 13px 10px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+  white-space: normal;
+  vertical-align: middle;
+}

@@ -222,7 +222,7 @@ export default async function PayrollPage() {
             <ActionForm action={addToPayroll} className={ui.inline} resetOnSuccess>
               <label className={ui.field}>
                 Payroll
-                <select className={ui.select} name="payroll" defaultValue={addable[0].id}>
+                <select className={ui.select} name="payroll" defaultValue={addable[0]?.id}>
                   {addable.map((run) => <option key={run.id} value={run.id}>{weekDay(run.pay_date)} · {PAYROLL_STATUS[run.status]?.label}</option>)}
                 </select>
               </label>
