@@ -27,33 +27,33 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className="ks" id="top">
+      <canvas id="silk" aria-hidden="true"></canvas>
       <header className="nav" id="nav">
         <div className="wrap">
           <a className="mark" href="#top" aria-label="Kinu home">Kinu</a>
-          <nav aria-label="Main"><a href="#preview">See how it’s done</a><a href="#journey">The journey</a><a href="#pricing">Pricing</a><a href="#security">Security</a></nav>
+          <nav aria-label="Main"><a href="#preview">See how it’s done</a><a href="#retention">Retention</a><a href="#journey">The journey</a><a href="#pricing">Pricing</a><a href="#security">Security</a></nav>
           <div className="acts"><button type="button" className="btn ghost" data-start="">Get started</button><a className="btn dark" href="/sign-in">Sign in</a></div>
         </div>
       </header>
 
       <main id="content">
       <section className="hero" aria-label="Kinu: from you're hired to you're paid">
-        <canvas id="silk" aria-hidden="true"></canvas>
         <div className="wrap">
           <h1><span className="hA" id="hA">You’re hired.</span>
             <span className="run" id="run">
               <svg aria-hidden="true"><path id="hThread" pathLength={1} /></svg>
-              <span className="card" aria-hidden="true"><span className="label">Licence</span><b className="t">NY ••• 123</b><i></i><i></i><i></i><span className="stamp">Checked</span></span>
-              <span className="card" aria-hidden="true"><span className="label">Form W‑9</span><b className="t">Tax details</b><i></i><i></i><i></i><span className="stamp">Received</span></span>
-              <span className="card" aria-hidden="true"><span className="label">Rider</span><b className="t">Split 85%</b><i></i><i></i><i></i><span className="stamp">Signed</span></span>
-              <span className="card" aria-hidden="true"><span className="label">Direct deposit</span><b className="t">•• 6789</b><i></i><i></i><i></i><span className="stamp">Authorised</span></span>
-              <span className="card" aria-hidden="true"><span className="label">Deposit record</span><b className="t">12 Example St</b><i></i><i></i><i></i><span className="stamp">Filed</span></span>
+              <span className="chip" aria-hidden="true"><i className="ic"></i><b>Licence</b><em></em></span>
+              <span className="chip" aria-hidden="true"><i className="ic"></i><b>W‑9</b><em></em></span>
+              <span className="chip" aria-hidden="true"><i className="ic"></i><b>Rider</b><em></em></span>
+              <span className="chip" aria-hidden="true"><i className="ic"></i><b>Direct deposit</b><em></em></span>
+              <span className="chip" aria-hidden="true"><i className="ic"></i><b>Deposit record</b><em></em></span>
               <span className="logo" id="logo"><span className="k">Kinu</span><span className="tg" id="tg">handles everything in between.</span></span>
             </span>
             <span className="hB" id="hB"><span>You’re paid.</span><b id="hAmt">$37,179.00</b></span>
           </h1>
           <div className="foot" id="hFoot">
             <div><p className="hook">Stop chasing forms. Start scaling.</p><p className="lede">Kinu puts your back office on autopilot. Built for founders who have better things to do than chase tax forms.</p></div>
-            <div className="cta"><button type="button" className="btn light" data-start="">Get started</button><a className="btn line" href="#preview">See how it’s done</a><button type="button" className="again" id="again">Run it again ↻</button></div>
+            <div className="cta"><button type="button" className="btn dark" id="tourBtn"><span aria-hidden="true">▶</span> Begin walkthrough</button><button type="button" className="btn" data-start="">Get started</button><button type="button" className="again" id="again">Run it again ↻</button></div>
           </div>
         </div>
       </section>
@@ -61,24 +61,32 @@ export default function HomePage() {
       <section className="pad" id="preview">
         <div className="wrap">
           <p className="label">See how it’s done</p>
-          <h2 style={{ marginTop: "16px", maxWidth: "13em" }}>Switch a tier on. Watch your Kinu grow.</h2>
-          <p className="lede" style={{ marginTop: "18px" }}>This is the real layout of the product. Add a piece and see exactly what your team gets.</p>
-          <div className="build">
-            <div className="picks" id="picks">
-              <p className="label">Products</p>
-              <button type="button" className="pick" data-k="ops" aria-pressed={true}><span className="sw" /><span><b>Ops</b><small>Onboard agents, start to ready</small></span></button>
-              <button type="button" className="pick" data-k="fin" aria-pressed={false}><span className="sw" /><span><b>Finance</b><small>Commission payroll, checked</small></span></button>
-              <p className="label">Add‑ons</p>
-              <button type="button" className="pick" data-k="ret" aria-pressed={false}><span className="sw" /><span><b>Retention Insights + Exit Kit</b><small>See who may leave, and handle exits cleanly</small></span></button>
-              <button type="button" className="pick" data-k="shi" aria-pressed={false}><span className="sw" /><span><b>Finance Shield</b><small>Payout checks and override controls</small></span></button>
-              <button type="button" className="pick" data-k="com" aria-pressed={false}><span className="sw" /><span><b>Compliance pack</b><small>Audit files and year‑end exports</small></span></button>
-              <div className="total glass" aria-live="polite"><p className="label">In your Kinu</p><div><span className="n" id="bTotal">1 of 5</span></div><p className="save" id="bSave">Add Finance to run payroll from the same record.</p><button type="button" className="btn dark" data-start="" style={{ marginTop: "6px" }}>Get started with this</button></div>
-            </div>
-            <div className="win" aria-live="polite">
-              <div className="rail" id="rail" aria-hidden="true"></div>
-              <div className="screen" id="screen"></div>
-            </div>
+          <h2 style={{ marginTop: "16px", maxWidth: "13em" }}>One screen that knows who is ready and what is owed.</h2>
+          <p className="lede" style={{ marginTop: "18px" }}>This is the product as it looks today. Switch between the views your team gets.</p>
+          <div className="tabs" role="tablist" aria-label="Views"><button type="button" role="tab" aria-selected={true} data-v="adv">Advanced view</button><button type="button" role="tab" aria-selected={false} data-v="std">Standard view</button><button type="button" role="tab" aria-selected={false} data-v="ret">Retention Insights</button><button type="button" role="tab" aria-selected={false} data-v="id">Agent ID card</button></div>
+          <div className="app glass tick">
+            <div className="rail" aria-hidden="true"><span className="mark">Kinu</span><span className="cur">Home</span><span>Agents</span><span>Teams</span><span>Riders</span><span>Paperwork</span><span>Deals</span><span>Payments</span><span>Payroll</span><span>Documents</span><span>Settings</span></div>
+            <div className="screen" id="screen"></div>
           </div>
+          <p className="fine" style={{ marginTop: "14px" }}>Names and figures in these pictures are made up.</p>
+        </div>
+      </section>
+
+      <section className="pad" id="retention" style={{ paddingTop: "0" }}>
+        <div className="wrap reten">
+          <div>
+            <p className="label">Retention Insights + Exit Kit</p>
+            <h2 style={{ marginTop: "16px" }}>Keep the agents you worked to win.</h2>
+            <p className="lede" style={{ marginTop: "18px" }}>Often the first sign an agent is drifting is in their numbers. Kinu reads your own deal and payroll records and tells you who to check in with, while the conversation can still change something.</p>
+            <ul>
+              <li><b>An early signal</b>Each agent is scored from your own data: High risk, Watch or Healthy, with the reasons shown.</li>
+              <li><b>A way to start the conversation</b>A suggested opener for every flagged agent, written without the numbers so it feels like a check‑in.</li>
+              <li><b>A clean exit when it does happen</b>The Exit Kit lists open deals to reassign and the final payout, so nothing is missed.</li>
+            </ul>
+            <a className="btn dark" href="#pricing">Add it to your plan</a>
+            <p className="fine" style={{ marginTop: "16px" }}>A signal is a prompt to talk, not a prediction. Your brokerage decides what to do with it.</p>
+          </div>
+          <div className="deal" data-reten="" aria-hidden="true"></div>
         </div>
       </section>
 
@@ -125,37 +133,44 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="night pad" id="pricing">
+      <section className="pad" id="pricing" style={{ paddingTop: "0" }}>
         <div className="wrap">
-          <p className="label">One price per agent seat</p>
-          <div className="offer" style={{ marginTop: "20px" }}>
-            <div>
-              <div className="term" role="group" aria-label="How you pay">
-                <button type="button" id="termM" aria-pressed={false}>Month to month</button>
-                <button type="button" id="termA" aria-pressed={true}>12‑month plan</button>
+          <p className="label">Pricing</p>
+          <h2 style={{ marginTop: "14px", maxWidth: "12em" }}>Build your plan. See the number.</h2>
+          <div className="price">
+            <div className="build glass tick">
+              <div className="term" role="group" aria-label="How you pay"><button type="button" id="tM" aria-pressed={true}>Month to month</button><button type="button" id="tA" aria-pressed={false}>12‑month plan</button></div>
+              <div className="field">
+                <div className="top"><label htmlFor="seats" className="label">Agent seats</label><output id="oSeats" htmlFor="seats">250</output></div>
+                <input id="seats" type="range" min="10" max="1510" step="10" defaultValue="250" />
+                <div className="top mono"><span>10</span><span>1,500 · over that, a custom quote</span></div>
               </div>
-              <div className="now" id="pNow">$12.50</div>
-              <p className="lede" style={{ marginTop: "14px", color: "#fff" }}>per agent seat, per month. Every product. Every add‑on. Every office.</p>
-              <span className="tag" id="pSave">Two months’ worth saved every year</span>
+              <div className="field">
+                <p className="label">Included in every seat</p>
+                <div className="adds"><div className="add inc"><span className="sw" aria-hidden="true"></span><span><b>Ops and Finance</b><small>Onboarding, paperwork, e‑signatures, deals, payroll, documents</small></span><span className="p">Included</span></div></div>
+              </div>
+              <div className="field">
+                <p className="label">Add‑ons, per agent seat</p>
+                <div className="adds" id="adds">
+                  <button type="button" className="add" data-k="ret" aria-pressed={false}><span className="sw" aria-hidden="true"></span><span><b>Retention Insights + Exit Kit</b><small>See who may leave; handle exits cleanly</small></span><span className="p">+ $4.00</span></button>
+                  <button type="button" className="add" data-k="shi" aria-pressed={false}><span className="sw" aria-hidden="true"></span><span><b>Finance Shield</b><small>Payout checks and override controls</small></span><span className="p">+ $1.50</span></button>
+                  <button type="button" className="add" data-k="com" aria-pressed={false}><span className="sw" aria-hidden="true"></span><span><b>Compliance pack</b><small>Audit files and year‑end exports</small></span><span className="p">+ $1.50</span></button>
+                </div>
+              </div>
+              <div className="field">
+                <div className="top"><span><span className="label">Extra admin seats</span><br /><small style={{ color: "var(--mute)" }}>1 admin seat is included. Each extra one is $49.50 a month.</small></span>
+                  <span className="step"><button type="button" id="aMinus" aria-label="One fewer extra admin seat">−</button><output id="oAdmins" aria-live="polite">0</output><button type="button" id="aPlus" aria-label="One more extra admin seat">+</button></span></div>
+              </div>
             </div>
-            <div>
-              <label htmlFor="p-agents" className="label">Agent seats: <output id="pN">500</output></label><input id="p-agents" type="range" min="20" max="1500" step="10" defaultValue="500" style={{ accentColor: "#fff" }} />
-              <ul style={{ marginTop: "22px" }}>
-                <li className="sum"><span id="pLine">500 seats on the 12‑month plan</span><b id="pTotal">$6,250 a month</b></li>
-                <li><span>The same seats, month to month</span><b id="pOther">$7,500 a month</b></li>
-                <li><span>Ops and Finance</span><b>Included</b></li>
-                <li><span>Retention Insights + Exit Kit, Finance Shield, Compliance pack</span><b>Included</b></li>
-                <li><span>Offices, teams and staff logins</span><b>No extra charge</b></li>
-                <li><span>Owner / Admin seats</span><b>1 included</b></li>
-              </ul>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}><button type="button" className="btn light" data-start="">Get started</button><a className="btn line" href="#preview">See how it’s done</a></div>
-            </div>
+            <aside className="total" aria-live="polite">
+              <p className="label" id="tLabel">Month to month</p>
+              <div><div className="tbig" id="tBig">$3,997.50</div><p className="per" id="tPer">a month · $15.99 per agent seat</p></div>
+              <ul id="tLines"></ul>
+              <button type="button" className="btn" data-start="" id="tCta">Get started with this plan</button>
+              <p className="fine" id="tFine"></p>
+            </aside>
           </div>
-          <div className="quote">
-            <div><p className="label">Large or multi‑branch brokerages</p><p style={{ marginTop: "8px", color: "#fff", fontSize: "1.2rem" }}>Over 500 agents, many branches, or a compliance hierarchy to mirror? You get a custom quote.</p></div>
-            <button type="button" className="btn line" data-start="">Contact {BRAND}</button>
-          </div>
-          <p className="fine" style={{ marginTop: "26px", maxWidth: "62em" }}>Both plans are billed monthly; nothing is charged for the year upfront. The 12‑month plan is a commitment: if it is cancelled before 12 months, the months used are re‑billed at the month‑to‑month price. $500 monthly minimum. One‑time setup from $1,500. Extra Owner / Admin seats are available on request. Plans renew until cancelled (see Refunds and Cancellation). Prices exclude tax.</p>
+          <p className="fine" style={{ marginTop: "18px", maxWidth: "62em" }}>Both plans are billed monthly; nothing is charged for the year upfront. The 12‑month plan is a commitment: if it is cancelled before 12 months, the months used are re‑billed at the month‑to‑month price. $500 monthly minimum. The one‑time setup fee depends on your volume and is quoted with your plan. One Owner / Admin seat is included; each extra one is $49.50 a month, added to your monthly bill. Over 1,500 agents gets a custom quote. Plans renew until cancelled (see Refunds and Cancellation). Prices exclude tax.</p>
         </div>
       </section>
 
@@ -184,12 +199,14 @@ export default function HomePage() {
           <p className="label">The thread starts here</p>
           <h2 style={{ marginTop: "16px" }}>You have better things to do.</h2>
           <p className="lede" style={{ marginTop: "22px" }}>Be among the first brokerages automating everything between “You’re hired” and “You’re paid.”</p>
-          <div className="cta"><button type="button" className="btn light" data-start="">Get started</button><a className="btn line" href="#preview">See how it’s done</a></div>
+          <div className="cta"><button type="button" className="btn light" data-start="">Get started</button><a className="btn line" href="#pricing">Build your plan</a></div>
         </div>
       </section>
       </main>
 
       <SiteFooter />
+
+      <div className="tour" id="tour" role="dialog" aria-modal="true" aria-label="Kinu walkthrough" hidden></div>
 
       <dialog id="start" aria-labelledby="startH">
         <div className="dlg">

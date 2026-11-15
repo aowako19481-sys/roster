@@ -14,4 +14,4 @@ export const COMPANY = {
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://kinu.pro").replace(/\/+$/, "");
 
 /** Prices per agent seat per month, shown on the public site. Everything is included at one price. */
-export const PRICES = { monthly: 15, annual: 12.5, monthlyMinimum: 500, setupFrom: 1500 };
+export const PRICES = { monthly: 15.99, annual: 13.5, monthlyMinimum: 500, adminSeat: 49.5 };
