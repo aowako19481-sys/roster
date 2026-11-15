@@ -62,11 +62,13 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.has(pathname);
+  // The agent onboarding portal: reached by private link, with or without a session.
+  const isOpen = OPEN_PATHS.has(pathname) || pathname.startsWith("/welcome/");
 
   // A sign-in link can land on any page of the site (Supabase falls back to
   // the site's home address when the exact landing address is not on its
   // allow-list). Wherever it lands, hand it to the one route that handles it.
-  if (!user && !OPEN_PATHS.has(pathname)) {
+  if (!user && !isOpen) {
     const code = request.nextUrl.searchParams.get("code");
     const failed = request.nextUrl.searchParams.has("error_code") || request.nextUrl.searchParams.has("error");
     if ((code && code.length <= 512) || failed) {
@@ -87,7 +89,7 @@ export async function proxy(request: NextRequest) {
   }
 
   let redirectTo: string | null = null;
-  if (!OPEN_PATHS.has(pathname)) {
+  if (!isOpen) {
     if (!user && !isPublic) redirectTo = "/sign-in";
     if (user && isPublic) redirectTo = "/";
   }
