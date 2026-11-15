@@ -42,13 +42,36 @@ export async function storePaymentFile(
   return { path, name: tidyName(file.name) };
 }
 
+export const BILLING_BUCKET = "kinu-billing";
+
+/**
+ * Kinu staff only: files an invoice, proof of payment or contract under a
+ * brokerage, in the separate billing store that brokerages cannot reach.
+ */
+export async function storeBillingFile(
+  supabase: SupabaseClient,
+  workspaceId: string,
+  file: File,
+): Promise<{ path: string; name: string } | { message: string }> {
+  const extension = TYPES[file.type];
+  if (!extension) return { message: "Use a PDF or a photo (JPEG, PNG, WebP)." };
+  if (file.size === 0) return { message: "That file is empty." };
+  if (file.size > MAX_BYTES) return { message: "That file is larger than 10 MB." };
+  const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  if (!looksLike(file.type, head)) return { message: "That file is not a valid PDF or photo." };
+  const path = `${workspaceId}/${randomUUID()}.${extension}`;
+  const { error } = await supabase.storage.from(BILLING_BUCKET).upload(path, file, { contentType: file.type, upsert: false });
+  if (error) return { message: "We could not store that file. Please try again." };
+  return { path, name: tidyName(file.name) };
+}
+
 /**
  * Sends a stored file back through our own site, as the signed-in user (the
  * storage rules decide whether they may read it). Images open in the page;
  * anything else downloads. The response cannot run scripts.
  */
-export async function sendStoredFile(supabase: SupabaseClient, path: string, filename: string): Promise<Response> {
-  const { data, error } = await supabase.storage.from("documents").download(path);
+export async function sendStoredFile(supabase: SupabaseClient, path: string, filename: string, bucket = "documents"): Promise<Response> {
+  const { data, error } = await supabase.storage.from(bucket).download(path);
   if (error || !data) return new Response("Not found", { status: 404 });
   const extension = path.split(".").pop() ?? "";
   const type = Object.entries(TYPES).find(([, ext]) => ext === extension)?.[0] ?? "application/octet-stream";

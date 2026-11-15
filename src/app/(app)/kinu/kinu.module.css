@@ -1,0 +1,179 @@
+/* The staff console: brokerages as ID cards, and the search above them. */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+}
+.filters label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--faint);
+}
+.search {
+  flex: 1 1 260px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 18px;
+  perspective: 1600px;
+}
+.id {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 24px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.22) 55%, rgba(255, 255, 255, 0.34) 100%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.45s var(--ease-out), box-shadow 0.45s var(--ease-out);
+  transform-style: preserve-3d;
+  min-width: 0;
+}
+.id:hover,
+.id:focus-within {
+  transform: rotateX(4deg) rotateY(-3deg) translateY(-4px);
+  box-shadow: inset 0 1px 0 #fff, 0 34px 60px rgba(18, 19, 22, 0.2);
+}
+.idHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+.idName {
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+.idName a {
+  text-decoration: none;
+}
+.idName a:hover {
+  text-decoration: underline;
+}
+.no {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--faint);
+  letter-spacing: 0.06em;
+}
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+.facts div {
+  min-width: 0;
+}
+.facts dt {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.facts dd {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+.over {
+  color: var(--red);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  color: var(--faint);
+}
+.chipOn {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+.idFoot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+.pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+/* The brokerage's own ID card at the top of its file. */
+.file {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 24px;
+  padding: 28px;
+  border-radius: 28px;
+  background: linear-gradient(140deg, #17181b 0%, #2c2d31 100%);
+  color: #f1f2f3;
+  box-shadow: 0 40px 80px rgba(18, 19, 22, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.file h2 {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 8px 0 12px;
+  overflow-wrap: anywhere;
+}
+.file .no,
+.file dt {
+  color: #a4a6ab;
+}
+.file .facts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 12px;
+}
+.tags > span {
+  background: rgba(255, 255, 255, 0.92);
+}
+.month {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+.year {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 18px 0 6px;
+}
+@media (max-width: 760px) {
+  .file,
+  .month {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .id,
+  .id:hover,
+  .id:focus-within {
+    transition: none;
+    transform: none;
+  }
+}

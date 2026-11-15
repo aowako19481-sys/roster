@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ActionForm, Submit } from "@/components/ActionForm";
-import { Badge, ButtonLink, Card, Empty, PageHeader, Placeholder, Stat, ui, type Tone } from "@/components/ui";
+import { Badge, ButtonLink, Card, Empty, PageHeader, Placeholder, Tabs, ui, type Tone } from "@/components/ui";
 import { requirePlatformAdmin } from "@/lib/access";
-import { MONTHLY_MINIMUM, PLAN_PIECES, WORKSPACE_STATUSES, pieceUnlocked, priceEstimate, type AuditRow } from "@/lib/admin-pages";
+import { DropZone } from "@/components/DropZone";
+import { BILLING_LABEL, MONTHLY_MINIMUM, PLANS, PLAN_PIECES, WORKSPACE_STATUSES, monthLabel, pieceUnlocked, planLabel, priceEstimate, type AuditRow } from "@/lib/admin-pages";
 import { BRAND } from "@/lib/brand";
-import { day, money, titleCase } from "@/lib/format";
+import { day, money, titleCase, todayIso } from "@/lib/format";
 import { roleLabel } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { switchWorkspace } from "../../actions";
 import { AuditTable } from "../../settings/audit/AuditTable";
-import { inviteOwner, updateBrokerage } from "../actions";
+import { addContract, fileMonth, inviteOwner, removeContract, setAccount, updateBrokerage } from "../actions";
+import kinu from "../kinu.module.css";
 import { PieceToggle } from "../PieceToggle";
 import styles from "../../settings/settings.module.css";
 
@@ -19,27 +21,31 @@ export const metadata: Metadata = { title: "Brokerage" };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const STATUS_TONE: Record<string, Tone> = { active: "ok", paused: "warn", closed: "muted" };
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string; check?: string }> };
+type Month = { id: string; month: string; amount: number | null; invoice_no: string | null; invoice_path: string | null; proof_path: string | null; payment_ref: string | null; paid_on: string | null; note: string | null };
+type Contract = { id: string; title: string; starts_on: string; ends_on: string; file_name: string; note: string | null };
 
 type Member = {
   user_id: string; role: string; display_name: string | null; email: string | null; status: string;
   custom_role_id: string | null; can_override: boolean; can_release_payroll: boolean; created_at: string;
 };
 
-export default async function BrokeragePage({ params }: Props) {
+export default async function BrokeragePage({ params, searchParams }: Props) {
   await requirePlatformAdmin();
   const { id } = await params;
   if (!UUID.test(id)) notFound();
+  const query = await searchParams;
+  const tab = ["billing", "contracts", "people"].includes(query.tab ?? "") ? query.tab! : "overview";
 
   const supabase = await createClient();
   const { data: ws } = await supabase
     .from("workspaces")
-    .select("id, name, timezone, status, has_ops, has_finance, addons, created_at")
+    .select("id, name, timezone, status, has_ops, has_finance, addons, created_at, plan_name, owner_seats, agent_seats, quoted_monthly")
     .eq("id", id)
     .maybeSingle();
   if (!ws) notFound();
 
-  const [membersRes, invitesRes, rolesRes, auditRes, overviewRes] = await Promise.all([
+  const [membersRes, invitesRes, rolesRes, auditRes, overviewRes, monthsRes, contractsRes, officesRes] = await Promise.all([
     supabase.from("workspace_members")
       .select("user_id, role, display_name, email, status, custom_role_id, can_override, can_release_payroll, created_at")
       .eq("workspace_id", id).order("created_at").limit(500),
@@ -49,7 +55,16 @@ export default async function BrokeragePage({ params }: Props) {
     supabase.from("audit_log").select("id, actor_label, action, entity, entity_id, summary, detail, at")
       .eq("workspace_id", id).order("at", { ascending: false }).limit(25),
     supabase.rpc("platform_overview"),
+    supabase.from("billing_months").select("id, month, amount, invoice_no, invoice_path, proof_path, payment_ref, paid_on, note").eq("workspace_id", id).order("month", { ascending: false }).limit(240),
+    supabase.from("contracts").select("id, title, starts_on, ends_on, file_name, note").eq("workspace_id", id).order("starts_on", { ascending: false }).limit(100),
+    supabase.from("offices").select("id", { count: "exact", head: true }).eq("workspace_id", id),
   ]);
+  const months = (monthsRes.data ?? []) as Month[];
+  const contracts = (contractsRes.data ?? []) as Contract[];
+  const thisMonth = `${todayIso().slice(0, 7)}-01`;
+  const current = months.find((month) => month.month === thisMonth);
+  const billing = !current ? "none" : current.proof_path || current.paid_on ? "paid" : "invoiced";
+  const here = `/kinu/${id}`;
 
   const members = (membersRes.data ?? []) as Member[];
   const invites = invitesRes.data ?? [];
@@ -60,6 +75,9 @@ export default async function BrokeragePage({ params }: Props) {
   const addons: string[] = ws.addons ?? [];
   const price = priceEstimate({ hasOps: ws.has_ops, hasFinance: ws.has_finance, addons }, agents);
   const active = members.filter((member) => member.status === "active");
+  const owners = active.filter((member) => member.role === "owner_admin").length + invites.filter((invite) => invite.role === "owner_admin").length;
+  const overSeats = ws.agent_seats !== null && agents > ws.agent_seats;
+  const years = [...new Set(months.map((month) => month.month.slice(0, 4)))];
 
   return (
     <div className={ui.stack}>
@@ -71,12 +89,78 @@ export default async function BrokeragePage({ params }: Props) {
         </form>
       </PageHeader>
 
-      <section className={`${ui.card} ${ui.pad} ${ui.grid4}`} aria-label="At a glance">
-        <Stat label="Status" value={<Badge tone={STATUS_TONE[ws.status] ?? "plain"}>{titleCase(ws.status)}</Badge>} />
-        <Stat label="People" value={active.length} note="with access" />
-        <Stat label="Agents" value={agents} note="on file" />
-        <Stat label="Estimate" value={money(price.total)} note="per month" />
+      <section className={kinu.file} aria-label="Account file">
+        <div>
+          <span className={kinu.no}>ID {ws.id.slice(0, 8).toUpperCase()} · since {day(ws.created_at)}</span>
+          <h2>{ws.name}</h2>
+          <div className={`${ui.inline} ${kinu.tags}`}>
+            <Badge tone={STATUS_TONE[ws.status] ?? "plain"}>{titleCase(ws.status)}</Badge>
+            <Badge tone={billing === "paid" ? "ok" : billing === "invoiced" ? "warn" : "muted"}>{BILLING_LABEL[billing]}</Badge>
+          </div>
+        </div>
+        <dl className={kinu.facts}>
+          <div><dt>Plan</dt><dd>{planLabel(ws.plan_name)}</dd></div>
+          <div><dt>Monthly</dt><dd>{ws.quoted_monthly !== null ? money(Number(ws.quoted_monthly)) : `${money(price.total)} est.`}</dd></div>
+          <div><dt>Agent seats</dt><dd>{agents}{ws.agent_seats !== null ? ` of ${ws.agent_seats}` : ""}{overSeats ? " · over" : ""}</dd></div>
+          <div><dt>Owner / Admin seats</dt><dd>{owners} of {ws.owner_seats}</dd></div>
+          <div><dt>Offices</dt><dd>{officesRes.count ?? 0}</dd></div>
+          <div><dt>Contract to</dt><dd>{contracts[0] ? day(contracts[0].ends_on) : "None filed"}</dd></div>
+        </dl>
       </section>
+
+      <Tabs
+        current={tab === "overview" ? here : `${here}?tab=${tab}`}
+        items={[
+          { href: here, label: "Plan and account" },
+          { href: `${here}?tab=billing`, label: `Billing (${months.length})` },
+          { href: `${here}?tab=contracts`, label: `Contracts (${contracts.length})` },
+          { href: `${here}?tab=people`, label: `People (${active.length})` },
+        ]}
+      />
+
+      {query.check && (
+        <p className={ui.error} role="alert">
+          The brokerage was created, but part of its file could not be saved ({query.check.replace(/[^a-z,]/g, "").split(",").join(", ")}). Add it below.
+        </p>
+      )}
+
+      {tab === "overview" && (
+        <>
+      <Card title="Plan and seats" aside={<span className={ui.soft}>What this brokerage is contracted for</span>}>
+        <ActionForm action={setAccount}>
+          <input type="hidden" name="id" value={ws.id} />
+          <div className={ui.formRow}>
+            <label className={ui.field}>
+              Plan
+              <select className={ui.select} name="plan" defaultValue={ws.plan_name}>
+                {PLANS.map((plan) => (
+                  <option key={plan.key} value={plan.key}>{plan.label} · {plan.blurb}</option>
+                ))}
+              </select>
+            </label>
+            <label className={ui.field}>
+              Quoted price per month (empty = list prices)
+              <input className={ui.input} name="quote" inputMode="decimal" defaultValue={ws.quoted_monthly ?? ""} maxLength={12} />
+            </label>
+          </div>
+          <div className={ui.formRow}>
+            <label className={ui.field}>
+              Agent seats (empty = no limit)
+              <input className={ui.input} name="agent_seats" inputMode="numeric" defaultValue={ws.agent_seats ?? ""} maxLength={7} />
+            </label>
+            <label className={ui.field}>
+              Owner / Admin seats
+              <input className={ui.input} name="owner_seats" inputMode="numeric" defaultValue={ws.owner_seats} required maxLength={3} />
+            </label>
+          </div>
+          <p className={ui.help}>
+            Seats cover the whole brokerage across all its offices and teams. Agent seats are a count to bill against: going
+            over is shown here and on the console, and never blocks the brokerage from onboarding. Owner / Admin seats are
+            enforced: the brokerage cannot add another owner until you raise the number.
+          </p>
+          <div><Submit>Save plan and seats</Submit></div>
+        </ActionForm>
+      </Card>
 
       <Card title="Plan" aside={<span className={ui.soft}>{PLAN_PIECES.filter((piece) => pieceUnlocked(ws, piece.key)).length} of {PLAN_PIECES.length} unlocked</span>}>
         <ul className={ui.list}>
@@ -170,13 +254,175 @@ export default async function BrokeragePage({ params }: Props) {
         </Card>
       </div>
 
-      <Card title="Billing">
-        <Placeholder service="Stripe (billing)">
-          Invoices, ACH Direct Debit and the customer portal will connect here. Until then nothing is charged from {BRAND}:
-          the first clients pay by direct bank payment, and the estimate above is the figure to invoice by hand.
-        </Placeholder>
-      </Card>
+        </>
+      )}
 
+      {tab === "billing" && (
+        <>
+          <Card title="File a month" aside={<span className={ui.soft}>Invoice sent, and the proof of payment that came in</span>}>
+            <ActionForm action={fileMonth} resetOnSuccess>
+              <input type="hidden" name="id" value={ws.id} />
+              <div className={ui.formRow}>
+                <label className={ui.field}>
+                  Month
+                  <input className={ui.input} name="month" type="month" defaultValue={thisMonth.slice(0, 7)} required />
+                </label>
+                <label className={ui.field}>
+                  Invoice amount
+                  <input className={ui.input} name="amount" inputMode="decimal" placeholder="$" maxLength={12} />
+                </label>
+                <label className={ui.field}>
+                  Invoice number
+                  <input className={ui.input} name="invoice_no" maxLength={60} autoComplete="off" />
+                </label>
+              </div>
+              <DropZone name="invoice" label="Invoice sent to the client" />
+              <DropZone name="proof" label="Proof of payment from Square" />
+              <div className={ui.formRow}>
+                <label className={ui.field}>
+                  Square payment reference
+                  <input className={ui.input} name="payment_ref" maxLength={80} autoComplete="off" />
+                </label>
+                <label className={ui.field}>
+                  Paid on
+                  <input className={ui.input} name="paid_on" type="date" />
+                </label>
+              </div>
+              <label className={ui.field}>
+                Note
+                <input className={ui.input} name="note" maxLength={500} />
+              </label>
+              <p className={ui.help}>
+                A new month needs its invoice and amount. To add the proof of payment later, choose the same month and drop
+                only the proof: everything already filed for that month is kept.
+              </p>
+              <div><Submit busy="Filing…">File this month</Submit></div>
+            </ActionForm>
+          </Card>
+
+          <Card title="Billing record" aside={<span className={ui.soft}>{months.filter((month) => month.proof_path || month.paid_on).length} of {months.length} paid</span>}>
+            {months.length ? (
+              years.map((year) => (
+                <div key={year}>
+                  <p className={kinu.year}>{year}</p>
+                  <ul className={ui.list}>
+                    {months.filter((month) => month.month.startsWith(year)).map((month) => {
+                      const paid = Boolean(month.proof_path || month.paid_on);
+                      return (
+                        <li key={month.id}>
+                          <div className={kinu.month}>
+                            <span>
+                              <span className={ui.strong}>{monthLabel(month.month)}</span>
+                              {month.amount !== null && <span className={ui.soft}> · {money(Number(month.amount))}</span>}
+                              {month.note && <><br /><span className={ui.soft}>{month.note}</span></>}
+                            </span>
+                            <span>
+                              {month.invoice_path ? (
+                                <a className={ui.rowLink} href={`${here}/files/${month.id}/invoice`} target="_blank" rel="noopener noreferrer">
+                                  Invoice{month.invoice_no ? ` ${month.invoice_no}` : ""}<span className="sr-only"> for {monthLabel(month.month)} (opens in a new tab)</span>
+                                </a>
+                              ) : (
+                                <span className={ui.soft}>No invoice filed</span>
+                              )}
+                            </span>
+                            <span>
+                              {month.proof_path ? (
+                                <a className={ui.rowLink} href={`${here}/files/${month.id}/proof`} target="_blank" rel="noopener noreferrer">
+                                  Proof of payment<span className="sr-only"> for {monthLabel(month.month)} (opens in a new tab)</span>
+                                </a>
+                              ) : (
+                                <span className={ui.soft}>No proof yet</span>
+                              )}
+                              {(month.payment_ref || month.paid_on) && (
+                                <><br /><span className={ui.soft}>{[month.payment_ref, month.paid_on && `paid ${day(month.paid_on)}`].filter(Boolean).join(" · ")}</span></>
+                              )}
+                            </span>
+                            <Badge tone={paid ? "ok" : "warn"}>{paid ? "Paid" : "Awaiting payment"}</Badge>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))
+            ) : (
+              <Empty>Nothing filed yet. File the first invoice above.</Empty>
+            )}
+          </Card>
+
+          <Card title="Charging from Kinu">
+            <Placeholder service="Square or Stripe (billing)">
+              Today you invoice and take payment in Square, then file both here. Connecting a billing service would create
+              the invoice and file the proof by itself each month.
+            </Placeholder>
+          </Card>
+        </>
+      )}
+
+      {tab === "contracts" && (
+        <>
+          <Card title="File a contract" aside={<span className={ui.soft}>Usually once a year</span>}>
+            <ActionForm action={addContract} resetOnSuccess>
+              <input type="hidden" name="id" value={ws.id} />
+              <div className={ui.formRow}>
+                <label className={ui.field}>
+                  Title
+                  <input className={ui.input} name="title" defaultValue="Service agreement" maxLength={120} />
+                </label>
+                <label className={ui.field}>
+                  Starts
+                  <input className={ui.input} name="starts_on" type="date" required />
+                </label>
+                <label className={ui.field}>
+                  Ends
+                  <input className={ui.input} name="ends_on" type="date" required />
+                </label>
+              </div>
+              <DropZone name="contract" label="The signed contract" required />
+              <label className={ui.field}>
+                Note
+                <input className={ui.input} name="note" maxLength={500} />
+              </label>
+              <div><Submit busy="Filing…">File contract</Submit></div>
+            </ActionForm>
+          </Card>
+          <Card title="Contracts on file">
+            {contracts.length ? (
+              <ul className={ui.list}>
+                {contracts.map((contract) => {
+                  const live = contract.ends_on >= todayIso();
+                  return (
+                    <li key={contract.id}>
+                      <div className={ui.inline} style={{ justifyContent: "space-between" }}>
+                        <span>
+                          <a className={ui.rowLink} href={`${here}/files/${contract.id}/contract`} target="_blank" rel="noopener noreferrer">
+                            {contract.title}<span className="sr-only"> (opens in a new tab)</span>
+                          </a>
+                          <span className={ui.soft}> · {day(contract.starts_on)} to {day(contract.ends_on)}</span>
+                          {contract.note && <><br /><span className={ui.soft}>{contract.note}</span></>}
+                        </span>
+                        <span className={ui.inline}>
+                          <Badge tone={live ? "ok" : "muted"}>{live ? "In force" : "Ended"}</Badge>
+                          <ActionForm action={removeContract} className={ui.inline}>
+                            <input type="hidden" name="id" value={ws.id} />
+                            <input type="hidden" name="contract" value={contract.id} />
+                            <Submit small variant="link">Remove<span className="sr-only"> {contract.title}</span></Submit>
+                          </ActionForm>
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <Empty>No contract filed yet.</Empty>
+            )}
+          </Card>
+        </>
+      )}
+
+      {tab === "people" && (
+        <>
       <div className={ui.grid2}>
         <Card title="People" aside={<span className={ui.soft}>{active.length} active</span>}>
           {members.length ? (
@@ -225,7 +471,7 @@ export default async function BrokeragePage({ params }: Props) {
                 <input className={ui.input} name="email" type="email" required maxLength={254} autoComplete="off" />
               </label>
               <p className={ui.help}>
-                They are added as Owner / Admin. Someone who already has a login joins straight away. For someone new, the
+                They are added as Owner / Admin and use one of this brokerage’s {ws.owner_seats} Owner / Admin seat{ws.owner_seats === 1 ? "" : "s"}; raise the number under Plan and account to add more. Someone who already has a login joins straight away. For someone new, the
                 invitation waits: open this brokerage and invite them again from Settings, People and roles, which also
                 creates their login once the server key is in place.
               </p>
@@ -256,6 +502,8 @@ export default async function BrokeragePage({ params }: Props) {
       <Card title="Recent activity" aside={<span className={ui.soft}>Last 25 entries</span>}>
         <AuditTable rows={audit} timeZone={ws.timezone} empty="Nothing has been recorded for this brokerage yet." />
       </Card>
+        </>
+      )}
     </div>
   );
 }

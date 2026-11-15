@@ -1,218 +1,189 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ActionForm, Submit } from "@/components/ActionForm";
 import { Badge, ButtonLink, Card, Empty, PageHeader, Stat, ui, type Tone } from "@/components/ui";
 import { requirePlatformAdmin } from "@/lib/access";
-import { ADDONS, MONTHLY_MINIMUM, PLAN_PIECES, TIMEZONES, addonLabel, pieceUnlocked, priceEstimate } from "@/lib/admin-pages";
+import { ADDONS, BILLING_LABEL, WORKSPACE_STATUSES, addonLabel, planLabel, priceEstimate } from "@/lib/admin-pages";
 import { BRAND } from "@/lib/brand";
 import { day, money, titleCase } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { switchWorkspace } from "../actions";
-import { createBrokerage } from "./actions";
-import { PieceToggle } from "./PieceToggle";
-import styles from "../settings/settings.module.css";
+import styles from "./kinu.module.css";
 
 export const metadata: Metadata = { title: "Console" };
 
 type Row = {
-  id: string;
-  name: string;
-  status: string;
-  has_ops: boolean;
-  has_finance: boolean;
-  addons: string[] | null;
-  created_at: string;
-  members: number;
-  agents: number;
-  pending_invites: number;
+  id: string; name: string; status: string; has_ops: boolean; has_finance: boolean; addons: string[] | null; created_at: string;
+  plan_name: string; owner_seats: number; agent_seats: number | null; quoted_monthly: number | null; billing: string;
+  agents: number; offices: number; members: number; owners: number; contract_ends: string | null;
 };
+type Found = { total: number; all: number; unpaid: number; rows: Row[] };
 
 const STATUS_TONE: Record<string, Tone> = { active: "ok", paused: "warn", closed: "muted" };
+const BILLING_TONE: Record<string, Tone> = { paid: "ok", invoiced: "warn", none: "muted" };
+const PAGE_SIZE = 24;
 
-export default async function ConsolePage() {
+type Props = { searchParams: Promise<{ q?: string; status?: string; billing?: string; page?: string }> };
+
+export default async function ConsolePage({ searchParams }: Props) {
   await requirePlatformAdmin();
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("platform_overview");
-  const rows = (Array.isArray(data) ? data : []) as Row[];
+  const params = await searchParams;
+  const q = (params.q ?? "").trim().slice(0, 80);
+  const status = (WORKSPACE_STATUSES as readonly string[]).includes(params.status ?? "") ? params.status! : "";
+  const billing = ["paid", "invoiced", "none"].includes(params.billing ?? "") ? params.billing! : "";
+  const page = Math.max(1, Math.min(10000, Number.parseInt(params.page ?? "1", 10) || 1));
 
-  const estimate = (row: Row) =>
-    priceEstimate({ hasOps: row.has_ops, hasFinance: row.has_finance, addons: row.addons ?? [] }, Number(row.agents ?? 0));
-  const total = (pick: (row: Row) => number) => rows.reduce((sum, row) => sum + Number(pick(row) ?? 0), 0);
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("platform_brokerages", {
+    search: q || null, only_status: status || null, only_billing: billing || null, page_no: page, page_size: PAGE_SIZE,
+  });
+  const found = (data ?? { total: 0, all: 0, unpaid: 0, rows: [] }) as Found;
+  const pages = Math.max(1, Math.ceil(found.total / PAGE_SIZE));
+  const link = (to: number) => {
+    const next = new URLSearchParams();
+    if (q) next.set("q", q);
+    if (status) next.set("status", status);
+    if (billing) next.set("billing", billing);
+    if (to > 1) next.set("page", String(to));
+    const query = next.toString();
+    return query ? `/kinu?${query}` : "/kinu";
+  };
 
   return (
     <div className={ui.stack}>
-      <PageHeader
-        eyebrow={`${BRAND} staff`}
-        title="Console"
-        sub="Every brokerage, what it has switched on, and who is in it. Only staff can see this page."
-      >
+      <PageHeader eyebrow={`${BRAND} staff`} title="Console" sub="Every brokerage account. Nothing inside a brokerage is shown until you open it.">
         <ButtonLink href="/kinu/inbox">Website inbox</ButtonLink>
+        <ButtonLink href="/kinu/new" primary>
+          New brokerage
+        </ButtonLink>
       </PageHeader>
 
-      <section className={`${ui.card} ${ui.pad} ${ui.grid4}`} aria-label="Totals">
-        <Stat label="Brokerages" value={rows.length} note={`${rows.filter((row) => row.status === "active").length} active`} />
-        <Stat label="People" value={total((row) => row.members)} note="staff with access" />
-        <Stat label="Agents" value={total((row) => row.agents)} note="across all brokerages" />
-        <Stat label="Pending invitations" value={total((row) => row.pending_invites)} note="waiting for a first sign-in" />
+      <section className={`${ui.card} ${ui.pad} ${ui.grid3}`} aria-label="Totals">
+        <Stat label="Brokerages" value={found.all.toLocaleString("en-US")} note="accounts on file" />
+        <Stat label="Matching this search" value={found.total.toLocaleString("en-US")} note={q || status || billing ? "filtered" : "showing all"} />
+        <Stat label="Not yet paid this month" value={found.unpaid.toLocaleString("en-US")} note="active accounts in this search" />
       </section>
 
-      <Card title="All brokerages">
-        {error ? (
-          <Empty>The list could not be loaded. Try again in a moment.</Empty>
-        ) : rows.length ? (
-          <div className={ui.tableWrap}>
-            <table className={ui.table}>
-              <thead>
-                <tr>
-                  <th scope="col">Brokerage</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Products</th>
-                  <th scope="col">Add-ons</th>
-                  <th scope="col" className={ui.num}>People</th>
-                  <th scope="col" className={ui.num}>Agents</th>
-                  <th scope="col" className={ui.num}>Invites</th>
-                  <th scope="col">Created</th>
-                  <th scope="col"><span className="sr-only">Actions</span></th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.id}>
-                    <th scope="row" className={styles.rowHead}>
-                      <Link href={`/kinu/${row.id}`} className={ui.rowLink}>{row.name}</Link>
-                    </th>
-                    <td><Badge tone={STATUS_TONE[row.status] ?? "plain"}>{titleCase(row.status)}</Badge></td>
-                    <td>
-                      <span className={ui.inline}>
-                        {row.has_ops && <Badge tone="dark">Ops</Badge>}
-                        {row.has_finance && <Badge tone="dark">Finance</Badge>}
-                        {!row.has_ops && !row.has_finance && <span className={ui.soft}>None</span>}
-                      </span>
-                    </td>
-                    <td className={ui.soft}>{(row.addons ?? []).length ? (row.addons ?? []).map(addonLabel).join(" · ") : "None"}</td>
-                    <td className={ui.num}>{row.members}</td>
-                    <td className={ui.num}>{row.agents}</td>
-                    <td className={ui.num}>{row.pending_invites}</td>
-                    <td className={ui.soft}>{day(row.created_at)}</td>
-                    <td>
-                      <span className={ui.inline}>
-                        <Link href={`/kinu/${row.id}`} className={`${ui.btn} ${ui.small}`}>
-                          Manage<span className="sr-only"> {row.name}</span>
-                        </Link>
-                        <form action={switchWorkspace}>
-                          <input type="hidden" name="ws" value={row.id} />
-                          <button type="submit" className={`${ui.btnPrimary} ${ui.small}`}>
-                            Open<span className="sr-only"> {row.name}</span>
-                          </button>
-                        </form>
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <Empty>No brokerages yet. Create the first one below.</Empty>
-        )}
+      <Card title="Find a brokerage">
+        <form className={styles.filters} action="/kinu" method="get" role="search">
+          <label className={styles.search}>
+            Name
+            <input className={ui.input} type="search" name="q" defaultValue={q} placeholder="Start typing a brokerage name" maxLength={80} />
+          </label>
+          <label>
+            Status
+            <select className={ui.select} name="status" defaultValue={status}>
+              <option value="">Any status</option>
+              {WORKSPACE_STATUSES.map((value) => (
+                <option key={value} value={value}>{titleCase(value)}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            This month’s billing
+            <select className={ui.select} name="billing" defaultValue={billing}>
+              <option value="">Any</option>
+              <option value="paid">{BILLING_LABEL.paid}</option>
+              <option value="invoiced">{BILLING_LABEL.invoiced}</option>
+              <option value="none">{BILLING_LABEL.none}</option>
+            </select>
+          </label>
+          <button type="submit" className={ui.btnPrimary}>Search</button>
+          {(q || status || billing) && <ButtonLink href="/kinu">Clear</ButtonLink>}
+        </form>
       </Card>
 
-      <Card title="Plans" aside={<span className={ui.soft}>Lock or unlock any piece in one click</span>}>
-        {rows.length ? (
-          <div className={ui.tableWrap}>
-            <table className={ui.table}>
-              <caption className="sr-only">Which pieces of the plan each brokerage has, with its estimated monthly price</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Brokerage</th>
-                  {PLAN_PIECES.map((piece) => (
-                    <th key={piece.key} scope="col">{piece.label}</th>
-                  ))}
-                  <th scope="col" className={ui.num}>Estimate / month</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.id}>
-                    <th scope="row" className={styles.rowHead}>
-                      <Link href={`/kinu/${row.id}`} className={ui.rowLink}>{row.name}</Link>
-                      <br />
-                      <span className={ui.soft}>{Number(row.agents) === 1 ? "1 agent" : `${row.agents} agents`}</span>
-                    </th>
-                    {PLAN_PIECES.map((piece) => (
-                      <td key={piece.key}>
-                        <PieceToggle brokerageId={row.id} brokerageName={row.name} piece={piece.key} label={piece.label} unlocked={pieceUnlocked(row, piece.key)} />
-                      </td>
+      {error ? (
+        <Card title="Brokerages">
+          <Empty>The console needs the latest setup file to be run in Supabase before it can list brokerages.</Empty>
+        </Card>
+      ) : found.rows.length ? (
+        <>
+          <div className={styles.grid}>
+            {found.rows.map((row) => {
+              const addons = row.addons ?? [];
+              const estimate = priceEstimate({ hasOps: row.has_ops, hasFinance: row.has_finance, addons }, Number(row.agents));
+              const overSeats = row.agent_seats !== null && Number(row.agents) > row.agent_seats;
+              return (
+                <article key={row.id} className={styles.id}>
+                  <div className={styles.idHead}>
+                    <div style={{ minWidth: 0 }}>
+                      <span className={styles.no}>ID {row.id.slice(0, 8).toUpperCase()} · since {day(row.created_at)}</span>
+                      <h2 className={styles.idName}>
+                        <Link href={`/kinu/${row.id}`}>{row.name}</Link>
+                      </h2>
+                    </div>
+                    <Badge tone={STATUS_TONE[row.status] ?? "plain"}>{titleCase(row.status)}</Badge>
+                  </div>
+                  <dl className={styles.facts}>
+                    <div>
+                      <dt>Plan</dt>
+                      <dd>{planLabel(row.plan_name)}</dd>
+                    </div>
+                    <div>
+                      <dt>Agent seats</dt>
+                      <dd className={overSeats ? styles.over : undefined}>
+                        {Number(row.agents).toLocaleString("en-US")}
+                        {row.agent_seats !== null ? ` of ${row.agent_seats.toLocaleString("en-US")}` : ""}
+                        {overSeats && <span className="sr-only"> (over the seats in the plan)</span>}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Owner seats</dt>
+                      <dd>{row.owners} of {row.owner_seats}</dd>
+                    </div>
+                    <div>
+                      <dt>Offices</dt>
+                      <dd>{row.offices}</dd>
+                    </div>
+                    <div>
+                      <dt>Monthly</dt>
+                      <dd>{row.quoted_monthly !== null ? money(Number(row.quoted_monthly)) : `${money(estimate.total)} est.`}</dd>
+                    </div>
+                    <div>
+                      <dt>Contract to</dt>
+                      <dd>{row.contract_ends ? day(row.contract_ends) : "None filed"}</dd>
+                    </div>
+                  </dl>
+                  <div className={styles.chips} aria-label="What is switched on">
+                    <span className={`${styles.chip} ${row.has_ops ? styles.chipOn : ""}`}>Ops{row.has_ops ? "" : " · locked"}</span>
+                    <span className={`${styles.chip} ${row.has_finance ? styles.chipOn : ""}`}>Finance{row.has_finance ? "" : " · locked"}</span>
+                    {ADDONS.filter((addon) => addons.includes(addon.key)).map((addon) => (
+                      <span key={addon.key} className={`${styles.chip} ${styles.chipOn}`}>{addonLabel(addon.key)}</span>
                     ))}
-                    <td className={ui.num}>{money(estimate(row).total)}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th scope="row" className={`${styles.rowHead} ${ui.strong}`}>Total</th>
-                  {PLAN_PIECES.map((piece) => (
-                    <td key={piece.key} className={ui.soft}>{rows.filter((row) => pieceUnlocked(row, piece.key)).length} unlocked</td>
-                  ))}
-                  <td className={`${ui.num} ${ui.strong}`}>{money(rows.reduce((sum, row) => sum + estimate(row).total, 0))}</td>
-                </tr>
-              </tfoot>
-            </table>
+                  </div>
+                  <div className={styles.idFoot}>
+                    <Badge tone={BILLING_TONE[row.billing] ?? "plain"}>{BILLING_LABEL[row.billing] ?? row.billing}</Badge>
+                    <span className={ui.inline}>
+                      <Link href={`/kinu/${row.id}`} className={`${ui.btn} ${ui.small}`}>
+                        File<span className="sr-only"> for {row.name}</span>
+                      </Link>
+                      <form action={switchWorkspace}>
+                        <input type="hidden" name="ws" value={row.id} />
+                        <button type="submit" className={`${ui.btnPrimary} ${ui.small}`}>
+                          Open<span className="sr-only"> {row.name}</span>
+                        </button>
+                      </form>
+                    </span>
+                  </div>
+                </article>
+              );
+            })}
           </div>
-        ) : (
-          <Empty>No brokerages yet.</Empty>
-        )}
-        <p className={ui.help}>
-          A locked product or add-on shows to the brokerage’s people as a locked preview, and its actions are refused. Ops and
-          Finance cannot both be locked: pause the brokerage instead. Estimates use the starting prices per agent per month
-          and each brokerage’s agent count, with the minimum of about {money(MONTHLY_MINIMUM)} a month applied; paused and
-          closed brokerages are included. They are estimates, not invoices.
-        </p>
-      </Card>
-
-      <Card title="New brokerage">
-        <ActionForm action={createBrokerage}>
-          <div className={ui.formRow}>
-            <label className={ui.field}>
-              Brokerage name
-              <input className={ui.input} name="name" required minLength={2} maxLength={120} autoComplete="off" />
-            </label>
-            <label className={ui.field}>
-              Time zone
-              <select className={ui.select} name="timezone" defaultValue="America/New_York">
-                {TIMEZONES.map((zone) => (
-                  <option key={zone.value} value={zone.value}>{zone.label}</option>
-                ))}
-              </select>
-            </label>
-            <label className={ui.field}>
-              Owner’s email (optional)
-              <input className={ui.input} name="owner_email" type="email" maxLength={254} autoComplete="off" />
-            </label>
-          </div>
-          <div role="group" aria-labelledby="new-products" className={ui.inline}>
-            <span id="new-products" className={ui.help}>Products</span>
-            <label className={ui.check}><input type="checkbox" name="ops" defaultChecked /> Ops</label>
-            <label className={ui.check}><input type="checkbox" name="finance" defaultChecked /> Finance</label>
-          </div>
-          <div role="group" aria-labelledby="new-addons" className={ui.inline}>
-            <span id="new-addons" className={ui.help}>Add-ons</span>
-            {ADDONS.map((addon) => (
-              <label key={addon.key} className={ui.check}>
-                <input type="checkbox" name={`addon_${addon.key}`} /> {addon.label}
-              </label>
-            ))}
-          </div>
-          <p className={ui.help}>
-            A “Main office” is created with the brokerage. If you give an owner’s email, that person is invited as
-            Owner / Admin: they join straight away if they already have a login, otherwise the invitation waits for
-            their first sign-in.
-          </p>
-          <div>
-            <Submit>Create brokerage</Submit>
-          </div>
-        </ActionForm>
-      </Card>
+          <nav className={styles.pager} aria-label="Pages">
+            <span className={ui.soft}>
+              Page {page} of {pages.toLocaleString("en-US")} · {found.total.toLocaleString("en-US")} brokerages
+            </span>
+            <span className={ui.inline}>
+              {page > 1 && <ButtonLink href={link(page - 1)}>Previous</ButtonLink>}
+              {page < pages && <ButtonLink href={link(page + 1)}>Next</ButtonLink>}
+            </span>
+          </nav>
+        </>
+      ) : (
+        <Card title="Brokerages">
+          <Empty>{q || status || billing ? "No brokerage matches that search." : "No brokerages yet. Create the first one with New brokerage."}</Empty>
+        </Card>
+      )}
     </div>
   );
 }

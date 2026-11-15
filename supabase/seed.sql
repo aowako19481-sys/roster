@@ -20,6 +20,11 @@ values
   ('00000000-0000-4000-8000-000000000002', 'Harbor & Vine Realty (fake data)', 'America/New_York', true, false,
    array[]::text[], null);
 
+-- Plan and seats for the sample accounts (Kinu staff see these on the console).
+update public.workspaces set plan_name = 'brokerage', owner_seats = 3, agent_seats = 100, quoted_monthly = 950 where id = '00000000-0000-4000-8000-000000000001';
+update public.workspaces set plan_name = 'team', owner_seats = 1, agent_seats = 10 where id = '00000000-0000-4000-8000-000000000002';
+
+
 insert into public.offices (id, workspace_id, name) values
   ('00000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-8000-000000000001', 'Manhattan'),
   ('00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-000000000001', 'Brooklyn'),

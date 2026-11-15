@@ -386,3 +386,28 @@ export function pieceUnlocked(ws: { has_ops: boolean; has_finance: boolean; addo
   if (key === "finance") return ws.has_finance;
   return (ws.addons ?? []).includes(key);
 }
+
+// ------------------------------------------------------- account and seats --
+
+export const PLANS = [
+  { key: "standard", label: "Standard", blurb: "List price per agent" },
+  { key: "team", label: "Team", blurb: "One team or small office" },
+  { key: "brokerage", label: "Brokerage", blurb: "Multi-office, quoted" },
+  { key: "custom", label: "Custom", blurb: "Bespoke agreement" },
+] as const;
+export function planLabel(key: string): string {
+  return PLANS.find((plan) => plan.key === key)?.label ?? "Standard";
+}
+
+export const BILLING_LABEL: Record<string, string> = { paid: "Paid this month", invoiced: "Invoiced, not paid", none: "Nothing filed this month" };
+
+/** The first day of a month typed as YYYY-MM, or null. */
+export function monthField(form: FormData, name: string): string | null {
+  const value = String(form.get(name) ?? "");
+  return /^\d{4}-(0[1-9]|1[0-2])$/.test(value) ? `${value}-01` : null;
+}
+
+export function monthLabel(isoDate: string): string {
+  const [year, month] = isoDate.split("-").map(Number);
+  return new Date(Date.UTC(year ?? 2000, (month ?? 1) - 1, 1)).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+}
