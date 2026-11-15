@@ -152,16 +152,14 @@ export default async function DashboardPage() {
                 </span>
               </div>
               <div className={styles.tierButtons}>
-                <button type="button" className={styles.approve} disabled aria-describedby="approve-note">
-                  Approve
-                </button>
+                <Link href="/riders" className={`${styles.approve} press`}>
+                  {access.caps.has("tiers.approve") ? "Review and approve" : "View"}
+                </Link>
                 <Link href="/riders" className={`${styles.ghost} press`}>
-                  View rider
+                  All riders
                 </Link>
               </div>
-              <p id="approve-note" className={styles.tierNote}>
-                Approving switches on in the next build step, with roles and the audit log.
-              </p>
+              <p className={styles.tierNote}>Pay never changes on its own. A person approves every tier move.</p>
               {otherApprovals.slice(0, 1).map((other) => (
                 <Link key={other.id} href={other.kind === "team" ? "/teams" : "/riders"} className={`${styles.lrow} ${styles.tierOther}`}>
                   <span>
