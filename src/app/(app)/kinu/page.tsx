@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, ButtonLink, Card, Empty, PageHeader, Stat, ui, type Tone } from "@/components/ui";
-import { cookies } from "next/headers";
-import { LOOK_COOKIE, requirePlatformAdmin } from "@/lib/access";
+import { requirePlatformAdmin } from "@/lib/access";
 import { ADDONS, BILLING_LABEL, WORKSPACE_STATUSES, addonLabel, planLabel, priceEstimate } from "@/lib/admin-pages";
 import { BRAND } from "@/lib/brand";
 import { day, money, titleCase } from "@/lib/format";
@@ -44,7 +43,6 @@ export default async function ConsolePage({ searchParams }: Props) {
   const [pulseRes, orbitRes] = access.isFounder ? await Promise.all([supabase.rpc("platform_pulse"), supabase.rpc("platform_orbit")]) : [null, null];
   const pulse = (pulseRes?.data ?? null) as Pulse | null;
   const groups = (Array.isArray(orbitRes?.data) ? orbitRes.data : []) as OrbitGroup[];
-  const look = (await cookies()).get(LOOK_COOKIE)?.value === "violet" ? "violet" : "silver";
   const pages = Math.max(1, Math.ceil(found.total / PAGE_SIZE));
   const link = (to: number) => {
     const next = new URLSearchParams();
@@ -59,7 +57,7 @@ export default async function ConsolePage({ searchParams }: Props) {
   return (
     <div className={ui.stack}>
       {pulse ? (
-        <FounderDashboard pulse={pulse} groups={groups} look={look} firstName={access.displayName.split(" ")[0] ?? access.displayName} />
+        <FounderDashboard pulse={pulse} groups={groups} firstName={access.displayName.split(" ")[0] ?? access.displayName} />
       ) : (
         <>
       <PageHeader eyebrow={`${BRAND} staff`} title="Console" sub="Every brokerage account. Nothing inside a brokerage is shown until you open it.">

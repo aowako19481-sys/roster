@@ -68,5 +68,7 @@ export async function setViewAs(form: FormData) {
 export async function setLook(form: FormData) {
   const jar = await cookies();
   jar.set(LOOK_COOKIE, form.get("look") === "violet" ? "violet" : "silver", { ...sessionCookieOptions, maxAge: 60 * 60 * 24 * 365 });
-  redirect("/kinu");
+  // Back to the console page the founder was on; never anywhere else.
+  const back = String(form.get("back") ?? "");
+  redirect(/^\/kinu(\/[A-Za-z0-9\-/]*)?$/.test(back) ? back : "/kinu");
 }

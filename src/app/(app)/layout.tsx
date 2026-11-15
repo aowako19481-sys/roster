@@ -8,7 +8,7 @@ import { LOOK_COOKIE, getAccess } from "@/lib/access";
 import { BRAND } from "@/lib/brand";
 import { buildNav } from "@/lib/nav";
 import { BUILT_IN_ROLES, roleLabel } from "@/lib/roles";
-import { leaveWorkspace, setViewAs, signOut, switchWorkspace } from "./actions";
+import { leaveWorkspace, setLook, setViewAs, signOut, switchWorkspace } from "./actions";
 import styles from "./shell.module.css";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -66,6 +66,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           )}
 
           <div className={styles.barEnd}>
+            {founderView && (
+              <form action={setLook} className={styles.look} role="group" aria-label="Console colours">
+                <input type="hidden" name="back" value={path} />
+                <button type="submit" name="look" value="silver" aria-pressed={look === "silver"}>
+                  Silver
+                </button>
+                <button type="submit" name="look" value="violet" aria-pressed={look === "violet"}>
+                  Violet
+                </button>
+              </form>
+            )}
             {access.isPlatformAdmin && (
               ws ? (
                 <form action={leaveWorkspace}>

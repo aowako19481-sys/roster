@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { monthLabel } from "@/lib/admin-pages";
 import { day, money } from "@/lib/format";
-import { setLook } from "../actions";
 import { FounderOrbit, type OrbitGroup } from "./FounderOrbit";
 import { CountUp, PaidChart } from "./FounderWidgets";
 import styles from "./founder.module.css";
@@ -21,7 +20,7 @@ function greeting() {
 }
 
 /** The founder's view of the whole business. Totals and names only: nothing from inside a brokerage. */
-export function FounderDashboard({ pulse, groups, firstName, look }: { pulse: Pulse; groups: OrbitGroup[]; firstName: string; look: "silver" | "violet" }) {
+export function FounderDashboard({ pulse, groups, firstName }: { pulse: Pulse; groups: OrbitGroup[]; firstName: string }) {
   const months = pulse.months ?? [];
   const points = months.map((entry) => ({
     label: monthLabel(entry.month).slice(0, 3),
@@ -43,10 +42,6 @@ export function FounderDashboard({ pulse, groups, firstName, look }: { pulse: Pu
         <Link href="/kinu/inbox">Inbox{pulse.open_leads > 0 && <span className={styles.count}>{pulse.open_leads}</span>}</Link>
         <Link href="/kinu/cabinet">Filing cabinet</Link>
         <span className={styles.spacer} />
-        <form action={setLook}>
-          <input type="hidden" name="look" value={look === "violet" ? "silver" : "violet"} />
-          <button type="submit">{look === "violet" ? "Silver look" : "Violet look"}</button>
-        </form>
         <Link href="/kinu/new" className={styles.pillOn}>+ New brokerage</Link>
       </nav>
 
