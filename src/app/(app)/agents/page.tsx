@@ -17,8 +17,10 @@ type AgentRow = {
 };
 
 // "Onboarding" covers everyone who has been invited but is not active yet.
-const FILTERS: { key: string; label: string; statuses: string[] | null }[] = [
-  { key: "", label: "All", statuses: null },
+type Filter = { key: string; label: string; statuses: string[] | null };
+const ALL: Filter = { key: "", label: "All", statuses: null };
+const FILTERS: Filter[] = [
+  ALL,
   { key: "active", label: "Active", statuses: ["active"] },
   { key: "onboarding", label: "Onboarding", statuses: ["invited", "onboarding"] },
   { key: "flagged", label: "Flagged", statuses: ["flagged"] },
@@ -29,7 +31,7 @@ export default async function AgentsPage({ searchParams }: Props) {
   const access = await requireCap("agents.view");
   const params = await searchParams;
   const q = one(params.q);
-  const filter = FILTERS.find((entry) => entry.key === one(params.status)) ?? FILTERS[0];
+  const filter = FILTERS.find((entry) => entry.key === one(params.status)) ?? ALL;
   const showSplits = access.caps.has("splits.view");
   const ws = access.workspace.id;
   const supabase = await createClient();

@@ -202,7 +202,7 @@ export function parseInviteLines(pasted: string, offices: { id: string; name: st
       problems.push(`Line ${n}: expected 4 parts (name, email, split %, office) but found ${parts.length}.`);
       return;
     }
-    const [name, emailRaw, splitRaw, officeRaw] = parts;
+    const [name, emailRaw, splitRaw, officeRaw] = parts as [string, string, string, string];
     const email = emailRaw.toLowerCase();
     const split = Number(splitRaw.replace(/%/g, "").trim());
     const office = offices.find((entry) => entry.name.toLowerCase() === officeRaw.toLowerCase());
