@@ -25,7 +25,7 @@ export function HighRollers({ rollers }: { rollers: Roller[] }) {
   const range = atTop ? `top ${Math.min(5, rollers.length)}` : `#${offset + 1}–#${offset + 5}`;
 
   return (
-    <section aria-labelledby="rollers-title" className={`${styles.card} ${styles.rollers}`}>
+    <section aria-labelledby="rollers-title" className={`${styles.card} ${styles.rollers}`} data-tour="rollers">
       <div className={styles.rollersHead}>
         <h2 id="rollers-title" className={styles.h2}>
           High rollers{" "}

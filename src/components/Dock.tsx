@@ -60,7 +60,7 @@ function DockLink({ item, pathname }: { item: Item; pathname: string }) {
 export function Dock() {
   const pathname = usePathname();
   return (
-    <nav aria-label="Main" className={styles.dock}>
+    <nav aria-label="Main" className={styles.dock} data-tour="nav">
       <ul className={styles.list}>
         <li className={`brandLabel ${styles.heading}`} role="presentation">
           Onboarding

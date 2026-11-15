@@ -39,7 +39,7 @@ export function LiveCounter({
 
   return (
     <section aria-label="Live onboarding counter" className={styles.live}>
-      <div className={`${styles.card} ${styles.livePanel}`}>
+      <div className={`${styles.card} ${styles.livePanel}`} data-tour="live">
         <div className={styles.liveTitle}>
           <span className={styles.liveDot} aria-hidden="true" />
           Onboarding right now

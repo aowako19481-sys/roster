@@ -5,7 +5,10 @@ import { HighRollers } from "@/components/dashboard/HighRollers";
 import { LiveCounter } from "@/components/dashboard/LiveCounter";
 import { NotificationsBell } from "@/components/dashboard/NotificationsBell";
 import { getDashboardData, type Tone } from "@/lib/dashboard";
+import { Tour } from "@/components/Tour";
+import { createClient, getUser } from "@/lib/supabase/server";
 import { getMembership } from "@/lib/workspace";
+import { completeTour } from "./actions";
 import styles from "./dashboard.module.css";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -37,6 +40,15 @@ export default async function DashboardPage() {
   const data = await getDashboardData(membership.workspaceId, tz);
   const firstName = membership.displayName.split(" ")[0] ?? membership.displayName;
   const lastRead = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: tz }).format(now);
+
+  // Has this person seen the first-run tour? Row-level security returns only
+  // their own row. If the lookup fails, stay quiet rather than nag.
+  const user = await getUser();
+  const supabase = await createClient();
+  const prefs = user
+    ? await supabase.from("user_prefs").select("tour_seen_at").eq("user_id", user.id).maybeSingle()
+    : null;
+  const showTour = Boolean(prefs && !prefs.error && !prefs.data?.tour_seen_at);
 
   const [lead, ...otherApprovals] = data.approvals;
   const peak = data.timeline ? Math.max(...data.timeline.counts) : 0;
@@ -121,7 +133,7 @@ export default async function DashboardPage() {
         <div className={`${styles.span12} ${styles.r} ${styles.d4}`}>
           <HighRollers rollers={data.rollers} />
         </div>
-        <section className={`${styles.card} ${styles.pad} ${styles.tierCard} ${styles.span4} ${styles.r} ${styles.d4}`} aria-labelledby="tier-title">
+        <section className={`${styles.card} ${styles.pad} ${styles.tierCard} ${styles.span4} ${styles.r} ${styles.d4}`} aria-labelledby="tier-title" data-tour="tier">
           <div className={styles.cardHead}>
             <h2 id="tier-title" className={styles.h2}>
               Tier clearance
@@ -201,7 +213,7 @@ export default async function DashboardPage() {
           )}
         </section>
 
-        <section className={`${styles.card} ${styles.pad} ${styles.flagCard} ${styles.span4} ${styles.r} ${styles.d5}`} aria-labelledby="flags-title">
+        <section className={`${styles.card} ${styles.pad} ${styles.flagCard} ${styles.span4} ${styles.r} ${styles.d5}`} aria-labelledby="flags-title" data-tour="flags">
           <div className={styles.cardHead}>
             <h2 id="flags-title" className={styles.h2}>
               Needs a human
@@ -234,7 +246,7 @@ export default async function DashboardPage() {
         <CohortTable title={data.cohortLabel} rows={data.rows} />
       </div>
 
-      <nav aria-labelledby="jump-title" className={`${styles.jump} ${styles.r} ${styles.d6}`}>
+      <nav aria-labelledby="jump-title" className={`${styles.jump} ${styles.r} ${styles.d6}`} data-tour="jump">
         <h2 id="jump-title" className={styles.h2}>
           Quick actions
         </h2>
@@ -252,6 +264,8 @@ export default async function DashboardPage() {
           ))}
         </ul>
       </nav>
+
+      <Tour firstName={firstName} autoStart={showTour} onDone={completeTour} />
     </>
   );
 }

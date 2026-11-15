@@ -9,3 +9,13 @@ export async function signOut() {
   await supabase.auth.signOut({ scope: "local" });
   redirect("/sign-in");
 }
+
+/**
+ * Records that the signed-in person has seen the first-run tour. The database
+ * function stamps only the caller's own row, with the server's time.
+ */
+export async function completeTour() {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mark_tour_seen");
+  if (error) console.error("tour: could not save", error.code);
+}

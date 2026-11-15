@@ -1,4 +1,6 @@
-# Roster
+# Kinu
+
+(Repository name: `roster`. The product name lives in `src/lib/brand.ts`.)
 
 Web app for real estate brokerages: agent onboarding (Ops) and commission payroll (Finance).
 Product spec: `docs/blueprint.md`. Build plan: `PLAN.md`. Design references: `design/`.
@@ -7,7 +9,8 @@ Product spec: `docs/blueprint.md`. Build plan: `PLAN.md`. Design references: `de
 
 - `/sign-in`: email + 6-digit code sign-in through Supabase. Existing users only.
 - `/`: dashboard with the shared sidebar, filled with fake sample data from Supabase.
-- Other sidebar links open a "coming later" page.
+- Other navigation links open a "coming later" page.
+- A first-run walkthrough of the dashboard, shown once per account and replayable.
 
 ## Run it locally
 
@@ -24,7 +27,7 @@ Checks: `npm run typecheck`, `npm run lint`, `npm run build`.
 1. Authentication: switch off "Allow new users to sign up".
 2. Authentication -> Users: add each tester by email.
 3. Authentication -> Email templates -> Magic Link: include `{{ .Token }}` so the email shows the code.
-4. SQL editor: run `supabase/migrations/0001_step1_dashboard.sql`, then `supabase/seed.sql`.
+4. SQL editor: run `supabase/migrations/0001_step1_dashboard.sql`, then `supabase/migrations/0002_first_run_tour.sql`, then `supabase/seed.sql`.
    Both are safe to run again. Run the seed again after adding a new tester.
 
 ## Rules this repo follows

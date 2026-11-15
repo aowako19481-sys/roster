@@ -1,0 +1,173 @@
+.replay {
+  align-self: flex-start;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--mute);
+  text-decoration: underline;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.replay:hover {
+  color: var(--ink);
+}
+
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  animation: fade 360ms ease both;
+}
+
+/* One element does both jobs: its huge shadow dims the page, and the element
+   itself is the clear window over the thing being explained. */
+.spot {
+  position: fixed;
+  border-radius: 30px;
+  box-shadow:
+    0 0 0 200vmax rgba(18, 19, 22, 0.5),
+    0 0 0 1.5px rgba(255, 255, 255, 0.95),
+    0 0 44px 6px rgba(255, 255, 255, 0.35);
+  transition:
+    top 620ms var(--ease-in-out),
+    left 620ms var(--ease-in-out),
+    width 620ms var(--ease-in-out),
+    height 620ms var(--ease-in-out);
+}
+.spotNone {
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  box-shadow: 0 0 0 200vmax rgba(18, 19, 22, 0.5);
+}
+
+.card {
+  position: fixed;
+  width: 348px;
+  max-width: calc(100vw - 32px);
+  padding: 26px 26px 22px;
+  border-radius: 28px;
+  background: linear-gradient(150deg, rgba(250, 250, 251, 0.96), rgba(228, 229, 231, 0.94));
+  border: 1px solid var(--white);
+  box-shadow:
+    inset 0 1px 0 var(--white),
+    0 40px 80px rgba(18, 19, 22, 0.38);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition:
+    top 620ms var(--ease-in-out),
+    left 620ms var(--ease-in-out);
+}
+.cardNarrow {
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  width: auto;
+  max-width: none;
+}
+
+.count {
+  color: var(--mute);
+}
+@keyframes words {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.title {
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  animation: words 420ms var(--ease-out) both;
+}
+.body {
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  animation: words 420ms var(--ease-out) 60ms both;
+}
+.dots {
+  display: flex;
+  gap: 6px;
+  padding: 6px 0 2px;
+}
+.dot,
+.dotOn {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(18, 19, 22, 0.22);
+  transition:
+    width 320ms var(--ease-out),
+    background-color 320ms ease;
+}
+.dotOn {
+  width: 22px;
+  background: var(--ink);
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+.skip,
+.back {
+  height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.skip {
+  margin-right: auto;
+  padding-left: 0;
+  color: var(--mute);
+  text-decoration: underline;
+}
+.back {
+  margin-left: auto;
+  border: 1px solid rgba(18, 19, 22, 0.22);
+}
+.skip + .back {
+  margin-left: 0;
+}
+.back:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.next {
+  height: 44px;
+  min-width: 96px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2c2d30, #151617);
+  box-shadow: 0 10px 22px rgba(18, 19, 22, 0.26);
+  color: var(--white);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title,
+  .body {
+    animation-name: fade;
+  }
+}
