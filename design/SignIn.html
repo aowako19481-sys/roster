@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Sign in</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes swap{from{opacity:0;transform:translateX(14px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+.r{animation:rise 620ms var(--ease-out) both}.d1{animation-delay:80ms}.d2{animation-delay:150ms}.d3{animation-delay:220ms}
+.step{animation:swap 320ms var(--ease-out) both}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease}.press:active{transform:scale(0.97)}
+.float{animation:float 7s ease-in-out infinite}
+.iso{transform:rotateX(55deg) rotateZ(-38deg);transform-style:preserve-3d;transition:transform 600ms var(--ease-out)}
+.iso .sheet{transition:transform 600ms var(--ease-out)}
+.iso .s1{transform:translateZ(0)}.iso .s2{transform:translateZ(46px)}.iso .s3{transform:translateZ(92px)}
+@media (hover:hover) and (pointer:fine){.stage:hover .iso{transform:rotateX(50deg) rotateZ(-32deg)}.stage:hover .s2{transform:translateZ(70px)}.stage:hover .s3{transform:translateZ(140px)}}
+.digit:focus{outline:2px solid #1E1C19;outline-offset:1px}
+@media (prefers-reduced-motion:reduce){.r,.step{animation-name:fade}.float{animation:none}.iso,.iso .sheet{transition:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 40px 24px; background: radial-gradient(900px 640px at 30% -5%, #D6D1C9, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), radial-gradient(640px 480px at 100% 55%, #CAC4BA, transparent 70%), #BCB8B1; font-family: Geist, sans-serif; color: #1B1A17; display: flex; align-items: center; justify-content: center">
+<div style="width: 100%; max-width: 1240px; display: flex; flex-wrap: wrap; align-items: center; gap: 56px">
+
+<div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 22px">
+<span class="r" style="font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 500; letter-spacing: 0.1em">ROSTER</span>
+<h1 class="r d1" style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 76px; line-height: 0.95; letter-spacing: -0.02em">Fifty new agents.<br><span style="font-style: italic; color: #4F4A43">One quiet hour.</span></h1>
+<p class="r d2" style="margin: 0; max-width: 460px; font-size: 16px; line-height: 1.55; color: #3E3A34">Welcome links, licences, W-9s and riders, collected, checked and filed while your team gets on with the day.</p>
+<div class="stage r d3" aria-hidden="true" style="height: 300px; perspective: 1400px; display: flex; align-items: center; justify-content: center">
+<div class="float">
+<div class="iso" style="position: relative; width: 300px; height: 190px">
+<div class="sheet s1" style="position: absolute; inset: 0; border-radius: 22px; background: linear-gradient(150deg, #F7F5F1, #DCD7CF); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 30px 50px rgba(30,24,18,0.18); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between"><span style="font-size: 12px; color: #4F4A43">Rider · individual</span><span style="font-family: 'Instrument Serif', serif; font-size: 34px">80%</span></div>
+<div class="sheet s2" style="position: absolute; inset: 0; border-radius: 22px; background: linear-gradient(150deg, #FFFFFF, #E6E2DB); border: 1px solid #FFFFFF; box-shadow: 0 20px 40px rgba(30,24,18,0.14); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between"><span style="font-size: 12px; color: #4F4A43">W-9 · received</span><span style="font-family: 'Geist Mono', monospace; font-size: 13px">TIN on file · masked</span></div>
+<div class="sheet s3" style="position: absolute; inset: 0; border-radius: 22px; background: linear-gradient(155deg, #FFFFFF 0%, #EFEDE8 45%, #F8F2EA 70%, #E3E0DA 100%); border: 1px solid #FFFFFF; box-shadow: 0 14px 30px rgba(30,24,18,0.12); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between"><span style="display: flex; justify-content: space-between; font-size: 12px; color: #4F4A43"><span>Salesperson licence</span><span style="color: #2F7D4F; font-weight: 600">✓ Verified</span></span><span style="font-family: 'Geist Mono', monospace; font-size: 16px; letter-spacing: 0.08em">10401 ••• 338</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="r d2" style="flex: 0 1 430px; min-width: 0; box-sizing: border-box; padding: 34px; border-radius: 28px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.55); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 30px 80px rgba(30,24,18,0.16); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px)">
+<sc-if value="{{isEmail}}" hint-placeholder-val="{{ true }}">
+<div class="step" style="display: flex; flex-direction: column; gap: 18px">
+<div><h2 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 40px; line-height: 1">Sign in</h2><p style="margin: 8px 0 0; font-size: 14px; color: #4F4A43">Use the email your brokerage set up for you.</p></div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500">Work email<input type="email" autocomplete="email" placeholder="you@brokerage.com" style="height: 48px; padding: 0 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.65); background: rgba(255,255,255,0.45); font: 15px Geist, sans-serif; color: #1B1A17; outline: none"></label>
+<button type="button" class="press" sc-camel-on-click="{{goCode}}" style="height: 48px; border-radius: 14px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 15px Geist, sans-serif; cursor: pointer">Continue</button>
+<div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #4F4A43"><span style="flex: 1; height: 1px; background: rgba(30,24,18,0.15)"></span>or<span style="flex: 1; height: 1px; background: rgba(30,24,18,0.15)"></span></div>
+<button type="button" class="press" sc-camel-on-click="{{goCode}}" style="height: 48px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.65); background: rgba(255,255,255,0.35); color: #1B1A17; font: 500 14px Geist, sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px"><svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>Continue with Google Workspace</button>
+<p style="margin: 4px 0 0; font-size: 13px; color: #4F4A43">New brokerage? <a href="Retention.dc.html" style="font-weight: 600">Book a setup call</a></p>
+</div>
+</sc-if>
+<sc-if value="{{isCode}}" hint-placeholder-val="{{ false }}">
+<div class="step" style="display: flex; flex-direction: column; gap: 18px">
+<div><h2 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 40px; line-height: 1">Check your email</h2><p style="margin: 8px 0 0; font-size: 14px; line-height: 1.5; color: #4F4A43">We sent a 6-digit code to your inbox. It expires in 10 minutes.</p></div>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{digits}}" as="d" hint-placeholder-count="6">
+<input class="digit" type="text" inputmode="numeric" maxlength="1" aria-label="{{d.label}}" style="height: 58px; min-width: 0; text-align: center; border-radius: 14px; border: 1px solid rgba(255,255,255,0.65); background: rgba(255,255,255,0.45); font: 500 22px 'Geist Mono', monospace; color: #1B1A17">
+</sc-for>
+</div>
+<a href="Main.dc.html" class="press" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 14px; background: #1E1C19; color: #FFFFFF; font: 500 15px Geist, sans-serif; text-decoration: none">Verify and sign in</a>
+<button type="button" sc-camel-on-click="{{goEmail}}" style="align-self: flex-start; padding: 0; border: 0; background: transparent; color: #1B1A17; font: 500 13px Geist, sans-serif; text-decoration: underline; cursor: pointer">Use a different email</button>
+</div>
+</sc-if>
+<div style="display: flex; gap: 10px; margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(30,24,18,0.12); font-size: 12px; line-height: 1.5; color: #4F4A43"><svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="flex: none; margin-top: 1px"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span>Two-step sign-in on every account. Roles decide who can see splits, W-9s and payouts.</span></div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 'email' };
+  }
+  renderVals() {
+    return {
+      isEmail: this.state.step === 'email',
+      isCode: this.state.step === 'code',
+      goCode: () => this.setState({ step: 'code' }),
+      goEmail: () => this.setState({ step: 'email' }),
+      digits: [1, 2, 3, 4, 5, 6].map((n) => ({ label: 'Digit ' + n }))
+    };
+  }
+}
+</script>
+
+
+</body></html>

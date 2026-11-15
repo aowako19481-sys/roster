@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Agent onboarding</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes swap{from{opacity:0;transform:translateX(18px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+@keyframes scan{0%{transform:translateY(0)}50%{transform:translateY(150px)}100%{transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{0%{opacity:0;transform:scale(0.9) rotateX(30deg)}100%{opacity:1;transform:none}}
+.r{animation:rise 560ms var(--ease-out) both}.d1{animation-delay:80ms}
+.step{animation:swap 340ms var(--ease-out) both}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease,opacity 160ms ease}.press:active{transform:scale(0.97)}
+.scanline{animation:scan 1.5s ease-in-out infinite}
+.spin{display:inline-block;width:12px;height:12px;border-radius:99px;border:2px solid rgba(30,24,18,0.2);border-top-color:#1E1C19;animation:spin 700ms linear infinite}
+.lic3d{transform:perspective(1200px) rotateX(10deg) rotateY(-12deg);transition:transform 500ms var(--ease-out)}
+.popin{animation:pop 520ms var(--ease-out) both}
+.field{height:46px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.7);background:rgba(255,255,255,0.5);font:15px Geist,sans-serif;color:#1B1A17;outline:none;transition:border-color 160ms ease,background-color 160ms ease}
+.field:focus{border-color:#1E1C19;background:rgba(255,255,255,0.75)}
+@media (hover:hover) and (pointer:fine){.lic3d:hover{transform:perspective(1200px) rotateX(0) rotateY(0)}}
+@media (prefers-reduced-motion:reduce){.r,.step,.popin{animation-name:fade}.scanline,.spin{animation:none}.lic3d{transform:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 24px 18px 40px; background: radial-gradient(800px 600px at 80% -5%, #DAD5CD, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), #BFBBB4; font-family: Geist, sans-serif; color: #1B1A17">
+<div style="max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px">
+
+<header class="r" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px">
+<span style="font-family: 'Geist Mono', monospace; font-size: 14px; letter-spacing: 0.1em">YOUR BROKERAGE</span>
+<span style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.55); font-size: 12px"><svg width="13" height="13" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Private link for Priya · saved as you go</span>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start">
+<nav class="r d1" aria-label="Onboarding steps" style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0 0 14px; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 40px; line-height: 1">Getting you<br>ready to go live</h1>
+<sc-for list="{{rail}}" as="s" hint-placeholder-count="6">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: {{s.bg}}; font-size: 14px; font-weight: {{s.w}}; color: {{s.fg}}; transition: background-color 300ms ease"><span style="width: 26px; height: 26px; flex: none; border-radius: 999px; background: {{s.dot}}; color: {{s.dotFg}}; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 11px">{{s.n}}</span>{{s.label}}</div>
+</sc-for>
+<div style="margin-top: 14px; height: 6px; border-radius: 99px; background: rgba(30,24,18,0.12)"><div style="height: 100%; width: {{pct}}; border-radius: 99px; background: #1E1C19; transition: width 500ms cubic-bezier(0.77,0,0.175,1)"></div></div>
+<span style="font-size: 12px; color: #4F4A43">{{pctLabel}}</span>
+</nav>
+
+<main class="r d1" style="flex: 2.2 1 480px; min-width: 0; box-sizing: border-box; padding: 30px; border-radius: 28px; background: rgba(255,255,255,0.22); border: 1px solid rgba(255,255,255,0.6); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 30px 70px rgba(30,24,18,0.14); backdrop-filter: blur(26px); -webkit-backdrop-filter: blur(26px)">
+
+<sc-if value="{{st0}}" hint-placeholder-val="{{ true }}">
+<section class="step" style="display: flex; flex-direction: column; gap: 18px">
+<h2 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 36px">First, a quick check it’s you</h2>
+<p style="margin: 0; font-size: 14px; color: #3E3A34">We sent a 6-digit code to p••••@email.com.</p>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; max-width: 380px">
+<sc-for list="{{digits}}" as="d" hint-placeholder-count="6"><input class="field" type="text" inputmode="numeric" maxlength="1" aria-label="{{d}}" style="min-width: 0; padding: 0; text-align: center; height: 56px; font: 500 22px 'Geist Mono', monospace"></sc-for>
+</div>
+<button type="button" class="press" sc-camel-on-click="{{next}}" style="align-self: flex-start; height: 48px; padding: 0 26px; border-radius: 14px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 15px Geist, sans-serif; cursor: pointer">Verify</button>
+</section>
+</sc-if>
+
+<sc-if value="{{st1}}" hint-placeholder-val="{{ false }}">
+<section class="step" style="display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 36px">About you</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500">Legal name (as on your licence) *<input class="field" type="text" autocomplete="name" value="{{f.legal}}" sc-camel-on-input="{{on.legal}}" placeholder="Priya Nair"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500">Preferred name<input class="field" type="text" value="{{f.preferred}}" sc-camel-on-input="{{on.preferred}}" placeholder="Priya"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500">Mobile *<input class="field" type="tel" autocomplete="tel" value="{{f.mobile}}" sc-camel-on-input="{{on.mobile}}" placeholder="(212) 555-0199"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500">Home address *<input class="field" type="text" autocomplete="street-address" value="{{f.address}}" sc-camel-on-input="{{on.address}}" placeholder="Street, city, state, ZIP"></label>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap"><span style="font-size: 12px; color: #4F4A43">{{hint1}}</span><button type="button" class="press" sc-camel-on-click="{{next}}" disabled="{{no1}}" style="height: 48px; padding: 0 26px; border-radius: 14px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 15px Geist, sans-serif; cursor: pointer; opacity: {{op1}}">Continue</button></div>
+</section>
+</sc-if>
+
+<sc-if value="{{st2}}" hint-placeholder-val="{{ false }}">
+<section class="step" style="display: flex; flex-direction: column; gap: 18px">
+<h2 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 36px">Your licence</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 22px; align-items: center">
+<div class="lic3d" style="position: relative; overflow: hidden; flex: 0 1 320px; aspect-ratio: 1.586; box-sizing: border-box; padding: 18px; border-radius: 20px; background: {{licBg}}; border: {{licBd}}; box-shadow: 0 20px 44px rgba(30,24,18,0.14); display: flex; flex-direction: column; justify-content: space-between">
+<sc-if value="{{licNone}}" hint-placeholder-val="{{ true }}"><span style="margin: auto; text-align: center; font-size: 13px; color: #4F4A43">Photo of your licence<br>goes here</span></sc-if>
+<sc-if value="{{licHas}}" hint-placeholder-val="{{ false }}">
+<span style="font-size: 11px; color: #4F4A43">Real estate salesperson licence</span>
+<span style="font-family: 'Geist Mono', monospace; font-size: 17px; letter-spacing: 0.08em">10401 ••• 772</span>
+<span style="display: flex; justify-content: space-between; align-items: flex-end"><span style="font-family: 'Instrument Serif', serif; font-size: 22px">{{licName}}</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4F4A43">EXP 06/28</span></span>
+</sc-if>
+<sc-if value="{{licScanning}}" hint-placeholder-val="{{ false }}"><span class="scanline" aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 10px; height: 3px; background: #1E1C19; box-shadow: 0 0 18px 4px rgba(30,24,18,0.25)"></span></sc-if>
+</div>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 12px">
+<sc-if value="{{licNone}}" hint-placeholder-val="{{ true }}">
+<p style="margin: 0; font-size: 14px; line-height: 1.55; color: #3E3A34">Take a clear photo of the front of your licence. We’ll read the number and check it against the state’s public licence lookup.</p>
+<button type="button" class="press" sc-camel-on-click="{{upload}}" style="align-self: flex-start; height: 48px; padding: 0 22px; border-radius: 14px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 15px Geist, sans-serif; cursor: pointer">Take or upload a photo</button>
+</sc-if>
+<sc-if value="{{licBusy}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 14px" aria-live="polite"><span class="spin" aria-hidden="true"></span>{{licMsg}}</p></sc-if>
+<sc-if value="{{licOk}}" hint-placeholder-val="{{ false }}">
+<div class="popin" style="display: flex; flex-direction: column; gap: 8px; font-size: 14px">
+<span style="color: #2F7D4F; font-weight: 600">✓ Matches the state record</span>
+<span style="color: #3E3A34">Number 10401 ••• 772 · Salesperson · active until June 2028</span>
+<button type="button" sc-camel-on-click="{{reupload}}" style="align-self: flex-start; padding: 0; border: 0; background: transparent; font: 500 13px Geist, sans-serif; text-decoration: underline; cursor: pointer; color: #1B1A17">Use a different photo</button>
+</div>
+</sc-if>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; gap: 10px"><button type="button" class="press" sc-camel-on-click="{{back}}" style="height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.3); color: #1B1A17; font: 500 15px Geist, sans-serif; cursor: pointer">Back</button><button type="button" class="press" sc-camel-on-click="{{next}}" disabled="{{no2}}" style="height: 48px; padding: 0 26px; border-radius: 14px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 15px Geist, sans-serif; cursor: pointer; opacity: {{op2}}">Continue</button></div>
+</section>
+</sc-if>
+
+<sc-if value="{{st3}}" hint-placeholder-val="{{ false }}">
+<section class="step" style="display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 36px">W-9 for tax reporting</h2>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #3E3A34">Collected through a secure tax-form service. Your brokerage only ever sees the last four digits.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500">Name on your tax return<input class="field" type="text" value="{{f.legal}}" sc-camel-on-input="{{on.legal}}"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500">Tax classification<sc-raw-select class="field" sc-camel-on-change="{{on.entity}}"><option>Individual / sole proprietor</option><option>Single-member LLC</option><option>S corporation</option></sc-raw-select></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500">SSN or EIN *<input class="field" type="password" inputmode="numeric" autocomplete="off" maxlength="11" value="{{f.tin}}" sc-camel-on-input="{{on.tin}}" placeholder="9 digits"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500">Address<input class="field" type="text" value="{{f.address}}" sc-camel-on-input="{{on.address}}"></label>
+</div>
+<label style="display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.5"><input type="checkbox" checked="{{f.cert}}" sc-camel-on-change="{{toggleCert}}" style="width: 18px; height: 18px; margin-top: 1px; accent-color: #1E1C19">I certify, under penalties of perjury, that the information above is correct.</label>
+<div style="display: flex; justify-content: space-between; gap: 10px"><button type="button" class="press" sc-camel-on-click="{{back}}" style="height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.3); color: #1B1A17; font: 500 15px Geist, sans-serif; cursor: pointer">Back</button><button type="button" class="press" sc-camel-on-click="{{next}}" disabled="{{no3}}" style="height: 48px; padding: 0 26px; border-radius: 14px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 15px Geist, sans-serif; cursor: pointer; opacity: {{op3}}">Continue</button></div>
+</section>
+</sc-if>
+
+<sc-if value="{{st4}}" hint-placeholder-val="{{ false }}">
+<section class="step" style="display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 36px">Your rider</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 18px">
+<div style="flex: 1 1 240px; padding: 18px; border-radius: 18px; background: rgba(255,255,255,0.45); display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; color: #4F4A43">Your split to start</span><span style="font-family: 'Instrument Serif', serif; font-size: 64px; line-height: 1">70%</span><span style="font-size: 12px; color: #4F4A43">Resets each year on your start date</span>
+</div>
+<div style="flex: 1.3 1 260px; display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px"><span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3E3A34">$0 – 20,000</span><span style="font-weight: 600">70%</span></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid rgba(30,24,18,0.1); font-size: 14px"><span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3E3A34">$20,000 – 40,000</span><span>80%</span></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid rgba(30,24,18,0.1); font-size: 14px"><span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #3E3A34">$40,000 +</span><span>85%</span></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid rgba(30,24,18,0.1); font-size: 14px"><span style="color: #3E3A34">Monthly desk fee</span><span>$[FEE]</span></div>
+</div>
+</div>
+<label style="display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.5"><input type="checkbox" checked="{{f.agree}}" sc-camel-on-change="{{toggleAgree}}" style="width: 18px; height: 18px; margin-top: 1px; accent-color: #1E1C19">I’ve read the full rider and independent contractor agreement.</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500">Type your full legal name to sign<input class="field" type="text" value="{{f.sig}}" sc-camel-on-input="{{on.sig}}" placeholder="{{sigPlaceholder}}"></label>
+<div aria-hidden="true" style="height: 64px; display: flex; align-items: flex-end; padding: 0 6px 8px; border-bottom: 1px solid rgba(30,24,18,0.35); font-family: 'Instrument Serif', serif; font-style: italic; font-size: 38px; line-height: 1">{{f.sig}}</div>
+<span style="font-size: 12px; color: {{sigC}}">{{sigHint}}</span>
+<div style="display: flex; justify-content: space-between; gap: 10px"><button type="button" class="press" sc-camel-on-click="{{back}}" style="height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.3); color: #1B1A17; font: 500 15px Geist, sans-serif; cursor: pointer">Back</button><button type="button" class="press" sc-camel-on-click="{{next}}" disabled="{{no4}}" style="height: 48px; padding: 0 26px; border-radius: 14px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 15px Geist, sans-serif; cursor: pointer; opacity: {{op4}}">Sign rider</button></div>
+</section>
+</sc-if>
+
+<sc-if value="{{st5}}" hint-placeholder-val="{{ false }}">
+<section class="step" style="display: flex; flex-direction: column; align-items: flex-start; gap: 18px">
+<span class="popin" style="font-family: 'Instrument Serif', serif; font-size: 80px; line-height: 1; color: #2F7D4F">✓</span>
+<h2 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 46px; line-height: 1">You’re all set, {{first}}.</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #3E3A34">Your licence, W-9 and signed rider are filed. Operations will give a final look, and you’ll get an email the moment you’re live, usually the same day.</p>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><span style="padding: 6px 12px; border-radius: 99px; background: rgba(47,125,79,0.14); color: #2F7D4F; font-size: 12px; font-weight: 600">Licence ✓</span><span style="padding: 6px 12px; border-radius: 99px; background: rgba(47,125,79,0.14); color: #2F7D4F; font-size: 12px; font-weight: 600">W-9 ✓</span><span style="padding: 6px 12px; border-radius: 99px; background: rgba(47,125,79,0.14); color: #2F7D4F; font-size: 12px; font-weight: 600">Rider signed ✓</span></div>
+<a href="Main.dc.html" style="font-size: 13px; font-weight: 600">See it from the ops dashboard (demo) →</a>
+</section>
+</sc-if>
+
+</main>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1100}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 0, lic: 'none', f: { legal: '', preferred: '', mobile: '', address: '', tin: '', entity: 'Individual / sole proprietor', cert: false, agree: false, sig: '' } };
+  }
+  componentWillUnmount() { clearTimeout(this.t1); clearTimeout(this.t2); }
+  set(k, v) { this.setState({ f: { ...this.state.f, [k]: v } }); }
+  renderVals() {
+    const f = this.state.f, st = this.state.step, lic = this.state.lic;
+    const on = {};
+    ['legal', 'preferred', 'mobile', 'address', 'tin', 'sig', 'entity'].forEach((k) => { on[k] = (e) => this.set(k, e.target.value); });
+    const ok1 = f.legal.trim() && f.mobile.trim() && f.address.trim();
+    const ok2 = lic === 'ok';
+    const ok3 = f.tin.replace(/\D/g, '').length >= 9 && f.cert;
+    const sigMatch = f.sig.trim().toLowerCase() === f.legal.trim().toLowerCase() && f.sig.trim() !== '';
+    const ok4 = f.agree && sigMatch;
+    const labels = ['Verify it’s you', 'About you', 'Licence', 'W-9', 'Rider', 'Done'];
+    const rail = labels.map((label, i) => {
+      const cur = i === st, done = i < st;
+      return { label, n: done ? '✓' : String(i + 1), bg: cur ? 'rgba(255,255,255,0.45)' : 'transparent', w: cur ? 600 : 400, fg: i > st ? '#4F4A43' : '#1B1A17',
+        dot: done ? '#2F7D4F' : cur ? '#1E1C19' : 'rgba(255,255,255,0.45)', dotFg: done || cur ? '#FFFFFF' : '#1B1A17' };
+    });
+    const go = (n) => this.setState({ step: Math.max(0, Math.min(5, n)) });
+    return {
+      rail, f, on, digits: [1, 2, 3, 4, 5, 6].map((n) => 'Digit ' + n),
+      pct: (st / 5 * 100) + '%', pctLabel: st >= 5 ? 'Complete' : 'About ' + Math.max(2, 15 - st * 3) + ' minutes left',
+      st0: st === 0, st1: st === 1, st2: st === 2, st3: st === 3, st4: st === 4, st5: st === 5,
+      next: () => go(st + 1), back: () => go(st - 1),
+      no1: !ok1, op1: ok1 ? 1 : 0.35, hint1: ok1 ? 'Looks good.' : 'Fields marked * are required.',
+      no2: !ok2, op2: ok2 ? 1 : 0.35, no3: !ok3, op3: ok3 ? 1 : 0.35, no4: !ok4, op4: ok4 ? 1 : 0.35,
+      licNone: lic === 'none', licHas: lic !== 'none', licScanning: lic === 'scanning', licBusy: lic === 'scanning' || lic === 'checking', licOk: lic === 'ok',
+      licMsg: lic === 'scanning' ? 'Reading your licence…' : 'Checking the state licence lookup…',
+      licName: f.legal || 'Priya Nair',
+      licBg: lic === 'none' ? 'rgba(255,255,255,0.25)' : 'linear-gradient(155deg, #FFFFFF 0%, #EFEDE8 45%, #F8F2EA 70%, #E3E0DA 100%)',
+      licBd: lic === 'none' ? '1.5px dashed rgba(30,24,18,0.3)' : '1px solid #FFFFFF',
+      upload: () => { this.setState({ lic: 'scanning' }); this.t1 = setTimeout(() => this.setState({ lic: 'checking' }), 1500); this.t2 = setTimeout(() => this.setState({ lic: 'ok' }), 2700); },
+      reupload: () => this.setState({ lic: 'none' }),
+      toggleCert: () => this.set('cert', !f.cert), toggleAgree: () => this.set('agree', !f.agree),
+      sigPlaceholder: f.legal || 'Your legal name',
+      sigHint: f.sig && !sigMatch ? 'Type your name exactly as it appears above: ' + f.legal : 'Your typed name is your legally binding e-signature.',
+      sigC: f.sig && !sigMatch ? '#B03A26' : '#4F4A43',
+      first: (f.preferred || f.legal || 'Priya').split(' ')[0]
+    };
+  }
+}
+</script>
+
+
+</body></html>

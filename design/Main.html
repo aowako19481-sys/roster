@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Dashboard</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes grow{from{opacity:0;transform:scaleY(0.15)}to{opacity:1;transform:none}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(47,125,79,0.5)}100%{box-shadow:0 0 0 9px rgba(47,125,79,0)}}
+@keyframes tick{from{opacity:0;transform:translateY(35%);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+@keyframes pop{from{opacity:0;transform:scale(0.96) translateY(-4px)}to{opacity:1;transform:none}}
+.r{animation:rise 560ms var(--ease-out) both}.d1{animation-delay:60ms}.d2{animation-delay:110ms}.d3{animation-delay:150ms}.d4{animation-delay:190ms}.d5{animation-delay:225ms}.d6{animation-delay:255ms}
+.bar{transform-origin:bottom;animation:grow 640ms var(--ease-out) both}
+.row{animation:rise 280ms var(--ease-out) both}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease}.press:active{transform:scale(0.97)}
+.navl{transition:transform 160ms var(--ease-out),background-color 160ms ease}.navl:active{transform:scale(0.97)}
+.tick{display:inline-block;animation:tick 460ms var(--ease-out) both}
+.live{display:inline-block;width:8px;height:8px;border-radius:99px;background:#2F7D4F;animation:pulse 1.8s ease-out infinite}
+.pop{transform-origin:top right;animation:pop 180ms var(--ease-out) both}
+.fan3{perspective:1500px}
+.slot{position:absolute;left:50%;bottom:0;transform-origin:50% 100%;transition:transform 560ms cubic-bezier(0.77,0,0.175,1),opacity 420ms ease}
+.hr{transition:transform 280ms var(--ease-out),box-shadow 280ms ease}
+.sheen{position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.8) 47%,rgba(255,236,214,0.45) 53%,transparent 70%);transform:translateX(-130%);pointer-events:none}
+.lrow{transition:background-color 160ms ease}
+@media (hover:hover) and (pointer:fine){
+.navl:hover{background-color:rgba(255,255,255,0.45)}
+.hr:hover{transform:translateY(-8px);box-shadow:0 26px 50px rgba(30,24,18,0.2)}
+.hr:hover .sheen{transform:translateX(130%);transition:transform 1100ms var(--ease-out)}
+.lrow:hover{background-color:rgba(255,255,255,0.22)}
+}
+@media (prefers-reduced-motion:reduce){.r,.row,.bar,.tick,.pop{animation-name:fade}.live{animation:none}.hr,.sheen,.press,.slot{transition:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px 22px; background: radial-gradient(900px 640px at 50% -5%, #D6D1C9, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), radial-gradient(640px 480px at 100% 55%, #CAC4BA, transparent 70%), #BCB8B1; font-family: Geist, sans-serif; color: #1B1A17; font-variant-numeric: tabular-nums">
+<div style="max-width: 1360px; margin: 0 auto; box-sizing: border-box; padding: 12px; border-radius: 30px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.42); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 30px 80px rgba(30,24,18,0.14); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); display: flex; flex-wrap: wrap; gap: 12px">
+
+<div class="r" style="flex: 1 1 240px; min-width: 0; display: grid"><dc-import name="Sidebar" active="home" hint-size="100%,900px"></dc-import></div>
+
+<main style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; padding: 18px 16px 16px; display: flex; flex-direction: column; gap: 16px">
+
+<header class="r d1" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px">
+<div>
+<h1 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 42px; line-height: 1; letter-spacing: -0.01em">Good evening, Adaya</h1>
+<p style="margin: 6px 0 0; font-size: 13px; color: #4F4A43">Saturday, 14 November · November cohort</p>
+</div>
+<div style="position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<a href="Invite.dc.html" class="press" style="display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 16px 0 6px; border-radius: 999px; background: rgba(255,255,255,0.32); border: 1px solid rgba(255,255,255,0.55); font: 500 13px Geist, sans-serif; color: #1B1A17; text-decoration: none"><span style="width: 30px; height: 30px; border-radius: 999px; background: #1E1C19; color: #FFFFFF; display: grid; place-items: center"><svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span>Invite agents</a>
+<a href="Compliance.dc.html" class="press" style="display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 16px 0 6px; border-radius: 999px; background: rgba(255,255,255,0.32); border: 1px solid rgba(255,255,255,0.55); font: 500 13px Geist, sans-serif; color: #1B1A17; text-decoration: none"><span style="width: 30px; height: 30px; border-radius: 999px; background: rgba(255,255,255,0.6); display: grid; place-items: center"><svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Files</a>
+<button type="button" class="press" sc-camel-on-click="{{toggleBell}}" aria-label="Notifications" aria-expanded="{{bellOpen}}" style="position: relative; width: 42px; height: 42px; border-radius: 999px; background: rgba(255,255,255,0.32); border: 1px solid rgba(255,255,255,0.55); display: grid; place-items: center; cursor: pointer; color: #1B1A17"><svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span style="position: absolute; top: 8px; right: 9px; width: 7px; height: 7px; border-radius: 99px; background: #B03A26"></span></button>
+<sc-if value="{{bell}}" hint-placeholder-val="{{ false }}">
+<div class="pop" role="dialog" aria-label="Notifications" style="position: absolute; top: 52px; right: 0; z-index: 20; width: 320px; padding: 8px; border-radius: 18px; background: rgba(250,248,244,0.82); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 24px 60px rgba(30,24,18,0.22); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px)">
+<sc-for list="{{notes}}" as="n" hint-placeholder-count="3">
+<a href="{{n.href}}" class="navl" style="display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: 12px; text-decoration: none"><span style="font-size: 13px; font-weight: 500">{{n.title}}</span><span style="font-size: 12px; color: #4F4A43">{{n.meta}}</span></a>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</header>
+
+<section class="r d2" aria-label="High rollers" style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding: 0 4px"><h2 style="margin: 0; font-size: 14px; font-weight: 500">High rollers <span style="color: #4F4A43; font-weight: 400">· {{rangeLabel}} by GCI this year</span></h2>
+<div style="display: flex; align-items: center; gap: 6px">
+<button type="button" class="press" sc-camel-on-click="{{prev}}" disabled="{{atTop}}" aria-label="Show higher-ranked agents" style="width: 34px; height: 34px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.32); color: #1B1A17; display: grid; place-items: center; cursor: pointer; opacity: {{prevOp}}"><svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
+<button type="button" class="press" sc-camel-on-click="{{resetTop}}" style="height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.32); color: #1B1A17; font: 500 12px Geist, sans-serif; cursor: pointer">Top 5</button>
+<button type="button" class="press" sc-camel-on-click="{{next}}" disabled="{{atEnd}}" aria-label="Show lower-ranked agents" style="width: 34px; height: 34px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.32); color: #1B1A17; display: grid; place-items: center; cursor: pointer; opacity: {{nextOp}}"><svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+<a href="Agents.dc.html" style="margin-left: 6px; font-size: 12px; font-weight: 500">All agents →</a>
+</div></div>
+<div class="fan3" style="position: relative; height: 296px; margin: 0 -16px; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16%, #000 84%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 16%, #000 84%, transparent 100%)">
+<div aria-hidden="true" style="position: absolute; left: 50%; bottom: 4px; width: 760px; height: 44px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(40,32,24,0.24), transparent)"></div>
+<sc-for list="{{rollers}}" as="a" hint-placeholder-count="10">
+<div class="slot" style="width: 200px; transform: {{a.tf}}; opacity: {{a.op}}; z-index: {{a.z}}; pointer-events: {{a.pe}}">
+<a href="Agent.dc.html" class="hr" tabindex="{{a.tab}}" style="position: relative; overflow: hidden; height: 248px; box-sizing: border-box; padding: 16px; border-radius: 22px; background: {{a.bg}}; border: 1px solid #FFFFFF; box-shadow: 0 16px 34px rgba(30,24,18,0.16); display: flex; flex-direction: column; justify-content: space-between; color: #1B1A17; text-decoration: none"><span class="sheen" aria-hidden="true"></span>
+<span style="display: flex; justify-content: space-between; align-items: flex-start"><span style="font-family: 'Instrument Serif', serif; font-size: 34px; line-height: 0.9">{{a.rank}}</span><span style="font-size: 10px; font-weight: 600; color: {{a.perfC}}">{{a.perf}}</span></span>
+<span style="width: 52px; height: 52px; border-radius: 999px; background: rgba(30,24,18,0.08); display: grid; place-items: center; font-size: 15px; font-weight: 600">{{a.initials}}</span>
+<span style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15px; font-weight: 600">{{a.name}}</span><span style="font-size: 11px; color: #4F4A43">{{a.office}}</span><span style="font-family: 'Geist Mono', monospace; font-size: 13px; margin-top: 6px">{{a.gci}}</span></span>
+</a>
+</div>
+</sc-for>
+</div>
+</section>
+
+<div class="r d3" style="border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr))">
+<sc-for list="{{stats}}" as="s" hint-placeholder-count="4">
+<div style="padding: 18px 20px; display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; border-right: 1px solid rgba(30,24,18,0.08)">
+<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; color: #4F4A43">{{s.label}}</span><span style="font-family: 'Instrument Serif', serif; font-size: 34px; line-height: 1">{{s.value}}<span style="color: #7A7368">{{s.of}}</span></span></div>
+<span style="font-size: 12px; font-weight: 500; color: {{s.noteC}}">{{s.note}}</span>
+</div>
+</sc-for>
+</div>
+
+<section class="r d4" aria-label="Live onboarding counter" style="box-sizing: border-box; padding: 22px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 12px 32px rgba(30,24,18,0.08); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-wrap: wrap; gap: 28px; align-items: stretch">
+<div style="flex: 1 1 300px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px">
+<div style="display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500"><span class="live" aria-hidden="true"></span>Onboarding right now<span style="font-weight: 400; color: #4F4A43">· reads every 5 min</span></div>
+<div style="display: flex; gap: 36px; flex-wrap: wrap" aria-live="polite">
+<div><div style="font-size: 12px; color: #4F4A43">Links out (recent batches)</div><div style="font-family: 'Instrument Serif', serif; font-size: 64px; line-height: 1; overflow: hidden"><sc-if value="{{flipA}}" hint-placeholder-val="{{ true }}"><span class="tick">{{sent}}</span></sc-if><sc-if value="{{flipB}}" hint-placeholder-val="{{ false }}"><span class="tick">{{sent}}</span></sc-if></div></div>
+<div><div style="font-size: 12px; color: #4F4A43">Ready to go live</div><div style="font-family: 'Instrument Serif', serif; font-size: 64px; line-height: 1; overflow: hidden"><sc-if value="{{flipA}}" hint-placeholder-val="{{ true }}"><span class="tick">{{ready}}</span></sc-if><sc-if value="{{flipB}}" hint-placeholder-val="{{ false }}"><span class="tick">{{ready}}</span></sc-if><span style="color: #7A7368">/{{sent}}</span></div></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; font-family: 'Geist Mono', monospace; font-size: 11px; color: #4F4A43"><span>LAST READ {{lastRead}}</span><span>NEXT IN {{countdown}}</span></div>
+</div>
+<div style="flex: 1 1 340px; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #4F4A43; padding-bottom: 6px"><span>Batch</span><span>Ready / sent</span></div>
+<sc-for list="{{batches}}" as="b" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 7px; padding: 11px 0; border-top: 1px solid rgba(30,24,18,0.08)">
+<div style="display: flex; justify-content: space-between; font-size: 13px"><span style="font-weight: 500">{{b.label}}</span><span style="font-family: 'Geist Mono', monospace; font-size: 12px">{{b.ready}} / {{b.sent}}</span></div>
+<div style="height: 6px; border-radius: 99px; background: repeating-linear-gradient(90deg, rgba(30,24,18,0.18) 0 1px, transparent 1px 4px); overflow: hidden"><div style="height: 100%; width: {{b.pct}}; border-radius: 99px; background: #1E1C19; transition: width 500ms cubic-bezier(0.77,0,0.175,1)"></div></div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 14px">
+<section class="r d5" style="flex: 1.3 1 340px; min-width: 0; box-sizing: border-box; padding: 20px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 14px; font-weight: 500">Ready, every five minutes</h2><span style="font-size: 12px; color: #4F4A43">Invited 2:05 pm</span></div>
+<div role="img" aria-label="Agents ready per five minutes, peaking at 7 around 2:30" style="display: flex; align-items: flex-end; gap: 6px; height: 130px; padding: 0 4px; border-bottom: 1px solid rgba(30,24,18,0.12)">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="12">
+<div class="bar" style="flex: 1; height: {{b.h}}; border-radius: 4px 4px 0 0; background: {{b.bg}}; animation-delay: {{b.d}}"></div>
+</sc-for>
+</div>
+<div style="display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 11px; color: #4F4A43"><span>2:05</span><span>2:30</span><span>3:00</span></div>
+</section>
+
+<section class="r d5" style="flex: 1 1 280px; min-width: 0; box-sizing: border-box; padding: 20px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 14px; font-weight: 500">Tier clearance</h2><a href="Riders.dc.html" style="font-size: 12px; font-weight: 500">All approvals →</a></div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px">Maya Chen crossed <span style="font-family: 'Geist Mono', monospace">$40,000</span> GCI</span>
+<span style="font-family: 'Instrument Serif', serif; font-size: 46px; line-height: 1"><span style="color: #7A7368">80% →</span> 85%</span>
+</div>
+<sc-if value="{{pending}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 8px"><button type="button" class="press" sc-camel-on-click="{{approve}}" style="flex: 1; height: 40px; border-radius: 12px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 13px Geist, sans-serif; cursor: pointer">Approve</button><a href="Riders.dc.html" class="press" style="flex: 1; display: grid; place-items: center; height: 40px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.32); font: 500 13px Geist, sans-serif; text-decoration: none">View rider</a></div>
+</sc-if>
+<sc-if value="{{approved}}" hint-placeholder-val="{{ false }}">
+<div class="row" style="display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px; background: rgba(47,125,79,0.12); font-size: 13px"><span style="color: #2F7D4F; font-weight: 600">✓ Approved</span><span style="color: #3E3A34">Rider v3 drafted · 85% from next deal</span><button type="button" class="press" sc-camel-on-click="{{unapprove}}" style="margin-left: auto; padding: 0; border: 0; background: transparent; color: #1B1A17; font: 600 12px Geist, sans-serif; text-decoration: underline; cursor: pointer">Undo</button></div>
+</sc-if>
+<a href="Teams.dc.html" class="lrow" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 8px; margin: 0 -8px; border-radius: 10px; border-top: 1px solid rgba(30,24,18,0.08); font-size: 13px; text-decoration: none"><span>Team Ellis <span style="color: #4F4A43">· 75% → 78%</span></span><span style="font-weight: 500">Open</span></a>
+</section>
+
+<section class="r d6" style="flex: 1 1 280px; min-width: 0; box-sizing: border-box; padding: 20px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px"><h2 style="margin: 0; font-size: 14px; font-weight: 500">Needs a human</h2><span style="font-size: 12px; color: #4F4A43">3 of 50</span></div>
+<sc-for list="{{flags}}" as="f" hint-placeholder-count="3">
+<a href="{{f.href}}" class="lrow" style="display: flex; flex-direction: column; gap: 3px; padding: 12px 8px; margin: 0 -8px; border-radius: 10px; border-top: 1px solid rgba(30,24,18,0.08); text-decoration: none"><span style="display: flex; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: 500"><span>{{f.name}}</span><span style="color: #B03A26">{{f.tag}}</span></span><span style="font-size: 12px; color: #4F4A43">{{f.detail}}</span></a>
+</sc-for>
+</section>
+</div>
+
+<section class="r d6" style="box-sizing: border-box; padding: 20px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+<h2 style="margin: 0; font-size: 14px; font-weight: 500">November cohort</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 4px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+<button type="button" class="press" sc-camel-on-click="{{t.pick}}" aria-pressed="{{t.on}}" style="height: 32px; padding: 0 12px; border-radius: 10px; border: 1px solid {{t.bd}}; cursor: pointer; font: 500 12px Geist, sans-serif; background: {{t.bg}}; color: {{t.fg}}">{{t.label}}</button>
+</sc-for>
+</div>
+</div>
+<div style="overflow-x: auto">
+<div style="min-width: 760px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<a href="Agent.dc.html" class="row lrow" style="display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.6fr) minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.9fr); align-items: center; gap: 12px; padding: 12px 8px; border-radius: 10px; border-top: 1px solid rgba(30,24,18,0.08); font-size: 13px; text-decoration: none; animation-delay: {{r.d}}">
+<span style="display: flex; align-items: center; gap: 12px"><span style="width: 34px; height: 34px; flex: none; border-radius: 999px; background: rgba(255,255,255,0.4); display: grid; place-items: center; font-size: 12px; font-weight: 600">{{r.initials}}</span><span style="display: flex; flex-direction: column"><span style="font-weight: 500">{{r.name}}</span><span style="font-size: 12px; color: #4F4A43">{{r.team}}</span></span></span>
+<span style="color: #3E3A34">{{r.office}}</span>
+<span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: {{r.licC}}">{{r.lic}}</span>
+<span style="color: {{r.w9C}}">W-9 {{r.w9}}</span>
+<span style="color: {{r.riderC}}">Rider {{r.rider}}</span>
+<span style="text-align: right; font-size: 12px; font-weight: 600; color: {{r.statusC}}">{{r.status}}</span>
+</a>
+</sc-for>
+</div>
+</div>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;liveDemo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true},&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1900}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tab: 'All', bell: false, approved: false, off: 0, flip: false, reads: 0, remaining: 300, lastRead: '3:05 PM',
+      batches: [
+        { id: 'b1', label: 'Today · 2:05 pm', sent: 50, ready: 38 },
+        { id: 'b2', label: 'Tue 10 Nov', sent: 26, ready: 21 },
+        { id: 'b3', label: 'Sat 7 Nov', sent: 15, ready: 15 }
+      ]
+    };
+  }
+  componentDidMount() { this.timer = setInterval(() => this.tick(), 1000); }
+  componentWillUnmount() { clearInterval(this.timer); }
+  period() { return (this.props.liveDemo ?? true) ? 8 : 300; }
+  tick() {
+    const p = this.period();
+    const r = Math.min(this.state.remaining, p) - 1;
+    if (r > 0) { this.setState({ remaining: r }); return; }
+    const n = this.state.reads + 1;
+    const b = this.state.batches.map((x) => ({ ...x }));
+    if (n % 3 === 0) {
+      if (b[0].id !== 'new') b.unshift({ id: 'new', label: 'Just now', sent: 0, ready: 0 });
+      b[0].sent += 2;
+    }
+    const open = b.find((x) => x.ready < x.sent);
+    if (open) open.ready = Math.min(open.sent, open.ready + 1 + (n % 2));
+    const t = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    this.setState({ batches: b.slice(0, 4), reads: n, remaining: p, flip: !this.state.flip, lastRead: t });
+  }
+  renderVals() {
+    const ink = '#1B1A17', mute = '#4F4A43', red = '#B03A26', green = '#2F7D4F';
+    const batches = this.state.batches.slice(0, 3).map((x) => ({ ...x, pct: (x.sent ? x.ready / x.sent * 100 : 0) + '%' }));
+    const sent = this.state.batches.reduce((s, x) => s + x.sent, 0);
+    const ready = this.state.batches.reduce((s, x) => s + x.ready, 0);
+    const rem = Math.min(this.state.remaining, this.period());
+    const countdown = Math.floor(rem / 60) + ':' + String(rem % 60).padStart(2, '0');
+    const pearls = ['linear-gradient(155deg, #FFFFFF 0%, #EFEDE8 45%, #F8F2EA 70%, #E3E0DA 100%)', 'linear-gradient(150deg, #FBFAF8, #E6E3DD 60%, #EFEAE2)', 'linear-gradient(150deg, #FBFBFA, #E3E3E2 60%, #ECEDEE)'];
+    const rollers = [
+      ['Maya Chen', 'Manhattan · SoHo', 412800, 18], ['Jordan Ellis', 'Brooklyn · Park Slope', 398200, 12], ['Daniela Ruiz', 'Manhattan · UES', 361500, 9],
+      ['Marcus Hale', 'Westchester · Rye', 344900, 21], ['Aisha Bello', 'Brooklyn · Williamsburg', 327300, 6], ['Kenji Nakamura', 'Queens · LIC', 301750, -3],
+      ['Sofia Marino', 'Manhattan · Tribeca', 288400, 4], ['Theo Brooks', 'Queens · Astoria', 261900, 11], ['Grace Kim', 'Manhattan · SoHo', 244100, -2], ['Owen Price', 'Westchester · Scarsdale', 229600, 7]
+    ].map(([name, office, gci, p], i) => {
+      const k = i - this.state.off;
+      const P = {
+        0: ['translateX(-50%) translateY(-16px) translateZ(70px)', 1, 5],
+        1: ['translateX(calc(-50% - 215px)) rotateY(22deg) translateZ(-10px) scale(0.9)', 1, 4],
+        2: ['translateX(calc(-50% + 215px)) rotateY(-22deg) translateZ(-10px) scale(0.9)', 1, 4],
+        3: ['translateX(calc(-50% - 392px)) rotateY(32deg) translateZ(-90px) scale(0.8)', 0.92, 3],
+        4: ['translateX(calc(-50% + 392px)) rotateY(-32deg) translateZ(-90px) scale(0.8)', 0.92, 3]
+      };
+      const pos = P[k] || (k < 0 ? ['translateX(calc(-50% - 560px)) rotateY(40deg) translateZ(-160px) scale(0.7)', 0, 1] : ['translateX(calc(-50% + 560px)) rotateY(-40deg) translateZ(-160px) scale(0.7)', 0, 1]);
+      const vis = !!P[k];
+      return {
+        name, office, rank: '#' + (i + 1), gci: '$' + gci.toLocaleString('en-US'),
+        initials: name.split(' ').map((s) => s[0]).join(''),
+        perf: (p >= 0 ? '▲ ' : '▼ ') + Math.abs(p) + '% vs Q3', perfC: p >= 0 ? green : red, bg: pearls[i % 3],
+        tf: pos[0], op: pos[1], z: pos[2], pe: vis ? 'auto' : 'none', tab: vis ? '0' : '-1'
+      };
+    });
+    const off = this.state.off;
+    const raw = [
+      ['Maya Chen', 'Solo', 'Manhattan · SoHo', '10401 ••• 338', 'ok', 'received', 'signed', 'Ready'],
+      ['Jordan Ellis', 'Team Ellis · lead', 'Brooklyn · Park Slope', '10401 ••• 058', 'ok', 'received', 'signed', 'Ready'],
+      ['Rosa Alvarez', 'Solo', 'Manhattan · UES', 'number mismatch', 'bad', 'received', 'sent', 'Flagged'],
+      ['Theo Brooks', 'Team Ellis', 'Queens · Astoria', '10401 ••• 914', 'ok', 'name mismatch', 'signed', 'Flagged'],
+      ['Priya Nair', 'Solo', 'Manhattan · SoHo', '10401 ••• 772', 'ok', 'pending', 'not sent', 'In progress'],
+      ['Kwame Osei', 'Solo', 'Brooklyn · Williamsburg', 'expires in 21 days', 'bad', 'received', 'signed', 'Flagged'],
+      ['Lena Park', 'Solo', 'Westchester · Rye', 'not uploaded', 'wait', 'pending', 'not sent', 'In progress'],
+      ['Sam Okafor', 'Team Ellis', 'Manhattan · SoHo', '10401 ••• 207', 'ok', 'received', 'signed', 'Ready']
+    ];
+    const tone = (v) => (v === 'received' || v === 'signed') ? ink : (v === 'pending' || v === 'not sent' || v === 'sent') ? mute : red;
+    const statusC = { Ready: green, Flagged: red, 'In progress': mute };
+    const rows = raw.filter((r) => this.state.tab === 'All' || r[7] === this.state.tab).map((r, i) => ({
+      name: r[0], team: r[1], office: r[2], lic: r[3], licC: r[4] === 'ok' ? ink : r[4] === 'bad' ? red : mute,
+      w9: r[5], w9C: tone(r[5]), rider: r[6], riderC: tone(r[6]), initials: r[0].split(' ').map((p) => p[0]).join(''),
+      status: r[7], statusC: statusC[r[7]], d: (i * 30) + 'ms'
+    }));
+    const tabs = [['All', 'All 50'], ['Ready', 'Ready 38'], ['In progress', 'In progress 9'], ['Flagged', 'Flagged 3']].map(([k, label]) => {
+      const on = this.state.tab === k;
+      return { label, on: on ? 'true' : 'false', bg: on ? '#1E1C19' : 'rgba(255,255,255,0.3)', fg: on ? '#FFFFFF' : ink, bd: on ? '#1E1C19' : 'rgba(255,255,255,0.5)', pick: () => this.setState({ tab: k }) };
+    });
+    const counts = [2, 4, 6, 5, 7, 4, 3, 2, 2, 1, 1, 1];
+    const bars = counts.map((c, i) => ({ h: (c / 7 * 100) + '%', d: (300 + i * 35) + 'ms', bg: i === 4 ? '#1E1C19' : 'repeating-linear-gradient(90deg, #8F877B 0 1px, transparent 1px 3px)' }));
+    const stats = [
+      { label: 'Welcome links sent', value: '50', of: '', note: 'all delivered', noteC: mute },
+      { label: 'Licences verified', value: '44', of: '/50', note: '1 mismatch', noteC: red },
+      { label: 'W-9s received', value: '41', of: '/50', note: '9 pending', noteC: mute },
+      { label: 'Riders signed', value: '39', of: '/50', note: '+12 this hour', noteC: green }
+    ];
+    const flags = [
+      { name: 'Rosa Alvarez', tag: 'Licence', detail: 'Photo reads 10401 ••• 312, state record says ••• 321', href: 'Agent.dc.html' },
+      { name: 'Theo Brooks', tag: 'W-9', detail: '“Theodore Brooks” on W-9, “Theo Brooks” on licence', href: 'Compliance.dc.html' },
+      { name: 'Kwame Osei', tag: 'Expiring', detail: 'Licence expires 5 Dec · renewal reminder sent', href: 'Compliance.dc.html' }
+    ];
+    const notes = [
+      { title: 'Maya Chen crossed her $40,000 tier', meta: 'Rider change waiting for approval', href: 'Riders.dc.html' },
+      { title: '12 riders signed in the last hour', meta: 'November cohort', href: 'Agents.dc.html' },
+      { title: 'Licence mismatch · Rosa Alvarez', meta: 'Needs a human check', href: 'Compliance.dc.html' }
+    ];
+    return {
+      rollers, rows, tabs, bars, stats, flags, notes, batches, sent, ready, countdown, lastRead: this.state.lastRead.toUpperCase(),
+      flipA: !this.state.flip, flipB: this.state.flip,
+      bell: this.state.bell, bellOpen: this.state.bell ? 'true' : 'false', toggleBell: () => this.setState({ bell: !this.state.bell }),
+      pending: !this.state.approved, approved: this.state.approved, approve: () => this.setState({ approved: true }),
+      unapprove: () => this.setState({ approved: false }),
+      rangeLabel: off === 0 ? 'top 5' : '#' + (off + 1) + '–#' + (off + 5),
+      atTop: off === 0, atEnd: off >= 5, prevOp: off === 0 ? 0.4 : 1, nextOp: off >= 5 ? 0.4 : 1,
+      prev: () => this.setState({ off: Math.max(0, off - 1) }), next: () => this.setState({ off: Math.min(5, off + 1) }), resetTop: () => this.setState({ off: 0 })
+    };
+  }
+}
+</script>
+
+
+</body></html>

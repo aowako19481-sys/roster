@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Reports and 1099s</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes ring{from{stroke-dashoffset:452}}
+@keyframes drawline{from{stroke-dashoffset:1400}to{stroke-dashoffset:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.r{animation:rise 560ms var(--ease-out) both}.d1{animation-delay:60ms}.d2{animation-delay:120ms}.d3{animation-delay:180ms}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease}.press:active{transform:scale(0.97)}
+.navl{transition:transform 160ms var(--ease-out),background-color 160ms ease}.navl:active{transform:scale(0.97)}
+.ring{animation:ring 1200ms var(--ease-out) 200ms both;transition:stroke-dashoffset 800ms cubic-bezier(0.77,0,0.175,1)}
+.line{stroke-dasharray:1400;animation:drawline 1400ms var(--ease-out) 250ms both}
+.coin{transform:rotateX(52deg) rotateZ(-30deg);transform-style:preserve-3d}
+.spin{display:inline-block;width:12px;height:12px;border-radius:99px;border:2px solid rgba(255,255,255,0.35);border-top-color:#FFFFFF;animation:spin 700ms linear infinite}
+@media (hover:hover) and (pointer:fine){.navl:hover{background-color:rgba(255,255,255,0.45)}}
+@media (prefers-reduced-motion:reduce){.r{animation-name:fade}.ring,.line{animation:none}.spin{animation:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px 22px; background: radial-gradient(900px 640px at 50% -5%, #D6D1C9, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), radial-gradient(640px 480px at 100% 55%, #CAC4BA, transparent 70%), #BCB8B1; font-family: Geist, sans-serif; color: #1B1A17; font-variant-numeric: tabular-nums">
+<div style="max-width: 1360px; margin: 0 auto; box-sizing: border-box; padding: 12px; border-radius: 30px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.42); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 30px 80px rgba(30,24,18,0.14); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); display: flex; flex-wrap: wrap; gap: 12px">
+<div class="r" style="flex: 1 1 240px; min-width: 0; display: grid"><dc-import name="Sidebar" active="reports" hint-size="100%,900px"></dc-import></div>
+<main style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; padding: 26px 22px; display: flex; flex-direction: column; gap: 26px">
+
+<header class="r d1" style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px; padding-bottom: 22px; border-bottom: 1px solid rgba(30,24,18,0.14)">
+<div style="max-width: 640px"><p style="margin: 0 0 8px; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: #4F4A43">ROSTER / REPORTS · TAX YEAR 2026</p><h1 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 68px; line-height: 0.95; letter-spacing: -0.02em">Year-end, <span style="font-style: italic">without</span> the January panic.</h1></div>
+<p style="margin: 0; max-width: 300px; font-size: 14px; line-height: 1.55; color: #3E3A34">Every payout already lives here, matched to the W-9 collected at onboarding. Fix gaps in November, not in the last week of January.</p>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px">
+<section class="r d2" style="flex: 1.2 1 420px; min-width: 0; box-sizing: border-box; padding: 26px; border-radius: 24px; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.5); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-wrap: wrap; gap: 26px; align-items: center">
+<div style="position: relative; width: 170px; height: 170px; flex: none">
+<svg sc-camel-view-box="0 0 170 170" width="170" height="170" role="img" aria-label="{{ringLabel}}"><circle cx="85" cy="85" r="72" fill="none" stroke="rgba(30,24,18,0.12)" stroke-width="10"></circle><circle class="ring" cx="85" cy="85" r="72" fill="none" stroke="#1E1C19" stroke-width="10" stroke-linecap="round" stroke-dasharray="452" stroke-dashoffset="{{ringOffset}}" transform="rotate(-90 85 85)"></circle></svg>
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center"><span style="font-family: 'Instrument Serif', serif; font-size: 44px; line-height: 1">{{ready}}</span><span style="font-size: 11px; color: #4F4A43">of 498 ready</span></div>
+</div>
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 32px; line-height: 1">1099 pack</h2>
+<p style="margin: 0; font-size: 13px; line-height: 1.5; color: #3E3A34">{{missing}} agents are missing W-9 details. We’ll chase them automatically; fix the rest by hand.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" class="press" sc-camel-on-click="{{chase}}" style="height: 42px; padding: 0 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.32); color: #1B1A17; font: 500 13px Geist, sans-serif; cursor: pointer">{{chaseLabel}}</button>
+<button type="button" class="press" sc-camel-on-click="{{generate}}" style="display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 16px; border-radius: 12px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 13px Geist, sans-serif; cursor: pointer"><sc-if value="{{busy}}" hint-placeholder-val="{{ false }}"><span class="spin" aria-hidden="true"></span></sc-if>{{genLabel}}</button>
+</div>
+<p style="margin: 0; font-size: 11px; color: #4F4A43">Exports a filing-ready file for your accountant or e-file service. Roster doesn’t file on your behalf.</p>
+</div>
+</section>
+
+<section class="r d2" aria-label="Commission paid" style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 6px 4px">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 14px; font-weight: 500">Commission paid to agents</h2>
+<div style="display: flex; gap: 4px"><sc-for list="{{years}}" as="y" hint-placeholder-count="2"><button type="button" class="press" sc-camel-on-click="{{y.pick}}" aria-pressed="{{y.on}}" style="height: 30px; padding: 0 12px; border-radius: 9px; border: 1px solid {{y.bd}}; background: {{y.bg}}; color: {{y.fg}}; font: 500 12px Geist, sans-serif; cursor: pointer">{{y.label}}</button></sc-for></div></div>
+<div style="font-family: 'Instrument Serif', serif; font-size: 56px; line-height: 1">{{total}}<span style="color: #7A7368">.00</span></div>
+<sc-for list="{{charts}}" as="c" hint-placeholder-count="1">
+<svg sc-camel-view-box="0 0 600 170" style="width: 100%; height: 170px" role="img" aria-label="{{c.aria}}">
+<path d="M0 160 H600" stroke="rgba(30,24,18,0.15)" stroke-width="1"></path>
+<path d="{{c.area}}" fill="rgba(255,255,255,0.35)"></path>
+<path class="line" d="{{c.line}}" fill="none" stroke="#1E1C19" stroke-width="1.6" stroke-linejoin="round"></path>
+</svg>
+</sc-for>
+<div style="display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 10px; color: #4F4A43"><span>JAN</span><span>MAR</span><span>MAY</span><span>JUL</span><span>SEP</span><span>NOV</span></div>
+</section>
+</div>
+
+<section class="r d3" aria-label="Exports" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px">
+<sc-for list="{{exports}}" as="x" hint-placeholder-count="4">
+<div style="box-sizing: border-box; padding: 20px; border-radius: 20px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; flex-direction: column; gap: 14px">
+<span style="font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #4F4A43">{{x.kind}}</span>
+<span style="font-family: 'Instrument Serif', serif; font-size: 24px; line-height: 1.1">{{x.title}}</span>
+<span style="font-size: 12px; color: #4F4A43; flex: 1">{{x.desc}}</span>
+<button type="button" class="press" sc-camel-on-click="{{x.run}}" style="height: 38px; border-radius: 11px; border: 1px solid rgba(255,255,255,0.55); background: {{x.bg}}; color: {{x.fg}}; font: 500 12px Geist, sans-serif; cursor: pointer">{{x.label}}</button>
+</div>
+</sc-for>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1200}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { ready: 471, gen: 'idle', chased: false, year: 2026, done: {} };
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  renderVals() {
+    const ready = this.state.ready;
+    const months = { 2026: [3.1, 3.4, 4.2, 5.0, 5.6, 6.3, 5.9, 5.4, 4.8, 5.2, 4.1], 2025: [2.8, 3.0, 3.6, 4.4, 5.1, 5.5, 5.2, 4.9, 4.3, 4.6, 3.9, 3.2] };
+    const vals = months[this.state.year];
+    const max = 7;
+    const pts = vals.map((v, i) => [Math.round(i * 600 / 11), Math.round(160 - v / max * 150)]);
+    const line = 'M' + pts.map((p) => p.join(' ')).join(' L');
+    const area = line + ' L' + pts[pts.length - 1][0] + ' 160 L0 160 Z';
+    const total = '$' + Math.round(vals.reduce((s, v) => s + v, 0) * 1e6).toLocaleString('en-US');
+    const gen = this.state.gen;
+    const exportsList = [
+      ['PAYROLL', 'Payout check log', 'Every payout compared with the rider on file, with any overrides and who made them.'],
+      ['AUDIT', 'Agent audit files', 'One PDF per agent: rider versions, approvals, licence and W-9 history.'],
+      ['TEAMS', 'Team split history', 'Each team’s rider, tier changes and the dates they took effect.'],
+      ['ONBOARDING', 'Cohort report', 'Time to ready, drop-offs and flags for every onboarding batch.']
+    ].map(([kind, title, desc], i) => {
+      const d = this.state.done[i];
+      return { kind, title, desc, label: d ? '✓ Downloaded' : 'Download PDF', bg: d ? 'rgba(47,125,79,0.16)' : 'rgba(255,255,255,0.32)', fg: '#1B1A17',
+        run: () => this.setState({ done: { ...this.state.done, [i]: true } }) };
+    });
+    const years = [2026, 2025].map((y) => {
+      const on = this.state.year === y;
+      return { label: String(y), on: on ? 'true' : 'false', bg: on ? '#1E1C19' : 'rgba(255,255,255,0.3)', fg: on ? '#FFFFFF' : '#1B1A17', bd: on ? '#1E1C19' : 'rgba(255,255,255,0.5)', pick: () => this.setState({ year: y }) };
+    });
+    return {
+      ready, missing: 498 - ready, ringOffset: Math.round(452 * (1 - ready / 498)), ringLabel: ready + ' of 498 agents ready for 1099s',
+      chaseLabel: this.state.chased ? '✓ Reminders sent' : 'Chase missing W-9s',
+      chase: () => { if (this.state.chased) return; this.setState({ chased: true, ready: Math.min(498, ready + 9) }); },
+      busy: gen === 'busy', genLabel: gen === 'busy' ? 'Building pack…' : gen === 'done' ? '✓ Pack ready' : 'Generate 1099 pack',
+      generate: () => { if (gen === 'busy') return; this.setState({ gen: 'busy' }); clearTimeout(this.t); this.t = setTimeout(() => this.setState({ gen: 'done' }), 1800); },
+      charts: [{ key: this.state.year, line, area, aria: 'Monthly commission paid in ' + this.state.year }],
+      total, years, exports: exportsList
+    };
+  }
+}
+</script>
+
+
+</body></html>

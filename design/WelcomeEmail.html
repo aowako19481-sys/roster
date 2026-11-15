@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Welcome email</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes open{from{opacity:0;transform:translateY(10px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+@keyframes float{0%,100%{transform:rotateX(14deg) rotateY(-16deg) translateY(0)}50%{transform:rotateX(14deg) rotateY(-16deg) translateY(-8px)}}
+.r{animation:rise 560ms var(--ease-out) both}.d1{animation-delay:80ms}
+.open{animation:open 360ms var(--ease-out) both}
+.pass{animation:float 7s ease-in-out infinite}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease}.press:active{transform:scale(0.97)}
+.msg{transition:background-color 160ms ease}
+@media (hover:hover) and (pointer:fine){.msg:hover{background-color:rgba(255,255,255,0.3)}}
+@media (prefers-reduced-motion:reduce){.r,.open{animation-name:fade}.pass{animation:none;transform:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px 22px; background: radial-gradient(900px 640px at 50% -5%, #D6D1C9, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), radial-gradient(640px 480px at 100% 55%, #CAC4BA, transparent 70%), #BCB8B1; font-family: Geist, sans-serif; color: #1B1A17">
+<div style="max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px">
+<div class="r" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding: 0 6px"><span style="font-size: 13px; color: #3E3A34">This is what a new agent sees in their inbox.</span><a href="Invite.dc.html" style="font-size: 13px; font-weight: 500">← Back to Invite agents</a></div>
+
+<div class="r d1" style="box-sizing: border-box; border-radius: 28px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.45); box-shadow: 0 30px 80px rgba(30,24,18,0.16); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); overflow: hidden; display: flex; flex-wrap: wrap">
+<aside aria-label="Inbox" style="flex: 1 1 280px; min-width: 0; padding: 18px 12px; border-right: 1px solid rgba(255,255,255,0.4); display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 8px; padding: 0 8px 12px"><span style="width: 10px; height: 10px; border-radius: 99px; background: rgba(30,24,18,0.25)"></span><span style="width: 10px; height: 10px; border-radius: 99px; background: rgba(30,24,18,0.25)"></span><span style="width: 10px; height: 10px; border-radius: 99px; background: rgba(30,24,18,0.25)"></span><span style="margin-left: 8px; font-size: 13px; font-weight: 600">Inbox · priya.nair@email.com</span></div>
+<sc-for list="{{msgs}}" as="m" hint-placeholder-count="3">
+<button type="button" class="msg" sc-camel-on-click="{{m.pick}}" aria-pressed="{{m.on}}" style="text-align: left; padding: 14px; border-radius: 14px; border: 1px solid {{m.bd}}; background: {{m.bg}}; color: #1B1A17; font: 13px Geist, sans-serif; cursor: pointer; display: flex; flex-direction: column; gap: 4px">
+<span style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 600">Your Brokerage</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4F4A43">{{m.when}}</span></span>
+<span style="font-weight: 500">{{m.subject}}</span>
+<span style="font-size: 12px; color: #4F4A43; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{m.preview}}</span>
+</button>
+</sc-for>
+</aside>
+
+<section style="flex: 3 1 560px; min-width: 0; padding: 26px; box-sizing: border-box">
+<sc-for list="{{shown}}" as="e" hint-placeholder-count="1">
+<article class="open" style="max-width: 640px; margin: 0 auto; border-radius: 22px; background: #FBFAF7; box-shadow: 0 20px 50px rgba(30,24,18,0.12); overflow: hidden">
+<header style="padding: 18px 26px; border-bottom: 1px solid #ECE7DF; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #4F4A43">
+<span><strong style="color: #1B1A17">From</strong> Your Brokerage · Onboarding &lt;onboarding@yourbrokerage.com&gt;</span>
+<span><strong style="color: #1B1A17">Subject</strong> {{e.subject}}</span>
+</header>
+<div style="padding: 30px 30px 34px; display: flex; flex-direction: column; gap: 20px">
+<span style="font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 0.1em">YOUR BROKERAGE</span>
+<h1 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 44px; line-height: 1">{{e.title}}</h1>
+<p style="margin: 0; font-size: 15px; line-height: 1.65; color: #3E3A34">{{e.body}}</p>
+<div style="perspective: 1200px; display: flex; justify-content: center; padding: 8px 0">
+<div class="pass" style="width: 100%; max-width: 380px; aspect-ratio: 1.7; box-sizing: border-box; padding: 20px; border-radius: 20px; background: linear-gradient(155deg, #FFFFFF 0%, #EFEDE8 45%, #F8F2EA 70%, #E3E0DA 100%); border: 1px solid #FFFFFF; box-shadow: 0 24px 50px rgba(30,24,18,0.16); display: flex; flex-direction: column; justify-content: space-between">
+<span style="display: flex; justify-content: space-between; font-size: 11px; color: #4F4A43"><span>Onboarding pass</span><span style="font-family: 'Geist Mono', monospace">EXPIRES 21 NOV</span></span>
+<span style="font-family: 'Instrument Serif', serif; font-size: 30px; line-height: 1">Priya Nair</span>
+<span style="display: flex; gap: 6px"><sc-for list="{{e.chips}}" as="c" hint-placeholder-count="3"><span style="padding: 4px 9px; border-radius: 99px; font-size: 11px; font-weight: 500; background: {{c.bg}}; color: {{c.fg}}">{{c.label}}</span></sc-for></span>
+</div>
+</div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px">
+<li style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #ECE7DF; font-size: 14px"><span>1 · Upload a photo of your licence</span><span style="color: #4F4A43">2 min</span></li>
+<li style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #ECE7DF; font-size: 14px"><span>2 · Complete your W-9</span><span style="color: #4F4A43">5 min</span></li>
+<li style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #ECE7DF; border-bottom: 1px solid #ECE7DF; font-size: 14px"><span>3 · Review and sign your rider</span><span style="color: #4F4A43">5 min</span></li>
+</ol>
+<a href="AgentOnboard.dc.html" class="press" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; padding: 15px 24px; border-radius: 14px; background: #1E1C19; color: #FFFFFF; font-size: 15px; font-weight: 500; text-decoration: none">{{e.cta}} →</a>
+<p style="margin: 0; font-size: 12px; line-height: 1.6; color: #4F4A43">This link is only for you and works for 7 days. We’ll never ask for a password or bank details by email. Questions? Reply and your onboarding contact will get back to you.</p>
+</div>
+</article>
+</sc-for>
+</section>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1100}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { m: 0 };
+  }
+  renderVals() {
+    const done = { bg: 'rgba(47,125,79,0.14)', fg: '#2F7D4F' }, todo = { bg: 'rgba(30,24,18,0.07)', fg: '#3E3A34' };
+    const list = [
+      { when: '2:05 PM', subject: 'Welcome aboard, Priya. Let’s get you ready.', preview: 'Three quick steps and you’re ready to go live…',
+        title: 'Welcome aboard, Priya.', body: 'We’re thrilled you’re joining. Before your first deal, we need three things from you. It takes about 15 minutes, and you can do it all from your phone.', cta: 'Start onboarding',
+        chips: [['Licence', 0], ['W-9', 0], ['Rider', 0]] },
+      { when: 'TOMORROW', subject: 'You’re one step in. Two to go.', preview: 'Your licence is verified. Next up: your W-9…',
+        title: 'Nice start. Two steps left.', body: 'Your licence is verified. Pick up where you left off: your W-9 and rider are waiting, and your progress is saved.', cta: 'Continue onboarding',
+        chips: [['Licence ✓', 1], ['W-9', 0], ['Rider', 0]] },
+      { when: 'IN 3 DAYS', subject: 'Last reminder: your link expires soon', preview: 'Finish before Saturday so you can go live…',
+        title: 'Your link expires Saturday.', body: 'Just your rider signature left. Once it’s signed, you’re ready to go live and can start closing deals.', cta: 'Sign your rider',
+        chips: [['Licence ✓', 1], ['W-9 ✓', 1], ['Rider', 0]] }
+    ];
+    const msgs = list.map((x, i) => {
+      const on = i === this.state.m;
+      return { when: x.when, subject: x.subject, preview: x.preview, on: on ? 'true' : 'false', bg: on ? 'rgba(255,255,255,0.45)' : 'transparent', bd: on ? 'rgba(255,255,255,0.8)' : 'transparent', pick: () => this.setState({ m: i }) };
+    });
+    const cur = list[this.state.m];
+    const shown = [{ ...cur, key: this.state.m, chips: cur.chips.map(([label, d]) => ({ label, bg: d ? done.bg : todo.bg, fg: d ? done.fg : todo.fg })) }];
+    return { msgs, shown };
+  }
+}
+</script>
+
+
+</body></html>

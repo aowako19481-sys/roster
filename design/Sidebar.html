@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sidebar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<nav aria-label="Main" style="box-sizing: border-box; width: 100%; height: 100%; min-height: 900px; padding: 18px 14px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; flex-direction: column; gap: 18px; font-family: Geist, sans-serif; color: #1B1A17">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 6px">
+<a href="Main.dc.html" style="font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 500; letter-spacing: 0.1em; color: #1B1A17; text-decoration: none">ROSTER</a>
+<span style="font-size: 12px; color: #4F4A43">Ops</span>
+</div>
+<label style="display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.28); border: 1px solid rgba(255,255,255,0.5); color: #4F4A43; font-size: 13px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search</span><input type="search" placeholder="Agent, licence #, team" style="flex: 1; min-width: 0; border: 0; background: transparent; outline: none; font: inherit; color: #1B1A17"></label>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="padding: 0 6px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #4F4A43">Onboarding</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{core}}" as="t" hint-placeholder-count="6">
+<a href="{{t.href}}" class="navl" aria-current="{{t.current}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; height: 68px; border-radius: 14px; background: {{t.bg}}; color: {{t.fg}}; border: 1px solid {{t.bd}}; text-decoration: none; font-size: 11px; font-weight: 500"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="{{t.icon}}"></path></svg>{{t.label}}</a>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="display: flex; justify-content: space-between; padding: 0 6px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #4F4A43"><span>Add-ons</span><span style="color: #2F7D4F; letter-spacing: 0">unlocked for testing</span></span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{addons}}" as="t" hint-placeholder-count="3">
+<a href="{{t.href}}" class="navl" aria-current="{{t.current}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; height: 68px; border-radius: 14px; background: {{t.bg}}; color: {{t.fg}}; border: 1px dashed {{t.bd}}; text-decoration: none; font-size: 11px; font-weight: 500"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="{{t.icon}}"></path></svg>{{t.label}}</a>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="padding: 0 8px 6px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #4F4A43">Quick actions</span>
+<sc-for list="{{quick}}" as="q" hint-placeholder-count="5">
+<a href="{{q.href}}" class="navl" style="display: flex; justify-content: space-between; align-items: center; padding: 9px 8px; border-radius: 10px; font-size: 13px; color: #1B1A17; text-decoration: none"><span>{{q.label}}</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4F4A43">{{q.meta}}</span></a>
+</sc-for>
+</div>
+<a href="SignIn.dc.html" class="navl" style="margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 12px; color: #1B1A17; text-decoration: none"><span style="width: 34px; height: 34px; border-radius: 999px; background: rgba(255,255,255,0.45); display: grid; place-items: center; font-size: 12px; font-weight: 600">AO</span><span style="display: flex; flex-direction: column; font-size: 13px"><span style="font-weight: 500">Adaya Owako</span><span style="font-size: 12px; color: #4F4A43">Sign out</span></span></a>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["home","agents","teams","riders","compliance","reports","invite","retention","payouts","offboarding"],"default":"home"},"$preview":{"width":260,"height":960}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const active = this.props.active ?? 'home';
+    const make = (rows) => rows.map(([k, label, href, icon]) => {
+      const on = k === active;
+      return { label, href, icon, current: on ? 'page' : 'false', bg: on ? '#1E1C19' : 'rgba(255,255,255,0.26)', fg: on ? '#FFFFFF' : '#1B1A17', bd: on ? '#1E1C19' : 'rgba(255,255,255,0.55)' };
+    });
+    const core = make([
+      ['home', 'Home', 'Main.dc.html', 'M3 11 12 4l9 7v9h-6v-6H9v6H3z'],
+      ['agents', 'Agents', 'Agents.dc.html', 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8'],
+      ['teams', 'Teams', 'Teams.dc.html', 'M12 3v5M5 13v-2h14v2M12 8v3M3 13h4v5H3zM10 13h4v5h-4zM17 13h4v5h-4z'],
+      ['riders', 'Riders', 'Riders.dc.html', 'M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4'],
+      ['compliance', 'Files', 'Compliance.dc.html', 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'],
+      ['reports', 'Reports', 'Reports.dc.html', 'M4 20V10M10 20V4M16 20v-7M22 20H2']
+    ]);
+    const addons = make([
+      ['retention', 'Retention', 'Retention.dc.html', 'M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0M12 7v5l3 3'],
+      ['payouts', 'Payouts', 'Payouts.dc.html', 'M3 6h18v12H3zM3 10h18M7 15h3'],
+      ['offboarding', 'Exit kit', 'Offboarding.dc.html', 'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l-5-5 5-5M5 12h11']
+    ]);
+    const quick = [
+      { label: 'Invite agents', href: 'Invite.dc.html', meta: '+' },
+      { label: 'Tier approvals', href: 'Riders.dc.html', meta: '2' },
+      { label: 'Welcome email', href: 'WelcomeEmail.dc.html', meta: 'view' },
+      { label: 'Agent’s onboarding view', href: 'AgentOnboard.dc.html', meta: 'test' },
+      { label: 'Year-end 1099s', href: 'Reports.dc.html', meta: '2026' }
+    ];
+    return { core, addons, quick };
+  }
+}
+</script>
+</body>
+</html>

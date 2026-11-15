@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Retention Insights</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes dot{from{opacity:0;transform:scale(0.4)}to{opacity:1;transform:none}}
+@keyframes ripple{0%{r:7;opacity:0.6}100%{r:20;opacity:0}}
+@keyframes swap{from{opacity:0;transform:translateY(8px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+.r{animation:rise 560ms var(--ease-out) both}.d1{animation-delay:60ms}.d2{animation-delay:120ms}.d3{animation-delay:180ms}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease}.press:active{transform:scale(0.97)}
+.navl{transition:transform 160ms var(--ease-out),background-color 160ms ease}.navl:active{transform:scale(0.97)}
+.dot{transform-box:fill-box;transform-origin:center;animation:dot 500ms var(--ease-out) both}
+.ripple{animation:ripple 1.6s ease-out infinite}
+.swap{animation:swap 300ms var(--ease-out) both}
+.ag{transition:background-color 160ms ease}
+.plane{transform:perspective(1400px) rotateX(16deg);transform-origin:50% 100%}
+@media (hover:hover) and (pointer:fine){.navl:hover{background-color:rgba(255,255,255,0.45)}.ag:hover{background-color:rgba(255,255,255,0.28)}}
+@media (prefers-reduced-motion:reduce){.r,.dot,.swap{animation-name:fade}.ripple{animation:none}.plane{transform:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px 22px; background: radial-gradient(900px 640px at 50% -5%, #D6D1C9, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), radial-gradient(640px 480px at 100% 55%, #CAC4BA, transparent 70%), #BCB8B1; font-family: Geist, sans-serif; color: #1B1A17; font-variant-numeric: tabular-nums">
+<div style="max-width: 1360px; margin: 0 auto; box-sizing: border-box; padding: 12px; border-radius: 30px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.42); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 30px 80px rgba(30,24,18,0.14); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); display: flex; flex-wrap: wrap; gap: 12px">
+<div class="r" style="flex: 1 1 240px; min-width: 0; display: grid"><dc-import name="Sidebar" active="retention" hint-size="100%,900px"></dc-import></div>
+<main style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; padding: 22px 18px; display: flex; flex-direction: column; gap: 18px">
+
+<header class="r d1" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 18px">
+<div><p style="margin: 0 0 6px; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: #4F4A43">ROSTER / RETENTION INSIGHTS · ADD-ON</p><h1 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 64px; line-height: 0.95">$1.82M <span style="color: #7A7368; font-style: italic">at risk</span></h1><p style="margin: 8px 0 0; font-size: 13px; color: #3E3A34">Commission tied to agents showing early signs of leaving · read from payroll, deals and fees</p></div>
+<div style="display: flex; gap: 26px">
+<div><div style="font-family: 'Instrument Serif', serif; font-size: 40px; line-height: 1; color: #B03A26">7</div><div style="font-size: 12px; color: #4F4A43">High risk</div></div>
+<div><div style="font-family: 'Instrument Serif', serif; font-size: 40px; line-height: 1">14</div><div style="font-size: 12px; color: #4F4A43">Watch</div></div>
+<div><div style="font-family: 'Instrument Serif', serif; font-size: 40px; line-height: 1; color: #2F7D4F">491</div><div style="font-size: 12px; color: #4F4A43">Healthy</div></div>
+</div>
+</header>
+
+<section class="r d2" aria-label="Risk map" style="box-sizing: border-box; padding: 18px 20px 12px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px)">
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #4F4A43; margin-bottom: 6px"><span>GCI vs last year ↑</span><span>Each dot is an agent · bigger dot = more commission</span></div>
+<div class="plane">
+<svg sc-camel-view-box="0 0 900 220" style="width: 100%; height: 220px" role="img" aria-label="Risk map: agents plotted by days since their last closing and change in commission; at-risk agents cluster bottom right">
+<rect x="560" y="120" width="340" height="100" fill="rgba(176,58,38,0.08)"></rect>
+<path d="M0 110 H900" stroke="rgba(30,24,18,0.2)" stroke-dasharray="3 5"></path>
+<path d="M0 219 H900 M0 0 V220" stroke="rgba(30,24,18,0.25)"></path>
+<text x="890" y="212" text-anchor="end" font-family="Geist Mono, monospace" font-size="10" fill="#4F4A43">DAYS SINCE LAST CLOSING →</text>
+<text x="570" y="136" font-family="Geist, sans-serif" font-size="11" fill="#B03A26">danger zone</text>
+<sc-for list="{{cloud}}" as="c" hint-placeholder-count="30">
+<circle class="dot" cx="{{c.x}}" cy="{{c.y}}" r="{{c.r}}" fill="{{c.f}}" style="animation-delay: {{c.d}}"></circle>
+</sc-for>
+<sc-for list="{{risk}}" as="p" hint-placeholder-count="6">
+<g>
+<circle class="dot" cx="{{p.x}}" cy="{{p.y}}" r="{{p.r}}" fill="{{p.f}}" stroke="{{p.s}}" stroke-width="2" style="animation-delay: {{p.d}}"></circle>
+</g>
+</sc-for>
+<sc-for list="{{selDot}}" as="p" hint-placeholder-count="1">
+<circle class="ripple" cx="{{p.x}}" cy="{{p.y}}" r="7" fill="none" stroke="#1E1C19" stroke-width="2"></circle>
+</sc-for>
+</svg>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<section class="r d3" aria-label="At-risk agents" style="flex: 1 1 340px; min-width: 0; box-sizing: border-box; padding: 14px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 4px 6px 8px; font-size: 14px; font-weight: 500">Who to check in with</h2>
+<sc-for list="{{rows}}" as="a" hint-placeholder-count="6">
+<button type="button" class="ag" sc-camel-on-click="{{a.pick}}" aria-pressed="{{a.on}}" style="text-align: left; padding: 12px; border-radius: 14px; border: 1px solid {{a.bd}}; background: {{a.bg}}; font: 13px Geist, sans-serif; color: #1B1A17; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) 64px; gap: 6px 12px; align-items: center">
+<span style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 14px">{{a.name}}</span><span style="color: #4F4A43">{{a.reason}}</span></span>
+<span style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px"><span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: {{a.c}}">{{a.score}}</span><span style="width: 64px; height: 5px; border-radius: 99px; background: rgba(30,24,18,0.12)"><span style="display: block; height: 100%; width: {{a.pct}}; border-radius: 99px; background: {{a.c}}"></span></span></span>
+</button>
+</sc-for>
+</section>
+
+<section class="r d3" style="flex: 1.5 1 440px; min-width: 0; box-sizing: border-box; padding: 24px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px)">
+<sc-for list="{{detail}}" as="d" hint-placeholder-count="1">
+<div class="swap" style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px"><div><div style="font-size: 12px; color: #4F4A43">{{d.office}} · {{d.tenure}}</div><h2 style="margin: 4px 0 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 40px; line-height: 1">{{d.name}}</h2></div><div style="text-align: right"><div style="font-size: 12px; color: #4F4A43">Commission at stake</div><div style="font-family: 'Instrument Serif', serif; font-size: 34px">{{d.stake}}</div></div></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px">
+<sc-for list="{{d.signals}}" as="s" hint-placeholder-count="4">
+<div style="padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.3)"><div style="font-size: 12px; color: #4F4A43">{{s.label}}</div><div style="font-size: 15px; font-weight: 600; margin-top: 4px; color: {{s.c}}">{{s.value}}</div></div>
+</sc-for>
+</div>
+<div style="padding: 16px; border-radius: 16px; background: rgba(255,255,255,0.4); display: flex; flex-direction: column; gap: 6px"><span style="font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #4F4A43">Suggested opener</span><span style="font-family: 'Instrument Serif', serif; font-size: 22px; line-height: 1.3">“{{d.opener}}”</span><span style="font-size: 12px; color: #4F4A43">Never quote the numbers to the agent. It should feel like support, not surveillance.</span></div>
+<form sc-camel-on-submit="{{d.log}}" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end">
+<label style="flex: 1 1 160px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 500">Outcome<sc-raw-select sc-camel-on-change="{{onOutcome}}" style="height: 42px; padding: 0 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.65); background: rgba(255,255,255,0.5); font: 14px Geist, sans-serif"><option>Open to a split review</option><option>Happy, no action</option><option>Needs more leads</option><option>Considering leaving</option></sc-raw-select></label>
+<label style="flex: 2 1 220px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 500">Note<input type="text" value="{{note}}" sc-camel-on-input="{{onNote}}" placeholder="Talked Friday, follow up in two weeks" style="height: 42px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.65); background: rgba(255,255,255,0.5); font: 14px Geist, sans-serif"></label>
+<button type="submit" class="press" style="height: 42px; padding: 0 18px; border-radius: 12px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 13px Geist, sans-serif; cursor: pointer">Log check-in</button>
+</form>
+<div>
+<sc-for list="{{d.history}}" as="h" hint-placeholder-count="2">
+<div class="swap" style="display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px solid rgba(30,24,18,0.08); font-size: 13px"><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4F4A43">{{h.when}}</span><span><strong style="font-weight: 600">{{h.outcome}}</strong> · {{h.note}}</span></div>
+</sc-for>
+</div>
+<a href="Offboarding.dc.html" style="align-self: flex-start; font-size: 12px; font-weight: 500">If they leave anyway, start the exit kit →</a>
+</div>
+</sc-for>
+</section>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1200}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: 0, outcome: 'Open to a split review', note: '', logs: {} };
+  }
+  renderVals() {
+    const red = '#B03A26', amber = '#8A5A1E', mute = '#4F4A43';
+    const A = [
+      { name: 'Kenji Nakamura', office: 'Queens · LIC', tenure: '6 years', stake: '$301,750', score: 86, reason: 'Deals down 40% vs last year', days: 140, chg: -42,
+        signals: [['Closed deals vs last year', '−40%', red], ['Days since last closing', '138', red], ['Desk fees', '2 months late', red], ['Split', 'Asked for review in Aug', amber]],
+        opener: 'Anything we could be doing better for you? I know you raised your split a while back, so I’d love to revisit that properly.' },
+      { name: 'Grace Kim', office: 'Manhattan · SoHo', tenure: '3 years', stake: '$244,100', score: 74, reason: 'No listings in 90 days', days: 120, chg: -22,
+        signals: [['Closed deals vs last year', '−18%', amber], ['Days since last listing', '94', red], ['Desk fees', 'On time', mute], ['Support tickets', '3 this month', amber]],
+        opener: 'How’s the pipeline feeling going into the new year? Is there anything that would make the next few months easier?' },
+      { name: 'Kwame Osei', office: 'Brooklyn · Williamsburg', tenure: '2 years', stake: '$198,400', score: 69, reason: 'Late fees + licence expiring', days: 100, chg: -15,
+        signals: [['Closed deals vs last year', '−12%', amber], ['Licence', 'Expires 5 Dec', red], ['Desk fees', '1 month late', amber], ['Split', 'No changes', mute]],
+        opener: 'Wanted to make sure you’re all set for your licence renewal. Anything we can take off your plate?' },
+      { name: 'Owen Price', office: 'Westchester · Scarsdale', tenure: '4 years', stake: '$229,600', score: 61, reason: 'Average price dropping', days: 85, chg: -9,
+        signals: [['Average sale price', '−21%', amber], ['Days since last closing', '61', amber], ['Desk fees', 'On time', mute], ['Leads accepted', '−50%', red]],
+        opener: 'I’d love to hear what kind of business you want more of next year, and how we can send it your way.' },
+      { name: 'Sofia Marino', office: 'Manhattan · Tribeca', tenure: '5 years', stake: '$288,400', score: 55, reason: 'Team lead left last month', days: 70, chg: 4,
+        signals: [['Closed deals vs last year', '+4%', mute], ['Team change', 'Lead departed Oct', red], ['Desk fees', 'On time', mute], ['Split', 'No changes', mute]],
+        opener: 'With the team change, how are you feeling about where you land? Happy to talk through options.' }
+    ];
+    const sx = (d) => Math.round(d / 180 * 880 + 10), sy = (c) => Math.round(110 - c / 60 * 100);
+    let seed = 7; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    const cloud = Array.from({ length: 34 }, (_, i) => ({ x: Math.round(rnd() * 480 + 20), y: Math.round(rnd() * 150 + 20), r: Math.round(rnd() * 5 + 3), f: 'rgba(30,24,18,0.28)', d: (i * 18) + 'ms' }));
+    const sel = this.state.sel;
+    const risk = A.map((a, i) => ({ x: sx(a.days), y: sy(a.chg), r: 7 + Math.round(parseInt(a.stake.replace(/\D/g, '')) / 60000), f: i === sel ? '#1E1C19' : a.score > 70 ? 'rgba(176,58,38,0.75)' : 'rgba(138,90,30,0.6)', s: '#FFFFFF', d: (700 + i * 60) + 'ms' }));
+    const rows = A.map((a, i) => {
+      const on = i === sel;
+      return { name: a.name, reason: a.reason, score: a.score + '/100', pct: a.score + '%', c: a.score > 70 ? red : amber, on: on ? 'true' : 'false',
+        bg: on ? 'rgba(255,255,255,0.45)' : 'transparent', bd: on ? 'rgba(255,255,255,0.8)' : 'transparent', pick: () => this.setState({ sel: i, note: '' }) };
+    });
+    const a = A[sel];
+    const base = [{ when: '02 OCT', outcome: 'Happy, no action', note: 'Quarterly check-in, mentioned slower market' }];
+    const history = (this.state.logs[sel] || []).concat(base);
+    const detail = [{ key: sel, ...a, signals: a.signals.map(([label, value, c]) => ({ label, value, c })), history,
+      log: (e) => { if (e && e.preventDefault) e.preventDefault(); const logs = { ...this.state.logs }; logs[sel] = [{ when: 'TODAY', outcome: this.state.outcome, note: this.state.note || 'Check-in logged' }].concat(logs[sel] || []); this.setState({ logs, note: '' }); } }];
+    return {
+      cloud, risk, rows, detail, selDot: [{ x: risk[sel].x, y: risk[sel].y }], note: this.state.note,
+      onNote: (e) => this.setState({ note: e.target.value }), onOutcome: (e) => this.setState({ outcome: e.target.value })
+    };
+  }
+}
+</script>
+
+
+</body></html>

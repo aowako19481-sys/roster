@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Teams</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes drop{from{opacity:0;transform:translateY(-10px) scale(0.96)}to{opacity:1;transform:none}}
+@keyframes draw{from{transform:scaleY(0)}to{transform:none}}
+.r{animation:rise 560ms var(--ease-out) both}.d1{animation-delay:60ms}.d2{animation-delay:110ms}.d3{animation-delay:160ms}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease}.press:active{transform:scale(0.97)}
+.navl{transition:transform 160ms var(--ease-out),background-color 160ms ease}.navl:active{transform:scale(0.97)}
+.node{animation:drop 380ms var(--ease-out) both;transition:transform 220ms var(--ease-out),box-shadow 220ms ease}
+.wire{transform-origin:top;animation:draw 300ms var(--ease-out) both}
+.board{transform:perspective(1600px) rotateX(8deg);transform-origin:50% 0}
+@media (hover:hover) and (pointer:fine){.navl:hover{background-color:rgba(255,255,255,0.45)}.node:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(30,24,18,0.16)}}
+@media (prefers-reduced-motion:reduce){.r,.node,.wire{animation-name:fade}.node{transition:none}.board{transform:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px 22px; background: radial-gradient(900px 640px at 50% -5%, #D6D1C9, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), radial-gradient(640px 480px at 100% 55%, #CAC4BA, transparent 70%), #BCB8B1; font-family: Geist, sans-serif; color: #1B1A17; font-variant-numeric: tabular-nums">
+<div style="max-width: 1360px; margin: 0 auto; box-sizing: border-box; padding: 12px; border-radius: 30px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.42); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 30px 80px rgba(30,24,18,0.14); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); display: flex; flex-wrap: wrap; gap: 12px">
+<div class="r" style="flex: 1 1 240px; min-width: 0; display: grid"><dc-import name="Sidebar" active="teams" hint-size="100%,900px"></dc-import></div>
+<main style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; padding: 22px 18px; display: flex; flex-wrap: wrap; gap: 18px; align-content: flex-start">
+
+<aside class="r d1" aria-label="Registered teams" style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+<p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: #4F4A43">ROSTER / TEAMS</p>
+<h1 style="margin: 0 0 8px; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 48px; line-height: 1">Registered teams</h1>
+<sc-for list="{{teams}}" as="t" hint-placeholder-count="3">
+<button type="button" class="press" sc-camel-on-click="{{t.pick}}" aria-pressed="{{t.on}}" style="text-align: left; padding: 16px; border-radius: 18px; border: 1px solid {{t.bd}}; background: {{t.bg}}; color: {{t.fg}}; font: 14px Geist, sans-serif; cursor: pointer; display: flex; flex-direction: column; gap: 8px; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px)">
+<span style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-weight: 600; font-size: 15px">{{t.name}}</span><span style="font-family: 'Instrument Serif', serif; font-size: 28px; line-height: 1">{{t.split}}</span></span>
+<span style="font-size: 12px; opacity: 0.8">{{t.members}} people · lead {{t.lead}}</span>
+</button>
+</sc-for>
+<p style="margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: #4F4A43">The brokerage tracks each team’s combined split. How a team divides it stays on the notices of contract.</p>
+</aside>
+
+<section class="r d2" style="flex: 2.4 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px">
+<div style="padding: 16px 18px; border-radius: 18px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px)"><div style="font-size: 12px; color: #4F4A43">Team split</div><div style="font-family: 'Instrument Serif', serif; font-size: 40px; line-height: 1.1">{{cur.split}}</div></div>
+<div style="padding: 16px 18px; border-radius: 18px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px)"><div style="font-size: 12px; color: #4F4A43">Team GCI this year</div><div style="font-family: 'Instrument Serif', serif; font-size: 40px; line-height: 1.1">{{cur.gci}}</div></div>
+<div style="padding: 16px 18px; border-radius: 18px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; flex-direction: column; gap: 8px"><div style="display: flex; justify-content: space-between; font-size: 12px; color: #4F4A43"><span>Next team tier</span><span style="font-family: 'Geist Mono', monospace">{{cur.next}}</span></div><div style="height: 8px; border-radius: 99px; background: repeating-linear-gradient(90deg, rgba(30,24,18,0.2) 0 1px, transparent 1px 4px)"><div style="height: 100%; width: {{cur.pct}}; border-radius: 99px; background: #1E1C19; transition: width 400ms cubic-bezier(0.77,0,0.175,1)"></div></div><div style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4F4A43">{{cur.progress}}</div></div>
+</div>
+
+<div style="position: relative; padding: 34px 20px 40px; border-radius: 24px; background-color: rgba(255,255,255,0.12); background-image: radial-gradient(rgba(30,24,18,0.18) 1px, transparent 1px); background-size: 18px 18px; border: 1px solid rgba(255,255,255,0.45); overflow: hidden">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px"><h2 style="margin: 0; font-size: 14px; font-weight: 500">{{cur.name}} · structure</h2><span style="font-size: 12px; color: #4F4A43">Click anyone to open their card</span></div>
+<sc-for list="{{views}}" as="v" hint-placeholder-count="1">
+<div class="board" style="display: flex; flex-direction: column; align-items: center">
+<a href="Agent.dc.html" class="node" style="padding: 12px 22px; border-radius: 16px; background: #1E1C19; color: #FFFFFF; text-align: center; text-decoration: none"><span style="display: block; font-size: 14px; font-weight: 500">{{v.lead}}</span><span style="display: block; font-size: 11px; color: #C9C3B9">Team lead</span></a>
+<div class="wire" style="width: 1px; height: 26px; background: rgba(30,24,18,0.35); animation-delay: 120ms"></div>
+<div class="wire" style="width: {{v.bridge}}; height: 1px; background: rgba(30,24,18,0.35); animation-delay: 160ms"></div>
+<div style="width: 100%; display: grid; grid-template-columns: {{v.cols}}">
+<sc-for list="{{v.subs}}" as="s" hint-placeholder-count="2">
+<div style="display: flex; flex-direction: column; align-items: center">
+<div class="wire" style="width: 1px; height: 22px; background: rgba(30,24,18,0.35); animation-delay: 200ms"></div>
+<a href="Agent.dc.html" class="node" style="padding: 10px 16px; border-radius: 14px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.8); text-align: center; text-decoration: none; animation-delay: 220ms"><span style="display: block; font-size: 13px; font-weight: 500">{{s.name}}</span><span style="display: block; font-size: 11px; color: #4F4A43">{{s.role}}</span></a>
+<div class="wire" style="width: 1px; height: 18px; background: rgba(30,24,18,0.3); animation-delay: 300ms"></div>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 6px">
+<sc-for list="{{s.members}}" as="m" hint-placeholder-count="2">
+<a href="Agent.dc.html" class="node" style="padding: 7px 11px; border-radius: 11px; background: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.6); font-size: 12px; text-decoration: none; animation-delay: 340ms">{{m}}</a>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1100}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { team: 0, ver: 0 };
+  }
+  renderVals() {
+    const teams = [
+      { name: 'Team Ellis', split: '75%', lead: 'Jordan Ellis', gci: '$1.12M', next: '78% at $1.25M', pct: '90%', progress: '$1,124,000 / $1,250,000',
+        subs: [{ name: 'Theo Brooks', role: 'Sub-lead', members: ['Sam Okafor', 'Ana Ruiz'] }, { name: 'Nia Carter', role: 'Sub-lead', members: ['Leo Grant', 'Iris Wong'] }] },
+      { name: 'Team Nakamura', split: '75%', lead: 'Kenji Nakamura', gci: '$684K', next: '78% at $1M', pct: '68%', progress: '$684,300 / $1,000,000',
+        subs: [{ name: 'Ruth Adeyemi', role: 'Sub-lead', members: ['Tomás Vega'] }, { name: 'Ben Shah', role: 'Buyer agent', members: [] }, { name: 'Hana Ito', role: 'Buyer agent', members: [] }] },
+      { name: 'Hale Group', split: '78%', lead: 'Marcus Hale', gci: '$1.48M', next: '80% at $2M', pct: '74%', progress: '$1,482,000 / $2,000,000',
+        subs: [{ name: 'Clara Diaz', role: 'Sub-lead', members: ['Felix Moore', 'June Park', 'Omar Said'] }] }
+    ];
+    const cur = teams[this.state.team];
+    const n = cur.subs.length;
+    const views = [{ key: this.state.team, lead: cur.lead, subs: cur.subs, cols: 'repeat(' + n + ', minmax(0, 1fr))', bridge: n > 1 ? (100 - 100 / n) + '%' : '1px' }];
+    return {
+      cur, views,
+      teams: teams.map((t, i) => {
+        const on = i === this.state.team;
+        return { name: t.name, split: t.split, lead: t.lead, members: 1 + t.subs.reduce((s, x) => s + 1 + x.members.length, 0), on: on ? 'true' : 'false',
+          bg: on ? '#1E1C19' : 'rgba(255,255,255,0.18)', fg: on ? '#FFFFFF' : '#1B1A17', bd: on ? '#1E1C19' : 'rgba(255,255,255,0.5)', pick: () => this.setState({ team: i }) };
+      })
+    };
+  }
+}
+</script>
+
+
+</body></html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Agents</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes deal{from{opacity:0;transform:translateY(18px) rotateX(18deg) scale(0.97)}to{opacity:1;transform:none}}
+.r{animation:rise 560ms var(--ease-out) both}.d1{animation-delay:60ms}.d2{animation-delay:110ms}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease}.press:active{transform:scale(0.97)}
+.navl{transition:transform 160ms var(--ease-out),background-color 160ms ease}.navl:active{transform:scale(0.97)}
+.grid{perspective:1600px}
+.tile{animation:deal 420ms var(--ease-out) both;transform-origin:50% 100%;transition:transform 260ms var(--ease-out),box-shadow 260ms ease}
+.sheen{position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.75) 47%,rgba(255,236,214,0.4) 53%,transparent 70%);transform:translateX(-130%);pointer-events:none}
+@media (hover:hover) and (pointer:fine){.navl:hover{background-color:rgba(255,255,255,0.45)}.tile:hover{transform:translateY(-6px) rotateX(4deg);box-shadow:0 26px 50px rgba(30,24,18,0.18)}.tile:hover .sheen{transform:translateX(130%);transition:transform 1000ms var(--ease-out)}}
+@media (prefers-reduced-motion:reduce){.r,.tile{animation-name:fade}.tile,.sheen{transition:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px 22px; background: radial-gradient(900px 640px at 50% -5%, #D6D1C9, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), radial-gradient(640px 480px at 100% 55%, #CAC4BA, transparent 70%), #BCB8B1; font-family: Geist, sans-serif; color: #1B1A17; font-variant-numeric: tabular-nums">
+<div style="max-width: 1360px; margin: 0 auto; box-sizing: border-box; padding: 12px; border-radius: 30px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.42); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 30px 80px rgba(30,24,18,0.14); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); display: flex; flex-wrap: wrap; gap: 12px">
+<div class="r" style="flex: 1 1 240px; min-width: 0; display: grid"><dc-import name="Sidebar" active="agents" hint-size="100%,900px"></dc-import></div>
+<main style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; padding: 22px 18px; display: flex; flex-direction: column; gap: 22px">
+
+<header class="r d1" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px">
+<div><p style="margin: 0 0 6px; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: #4F4A43">ROSTER / AGENTS</p><h1 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 64px; line-height: 0.95; letter-spacing: -0.02em">512 agents<span style="color: #7A7368">, one deck.</span></h1></div>
+<a href="Invite.dc.html" class="press" style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 14px; background: #1E1C19; color: #FFFFFF; font: 500 13px Geist, sans-serif; text-decoration: none"><svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Invite agents</a>
+</header>
+
+<div class="r d2" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px; border-radius: 18px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px)">
+<label style="flex: 1 1 260px; display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 14px; border-radius: 12px; background: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.55); color: #4F4A43; font-size: 13px"><svg width="15" height="15" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search agents</span><input type="search" value="{{q}}" sc-camel-on-input="{{onQ}}" placeholder="Search by name or office" style="flex: 1; min-width: 0; border: 0; background: transparent; outline: none; font: 14px Geist, sans-serif; color: #1B1A17"></label>
+<div style="display: flex; flex-wrap: wrap; gap: 4px">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="4">
+<button type="button" class="press" sc-camel-on-click="{{c.pick}}" aria-pressed="{{c.on}}" style="height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font: 500 12px Geist, sans-serif; cursor: pointer">{{c.label}}</button>
+</sc-for>
+</div>
+<button type="button" class="press" sc-camel-on-click="{{toggleSort}}" style="height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.32); color: #1B1A17; font: 500 12px Geist, sans-serif; cursor: pointer">Sort · {{sortLabel}}</button>
+</div>
+
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #4F4A43; padding: 0 4px"><span>Showing {{count}} of 512</span><span>Tap a card to open the agent</span></div>
+
+<div class="grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px">
+<sc-for list="{{agents}}" as="a" hint-placeholder-count="12">
+<a href="Agent.dc.html" class="tile" style="position: relative; overflow: hidden; box-sizing: border-box; padding: 18px; border-radius: 22px; background: {{a.bg}}; border: 1px solid rgba(255,255,255,0.75); box-shadow: 0 10px 24px rgba(30,24,18,0.1); display: flex; flex-direction: column; gap: 16px; color: #1B1A17; text-decoration: none; animation-delay: {{a.d}}"><span class="sheen" aria-hidden="true"></span>
+<span style="display: flex; justify-content: space-between; align-items: center"><span style="width: 44px; height: 44px; border-radius: 999px; background: rgba(30,24,18,0.08); display: grid; place-items: center; font-size: 14px; font-weight: 600">{{a.initials}}</span><span style="font-size: 11px; font-weight: 600; color: {{a.stC}}">{{a.status}}</span></span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 600">{{a.name}}</span><span style="font-size: 12px; color: #4F4A43">{{a.office}} · {{a.team}}</span></span>
+<span style="display: flex; align-items: baseline; justify-content: space-between"><span style="font-family: 'Instrument Serif', serif; font-size: 40px; line-height: 1">{{a.split}}</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4F4A43">next {{a.next}}</span></span>
+<span style="display: block; height: 6px; border-radius: 99px; background: repeating-linear-gradient(90deg, rgba(30,24,18,0.2) 0 1px, transparent 1px 4px)"><span style="display: block; height: 100%; width: {{a.pct}}; border-radius: 99px; background: #1E1C19"></span></span>
+</a>
+</sc-for>
+</div>
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; padding: 40px; text-align: center; font-size: 14px; color: #4F4A43">No agents match that search.</p></sc-if>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1300}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { q: '', chip: 'All', sort: 'gci' };
+  }
+  renderVals() {
+    const data = [
+      ['Maya Chen', 'SoHo', 'Solo', 80, 85, 81, 'Active', 412800], ['Jordan Ellis', 'Park Slope', 'Team Ellis', 80, 85, 64, 'Active', 398200],
+      ['Daniela Ruiz', 'UES', 'Solo', 85, 90, 40, 'Active', 361500], ['Marcus Hale', 'Rye', 'Hale Group', 75, 78, 92, 'Active', 344900],
+      ['Aisha Bello', 'Williamsburg', 'Solo', 80, 85, 55, 'Active', 327300], ['Kenji Nakamura', 'LIC', 'Team Nakamura', 75, 78, 30, 'Active', 301750],
+      ['Rosa Alvarez', 'UES', 'Solo', 70, 80, 8, 'Flagged', 0], ['Theo Brooks', 'Astoria', 'Team Ellis', 75, 78, 70, 'Flagged', 261900],
+      ['Priya Nair', 'SoHo', 'Solo', 70, 80, 0, 'Onboarding', 0], ['Kwame Osei', 'Williamsburg', 'Solo', 80, 85, 47, 'Flagged', 198400],
+      ['Lena Park', 'Rye', 'Solo', 70, 80, 0, 'Onboarding', 0], ['Sam Okafor', 'SoHo', 'Team Ellis', 75, 78, 22, 'Active', 154200]
+    ];
+    const pearls = ['linear-gradient(155deg, rgba(255,255,255,0.85), rgba(239,237,232,0.7) 55%, rgba(248,242,234,0.75))', 'linear-gradient(150deg, rgba(251,250,248,0.8), rgba(230,227,221,0.7))', 'linear-gradient(150deg, rgba(251,251,250,0.8), rgba(227,227,226,0.7))'];
+    const stC = { Active: '#2F7D4F', Flagged: '#B03A26', Onboarding: '#4F4A43' };
+    const q = this.state.q.toLowerCase();
+    let list = data.filter((a) => {
+      if (q && !(a[0] + ' ' + a[1]).toLowerCase().includes(q)) return false;
+      if (this.state.chip === 'Solo') return a[2] === 'Solo';
+      if (this.state.chip === 'On a team') return a[2] !== 'Solo';
+      if (this.state.chip === 'Needs attention') return a[6] !== 'Active';
+      return true;
+    });
+    list = list.slice().sort((x, y) => this.state.sort === 'gci' ? y[7] - x[7] : x[0].localeCompare(y[0]));
+    const agents = list.map((a, i) => ({
+      name: a[0], office: a[1], team: a[2], split: a[3] + '%', next: a[4] + '%', pct: a[5] + '%', status: a[6], stC: stC[a[6]],
+      initials: a[0].split(' ').map((s) => s[0]).join(''), bg: pearls[i % 3], d: (i * 35) + 'ms'
+    }));
+    const chips = ['All', 'Solo', 'On a team', 'Needs attention'].map((k) => {
+      const on = this.state.chip === k;
+      return { label: k, on: on ? 'true' : 'false', bg: on ? '#1E1C19' : 'rgba(255,255,255,0.3)', fg: on ? '#FFFFFF' : '#1B1A17', bd: on ? '#1E1C19' : 'rgba(255,255,255,0.5)', pick: () => this.setState({ chip: k }) };
+    });
+    return {
+      agents, chips, q: this.state.q, count: agents.length, empty: agents.length === 0,
+      onQ: (e) => this.setState({ q: e.target.value }),
+      sortLabel: this.state.sort === 'gci' ? 'GCI' : 'A–Z',
+      toggleSort: () => this.setState({ sort: this.state.sort === 'gci' ? 'az' : 'gci' })
+    };
+  }
+}
+</script>
+
+
+</body></html>

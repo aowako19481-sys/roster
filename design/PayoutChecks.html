@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Payout checks</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes print{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes swap{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.r{animation:rise 560ms var(--ease-out) both}.d1{animation-delay:60ms}.d2{animation-delay:120ms}.d3{animation-delay:180ms}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease,opacity 160ms ease}.press:active{transform:scale(0.97)}
+.navl{transition:transform 160ms var(--ease-out),background-color 160ms ease}.navl:active{transform:scale(0.97)}
+.receipt{transform:perspective(1400px) rotateX(10deg) rotateZ(-1.5deg);transform-origin:50% 0;transition:transform 500ms var(--ease-out)}
+.printed{animation:print 900ms cubic-bezier(0.77,0,0.175,1) both}
+.zig{height:12px;background:linear-gradient(135deg,#FBFAF7 6px,transparent 0) 0 0/12px 12px,linear-gradient(225deg,#FBFAF7 6px,transparent 0) 0 0/12px 12px}
+.swap{animation:swap 280ms var(--ease-out) both}
+.spin{display:inline-block;width:12px;height:12px;border-radius:99px;border:2px solid rgba(255,255,255,0.35);border-top-color:#FFFFFF;animation:spin 700ms linear infinite}
+@media (hover:hover) and (pointer:fine){.navl:hover{background-color:rgba(255,255,255,0.45)}.receipt:hover{transform:perspective(1400px) rotateX(0) rotateZ(0)}}
+@media (prefers-reduced-motion:reduce){.r,.swap{animation-name:fade}.printed{animation:none}.receipt{transform:none}.spin{animation:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px 22px; background: radial-gradient(900px 640px at 50% -5%, #D6D1C9, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), radial-gradient(640px 480px at 100% 55%, #CAC4BA, transparent 70%), #BCB8B1; font-family: Geist, sans-serif; color: #1B1A17; font-variant-numeric: tabular-nums">
+<div style="max-width: 1360px; margin: 0 auto; box-sizing: border-box; padding: 12px; border-radius: 30px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.42); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 30px 80px rgba(30,24,18,0.14); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); display: flex; flex-wrap: wrap; gap: 12px">
+<div class="r" style="flex: 1 1 240px; min-width: 0; display: grid"><dc-import name="Sidebar" active="payouts" hint-size="100%,900px"></dc-import></div>
+<main style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; padding: 22px 18px; display: flex; flex-direction: column; gap: 18px">
+
+<header class="r d1" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div><p style="margin: 0 0 6px; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: #4F4A43">ROSTER / PAYOUT CHECKS · ADD-ON</p><h1 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 56px; line-height: 1">Payroll · Thu 19 Nov</h1></div>
+<div style="display: flex; align-items: center; gap: 22px; flex-wrap: wrap">
+<span style="font-size: 13px"><span style="font-family: 'Instrument Serif', serif; font-size: 30px">{{matched}}</span> match</span>
+<span style="font-size: 13px; color: {{heldC}}"><span style="font-family: 'Instrument Serif', serif; font-size: 30px">{{held}}</span> held</span>
+<button type="button" class="press" sc-camel-on-click="{{release}}" disabled="{{cantRelease}}" style="height: 44px; padding: 0 20px; border-radius: 14px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 14px Geist, sans-serif; cursor: pointer; opacity: {{relOp}}">{{relLabel}}</button>
+</div>
+</header>
+
+<section class="r d2" aria-label="Payout check" style="box-sizing: border-box; padding: 8px 18px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); overflow-x: auto">
+<div style="min-width: 820px">
+<div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.3fr) 90px 90px 110px minmax(0, 1.4fr); gap: 12px; padding: 12px 0; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: #4F4A43"><span>Deal</span><span>Agent</span><span>Rider</span><span>Paid</span><span style="text-align: right">Payout</span><span style="text-align: right">Check</span></div>
+<sc-for list="{{rows}}" as="p" hint-placeholder-count="6">
+<div style="border-top: 1px solid rgba(30,24,18,0.08)">
+<div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.3fr) 90px 90px 110px minmax(0, 1.4fr); gap: 12px; align-items: center; padding: 13px 0; font-size: 13px">
+<span style="font-weight: 500">{{p.deal}}</span>
+<span style="color: #3E3A34">{{p.agent}}</span>
+<span style="font-family: 'Geist Mono', monospace">{{p.rider}}</span>
+<span style="font-family: 'Geist Mono', monospace; color: {{p.paidC}}">{{p.paid}}</span>
+<span style="font-family: 'Geist Mono', monospace; text-align: right">{{p.amt}}</span>
+<span style="text-align: right; font-size: 12px; font-weight: 600; color: {{p.stC}}">{{p.status}}</span>
+</div>
+<sc-if value="{{p.open}}" hint-placeholder-val="{{ false }}">
+<div class="swap" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 14px; padding: 12px 14px; border-radius: 14px; background: rgba(176,58,38,0.08)">
+<span style="flex: 1 1 260px; font-size: 13px">{{p.issue}}</span>
+<sc-for list="{{p.actions}}" as="x" hint-placeholder-count="2">
+<button type="button" class="press" sc-camel-on-click="{{x.run}}" style="height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid {{x.bd}}; background: {{x.bg}}; color: {{x.fg}}; font: 500 12px Geist, sans-serif; cursor: pointer">{{x.label}}</button>
+</sc-for>
+<sc-if value="{{p.overriding}}" hint-placeholder-val="{{ false }}">
+<form sc-camel-on-submit="{{p.confirm}}" style="flex: 1 1 100%; display: flex; gap: 8px; flex-wrap: wrap"><label style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 500">Reason for override (logged)<input type="text" value="{{reason}}" sc-camel-on-input="{{onReason}}" placeholder="Approved retention bonus, email from broker 12 Nov" style="height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.7); background: rgba(255,255,255,0.6); font: 13px Geist, sans-serif"></label><button type="submit" class="press" style="align-self: flex-end; height: 38px; padding: 0 14px; border-radius: 10px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 12px Geist, sans-serif; cursor: pointer">Confirm override</button></form>
+</sc-if>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+<section class="r d3" style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 36px; line-height: 1">Dispute file</h2>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #3E3A34">An agent says they were underpaid? Pick the deal and Roster prints everything that decided the payout, in order.</p>
+<sc-for list="{{deals}}" as="d" hint-placeholder-count="4">
+<button type="button" class="press" sc-camel-on-click="{{d.pick}}" aria-pressed="{{d.on}}" style="text-align: left; padding: 12px 14px; border-radius: 14px; border: 1px solid {{d.bd}}; background: {{d.bg}}; color: {{d.fg}}; font: 13px Geist, sans-serif; cursor: pointer; display: flex; justify-content: space-between"><span style="font-weight: 500">{{d.deal}}</span><span style="opacity: 0.75">{{d.agent}}</span></button>
+</sc-for>
+</section>
+
+<section class="r d3" style="flex: 1.4 1 420px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 14px">
+<sc-for list="{{receipt}}" as="r" hint-placeholder-count="1">
+<div class="receipt" style="width: 100%; max-width: 480px">
+<div class="printed" style="box-sizing: border-box; padding: 26px 26px 18px; background: #FBFAF7; box-shadow: 0 30px 60px rgba(30,24,18,0.18); display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: #4F4A43"><span>DISPUTE FILE</span><span>{{r.id}}</span></div>
+<div><div style="font-family: 'Instrument Serif', serif; font-size: 30px; line-height: 1.05">{{r.deal}}</div><div style="font-size: 13px; color: #3E3A34; margin-top: 4px">{{r.agent}}</div></div>
+<sc-for list="{{r.lines}}" as="l" hint-placeholder-count="6">
+<div style="display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; gap: 10px; padding: 9px 0; border-top: 1px dashed #DCD5CA; font-size: 13px"><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4F4A43">{{l.when}}</span><span>{{l.what}}</span><span style="font-family: 'Geist Mono', monospace; font-size: 12px">{{l.val}}</span></div>
+</sc-for>
+<div style="display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px solid #1E1C19; font-size: 14px; font-weight: 600"><span>Paid to agent</span><span style="font-family: 'Geist Mono', monospace">{{r.total}}</span></div>
+</div>
+<div class="zig" aria-hidden="true"></div>
+</div>
+</sc-for>
+<button type="button" class="press" sc-camel-on-click="{{exportFile}}" style="display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 18px; border-radius: 12px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 13px Geist, sans-serif; cursor: pointer"><sc-if value="{{busy}}" hint-placeholder-val="{{ false }}"><span class="spin" aria-hidden="true"></span></sc-if>{{expLabel}}</button>
+</section>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1250}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { res: {}, overriding: -1, reason: '', released: false, d: 0, exp: 'idle' };
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  resolve(i, label) { this.setState({ res: { ...this.state.res, [i]: label }, overriding: -1, reason: '' }); }
+  renderVals() {
+    const P = [
+      { deal: '245 Elm St, #4B', agent: 'Maya Chen', rider: '80%', paid: '80%', amt: '$14,250' },
+      { deal: '18 Pine Ave', agent: 'Team Ellis', rider: '75%', paid: '75%', amt: '$22,800' },
+      { deal: '512 W 22nd St, #7', agent: 'Daniela Ruiz', rider: '85%', paid: '90%', amt: '$19,440', issue: 'Rider says 85%, payout shows 90%. That’s $1,080 over.', fixLabel: 'Fix to 85%', fixAmt: '$18,360' },
+      { deal: '77 Bay Rd', agent: 'Chen + Ellis · 50/50', rider: '80% / 80%', paid: '80% / 80%', amt: '$9,600' },
+      { deal: '31 Oak Ln', agent: 'Theo Brooks', rider: '?', paid: '80%', amt: '$8,120', issue: 'Theo is on Team Ellis but this deal isn’t tagged. Team rider is 75%, his individual rider is 80%.', tag: true },
+      { deal: '9 Hill Ct, #2', agent: 'Kenji Nakamura', rider: '75%', paid: '75%', amt: '$11,400' }
+    ];
+    const res = this.state.res;
+    const rows = P.map((p, i) => {
+      const issue = !!p.issue, r = res[i];
+      const open = issue && !r;
+      const status = !issue ? '✓ Matches rider' : r ? '✓ ' + r : 'Held for review';
+      const btn = (label, run, dark) => ({ label, run, bg: dark ? '#1E1C19' : 'rgba(255,255,255,0.55)', fg: dark ? '#FFFFFF' : '#1B1A17', bd: dark ? '#1E1C19' : 'rgba(30,24,18,0.15)' });
+      const actions = p.tag
+        ? [btn('Individual deal · 80%', () => this.resolve(i, 'Tagged individual'), true), btn('Team deal · 75%', () => this.resolve(i, 'Tagged team · 75%'), false)]
+        : issue ? [btn(p.fixLabel, () => this.resolve(i, 'Fixed to rider'), true), btn('Override with reason', () => this.setState({ overriding: i }), false)] : [];
+      return {
+        deal: p.deal, agent: p.agent, rider: p.tag && r ? (r.includes('team') ? '75%' : '80%') : p.rider,
+        paid: p.fixAmt && r === 'Fixed to rider' ? p.rider : (p.tag && r && r.includes('team') ? '75%' : p.paid),
+        amt: p.fixAmt && r === 'Fixed to rider' ? p.fixAmt : (p.tag && r && r.includes('team') ? '$7,612' : p.amt),
+        paidC: open ? '#B03A26' : '#1B1A17', status, stC: issue && !r ? '#B03A26' : '#2F7D4F',
+        open, issue: p.issue, actions, overriding: this.state.overriding === i,
+        confirm: (e) => { if (e && e.preventDefault) e.preventDefault(); this.resolve(i, 'Override logged'); }
+      };
+    });
+    const held = rows.filter((r) => r.open).length;
+    const D = [
+      { deal: '245 Elm St, #4B', agent: 'Maya Chen', id: 'DF-0412', total: '$14,250.00', lines: [['03 OCT', 'Individual rider v2 signed', '80%'], ['21 OCT', 'Deal tagged individual', '—'], ['06 NOV', 'Closed · GCI received', '$17,812'], ['07 NOV', 'Tier check · $32,400 YTD', 'tier 2'], ['07 NOV', 'Payout checked against rider', 'match'], ['08 NOV', 'Approved by Adaya Owako', '✓']] },
+      { deal: '18 Pine Ave', agent: 'Team Ellis · Jordan Ellis lead', id: 'DF-0413', total: '$22,800.00', lines: [['03 OCT', 'Team rider v1 signed', '75%'], ['12 OCT', 'Deal tagged team', '—'], ['29 OCT', 'Closed · GCI received', '$30,400'], ['30 OCT', 'Payout checked against rider', 'match'], ['31 OCT', 'Paid per notice of contract', '✓']] },
+      { deal: '77 Bay Rd', agent: 'Maya Chen + Jordan Ellis', id: 'DF-0414', total: '$9,600.00', lines: [['02 NOV', 'Partner deal · 50/50 share', '—'], ['10 NOV', 'Closed · GCI received', '$12,000'], ['10 NOV', 'Maya share on own rider', '80%'], ['10 NOV', 'Jordan share on own rider', '80%'], ['11 NOV', 'Payout checked against riders', 'match']] },
+      { deal: '512 W 22nd St, #7', agent: 'Daniela Ruiz', id: 'DF-0415', total: res[2] === 'Fixed to rider' ? '$18,360.00' : '$19,440.00', lines: [['14 SEP', 'Individual rider v3 signed', '85%'], ['18 NOV', 'Closed · GCI received', '$21,600'], ['19 NOV', 'Payout entered at 90%', '$19,440'], ['19 NOV', 'Held: doesn’t match rider', 'held'], ['19 NOV', res[2] ? res[2] : 'Waiting for finance', res[2] ? '✓' : '…']] }
+    ];
+    const cur = D[this.state.d];
+    const exp = this.state.exp;
+    return {
+      rows, held, matched: rows.length - held, heldC: held ? '#B03A26' : '#2F7D4F',
+      reason: this.state.reason, onReason: (e) => this.setState({ reason: e.target.value }),
+      cantRelease: held > 0 || this.state.released, relOp: held > 0 ? 0.35 : 1,
+      relLabel: this.state.released ? '✓ Sent to payroll' : held > 0 ? 'Resolve holds to release' : 'Release payroll',
+      release: () => this.setState({ released: true }),
+      deals: D.map((d, i) => { const on = i === this.state.d; return { deal: d.deal, agent: d.agent.split(' ·')[0], on: on ? 'true' : 'false', bg: on ? '#1E1C19' : 'rgba(255,255,255,0.2)', fg: on ? '#FFFFFF' : '#1B1A17', bd: on ? '#1E1C19' : 'rgba(255,255,255,0.5)', pick: () => this.setState({ d: i, exp: 'idle' }) }; }),
+      receipt: [{ key: this.state.d, ...cur, lines: cur.lines.map(([when, what, val]) => ({ when, what, val })) }],
+      busy: exp === 'busy', expLabel: exp === 'busy' ? 'Preparing PDF…' : exp === 'done' ? '✓ Dispute file ready' : 'Export dispute PDF',
+      exportFile: () => { if (exp === 'busy') return; this.setState({ exp: 'busy' }); clearTimeout(this.t); this.t = setTimeout(() => this.setState({ exp: 'done' }), 1500); }
+    };
+  }
+}
+</script>
+
+
+</body></html>

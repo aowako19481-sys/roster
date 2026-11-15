@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Exit kit</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes bar{from{transform:scaleX(0)}to{transform:none}}
+@keyframes swap{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.r{animation:rise 560ms var(--ease-out) both}.d1{animation-delay:60ms}.d2{animation-delay:120ms}.d3{animation-delay:180ms}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease}.press:active{transform:scale(0.97)}
+.navl{transition:transform 160ms var(--ease-out),background-color 160ms ease}.navl:active{transform:scale(0.97)}
+.bar{transform-origin:left;animation:bar 800ms var(--ease-out) both}
+.swap{animation:swap 300ms var(--ease-out) both}
+.chk{transition:background-color 200ms ease}
+.door{transform:perspective(900px) rotateY(-24deg);transform-origin:left center;transition:transform 700ms cubic-bezier(0.77,0,0.175,1)}
+.ringc{transition:stroke-dashoffset 600ms cubic-bezier(0.77,0,0.175,1)}
+@media (hover:hover) and (pointer:fine){.navl:hover{background-color:rgba(255,255,255,0.45)}.chk:hover{background-color:rgba(255,255,255,0.3)}}
+@media (prefers-reduced-motion:reduce){.r,.swap{animation-name:fade}.bar{animation:none}.door,.ringc{transition:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px 22px; background: radial-gradient(900px 640px at 50% -5%, #D6D1C9, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), radial-gradient(640px 480px at 100% 55%, #CAC4BA, transparent 70%), #BCB8B1; font-family: Geist, sans-serif; color: #1B1A17; font-variant-numeric: tabular-nums">
+<div style="max-width: 1360px; margin: 0 auto; box-sizing: border-box; padding: 12px; border-radius: 30px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.42); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 30px 80px rgba(30,24,18,0.14); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); display: flex; flex-wrap: wrap; gap: 12px">
+<div class="r" style="flex: 1 1 240px; min-width: 0; display: grid"><dc-import name="Sidebar" active="offboarding" hint-size="100%,900px"></dc-import></div>
+<main style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; padding: 22px 18px; display: flex; flex-direction: column; gap: 18px">
+
+<header class="r d1" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div><p style="margin: 0 0 6px; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: #4F4A43">ROSTER / EXIT KIT · ADD-ON</p><h1 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 56px; line-height: 1">Clean exits</h1></div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<sc-for list="{{leavers}}" as="l" hint-placeholder-count="2">
+<button type="button" class="press" sc-camel-on-click="{{l.pick}}" aria-pressed="{{l.on}}" style="text-align: left; padding: 10px 16px; border-radius: 14px; border: 1px solid {{l.bd}}; background: {{l.bg}}; color: {{l.fg}}; font: 13px Geist, sans-serif; cursor: pointer; display: flex; flex-direction: column"><span style="font-weight: 600">{{l.name}}</span><span style="font-size: 12px; opacity: 0.8">Leaving {{l.date}}</span></button>
+</sc-for>
+</div>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<section class="r d2" style="flex: 1.4 1 460px; min-width: 0; box-sizing: border-box; padding: 24px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px)">
+<sc-for list="{{cur}}" as="c" hint-placeholder-count="1">
+<div class="swap" style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 22px">
+<div style="position: relative; width: 120px; height: 120px; flex: none">
+<svg sc-camel-view-box="0 0 120 120" width="120" height="120" role="img" aria-label="{{c.ringLabel}}"><circle cx="60" cy="60" r="50" fill="none" stroke="rgba(30,24,18,0.12)" stroke-width="9"></circle><circle class="ringc" cx="60" cy="60" r="50" fill="none" stroke="#1E1C19" stroke-width="9" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="{{c.off}}" transform="rotate(-90 60 60)"></circle></svg>
+<div style="position: absolute; inset: 0; display: grid; place-items: center; font-family: 'Instrument Serif', serif; font-size: 34px">{{c.done}}/{{c.total}}</div>
+</div>
+<div style="flex: 1 1 220px"><div style="font-size: 12px; color: #4F4A43">{{c.office}} · {{c.going}}</div><h2 style="margin: 4px 0 6px; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 40px; line-height: 1">{{c.name}}</h2><span style="font-size: 13px; color: #3E3A34">{{c.status}}</span></div>
+<div aria-hidden="true" style="width: 70px; height: 104px; border-radius: 6px; background: rgba(30,24,18,0.12); perspective: 900px"><div class="door" style="width: 100%; height: 100%; border-radius: 6px; background: linear-gradient(160deg, #FFFFFF, #E3DED6); box-shadow: 0 10px 20px rgba(30,24,18,0.15); transform: {{c.door}}"></div></div>
+</div>
+<div>
+<sc-for list="{{c.items}}" as="it" hint-placeholder-count="6">
+<label class="chk" style="display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-radius: 12px; border-top: 1px solid rgba(30,24,18,0.08); font-size: 14px; cursor: pointer"><input type="checkbox" checked="{{it.on}}" sc-camel-on-change="{{it.toggle}}" style="width: 18px; height: 18px; accent-color: #1E1C19"><span style="flex: 1; text-decoration: {{it.strike}}; color: {{it.c}}">{{it.label}}</span><span style="font-size: 12px; color: #4F4A43">{{it.meta}}</span></label>
+</sc-for>
+</div>
+<div style="padding: 16px; border-radius: 16px; background: rgba(255,255,255,0.3); display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13px; font-weight: 600">Open deals to protect</span>
+<sc-for list="{{c.deals}}" as="d" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid rgba(30,24,18,0.08); font-size: 13px"><span><strong style="font-weight: 500">{{d.addr}}</strong> · <span style="font-family: 'Geist Mono', monospace">{{d.gci}}</span> GCI</span><label style="display: flex; align-items: center; gap: 8px; font-size: 12px">Reassign to<sc-raw-select style="height: 32px; padding: 0 8px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.7); background: rgba(255,255,255,0.6); font: 12px Geist, sans-serif"><option>Keep with departing agent</option><option>Maya Chen</option><option>Jordan Ellis</option><option>Daniela Ruiz</option></sc-raw-select></label></div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</section>
+
+<section class="r d3" style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<div style="box-sizing: border-box; padding: 22px; border-radius: 22px; background: #1E1C19; color: #FFFFFF; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; color: #C9C3B9">Commission that left this year</span>
+<span style="font-family: 'Instrument Serif', serif; font-size: 56px; line-height: 1">$612,400</span>
+<span style="font-size: 13px; color: #E2DCD2">4 departures · 3 were flagged by Retention Insights first</span>
+<a href="Retention.dc.html" style="margin-top: 6px; font-size: 12px; font-weight: 600; color: #FFFFFF">See who’s at risk now →</a>
+</div>
+<div style="box-sizing: border-box; padding: 22px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-size: 14px; font-weight: 500">Why agents said they left</h2>
+<sc-for list="{{reasons}}" as="x" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 5px"><div style="display: flex; justify-content: space-between; font-size: 13px"><span>{{x.label}}</span><span style="font-family: 'Geist Mono', monospace; font-size: 12px">{{x.pct}}</span></div><div style="height: 8px; border-radius: 99px; background: rgba(30,24,18,0.1)"><div class="bar" style="height: 100%; width: {{x.pct}}; border-radius: 99px; background: {{x.c}}; animation-delay: {{x.d}}"></div></div></div>
+</sc-for>
+<span style="font-size: 11px; color: #4F4A43">From optional exit surveys · 11 responses this year</span>
+</div>
+<div style="box-sizing: border-box; padding: 22px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0 0 8px; font-size: 14px; font-weight: 500">Win-back list</h2>
+<sc-for list="{{winback}}" as="w" hint-placeholder-count="3">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid rgba(30,24,18,0.08)"><span style="display: flex; flex-direction: column; font-size: 13px"><span style="font-weight: 500">{{w.name}}</span><span style="font-size: 12px; color: #4F4A43">{{w.meta}}</span></span><button type="button" class="press" sc-camel-on-click="{{w.run}}" style="height: 32px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(30,24,18,0.15); background: {{w.bg}}; color: #1B1A17; font: 500 12px Geist, sans-serif; cursor: pointer">{{w.label}}</button></div>
+</sc-for>
+</div>
+</section>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1200}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: 0, checks: { 0: [true, true, false, false, false, false], 1: [true, false, false, false, false, false] }, wb: {} };
+  }
+  renderVals() {
+    const L = [
+      { name: 'Ruth Adeyemi', date: '30 Nov', office: 'Queens · LIC · Team Nakamura', going: 'moving to another brokerage', deals: [['44 Vernon Blvd, #3', '$14,200'], ['12-08 Jackson Ave', '$9,800'], ['5 Court Sq, #21', '$11,050']] },
+      { name: 'Felix Moore', date: '6 Dec', office: 'Westchester · Rye · Hale Group', going: 'leaving the industry', deals: [['18 Forest Ave', '$16,400']] }
+    ];
+    const labels = [['Remove system and Dotloop access', 'on last day'], ['Calculate final payout', 'auto from riders'], ['Secure pending deals', ''], ['Release licence to new brokerage', 'state portal'], ['Send optional exit survey', '2 min'], ['Return keys, signs and lockboxes', '']];
+    const sel = this.state.sel;
+    const ch = this.state.checks[sel];
+    const done = ch.filter(Boolean).length, total = ch.length;
+    const lv = L[sel];
+    const items = labels.map(([label, meta], i) => ({
+      label, meta: i === 2 ? lv.deals.length + ' open' : meta, on: ch[i], strike: ch[i] ? 'line-through' : 'none', c: ch[i] ? '#4F4A43' : '#1B1A17',
+      toggle: () => { const checks = { ...this.state.checks }; const a = checks[sel].slice(); a[i] = !a[i]; checks[sel] = a; this.setState({ checks }); }
+    }));
+    const cur = [{ key: sel, name: lv.name, office: lv.office, going: lv.going, done, total, items,
+      off: Math.round(314 * (1 - done / total)), ringLabel: done + ' of ' + total + ' exit steps done',
+      status: done === total ? '✓ Exit complete · file archived with audit trail' : (total - done) + ' steps left before ' + lv.date,
+      door: done === total ? 'rotateY(-70deg)' : 'rotateY(-' + (8 + done * 8) + 'deg)',
+      deals: lv.deals.map(([addr, gci]) => ({ addr, gci })) }];
+    const leavers = L.map((l, i) => { const on = i === sel; return { name: l.name, date: l.date, on: on ? 'true' : 'false', bg: on ? '#1E1C19' : 'rgba(255,255,255,0.25)', fg: on ? '#FFFFFF' : '#1B1A17', bd: on ? '#1E1C19' : 'rgba(255,255,255,0.5)', pick: () => this.setState({ sel: i }) }; });
+    const reasons = [['Split', '41%', '#1E1C19'], ['Lead flow', '27%', '#4F4A43'], ['Support', '18%', '#7A7368'], ['Culture', '14%', '#A39C91']].map(([label, pct, c], i) => ({ label, pct, c, d: (200 + i * 90) + 'ms' }));
+    const winback = [['Ada Lin', 'Left May · good standing'], ['Marco Bell', 'Left March · good standing'], ['Nora Quinn', 'Left January · went independent']].map(([name, meta], i) => {
+      const s = this.state.wb[i];
+      return { name, meta, label: s ? '✓ Check-in set' : 'Schedule check-in', bg: s ? 'rgba(47,125,79,0.16)' : 'rgba(255,255,255,0.5)', run: () => this.setState({ wb: { ...this.state.wb, [i]: !s } }) };
+    });
+    return { cur, leavers, reasons, winback };
+  }
+}
+</script>
+
+
+</body></html>

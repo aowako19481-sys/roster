@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Compliance files</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes slidein{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.r{animation:rise 560ms var(--ease-out) both}.d1{animation-delay:60ms}.d2{animation-delay:120ms}.d3{animation-delay:180ms}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease}.press:active{transform:scale(0.97)}
+.navl{transition:transform 160ms var(--ease-out),background-color 160ms ease}.navl:active{transform:scale(0.97)}
+.tilt{transform:rotateY(14deg) rotateX(8deg) rotateZ(-2deg);transform-style:preserve-3d;transition:transform 600ms var(--ease-out)}
+.stack{position:relative;animation:rise 520ms var(--ease-out) both}
+.stack .p1,.stack .p2{transition:transform 320ms var(--ease-out)}
+.stack .p1{transform:translate(18px,-26px) rotate(4deg)}
+.stack .p2{transform:translate(-6px,-14px) rotate(-3deg)}
+.stack .front{transition:transform 260ms var(--ease-out),box-shadow 260ms ease}
+.file{animation:slidein 300ms var(--ease-out) both}
+.spin{display:inline-block;width:12px;height:12px;border-radius:99px;border:2px solid rgba(255,255,255,0.35);border-top-color:#FFFFFF;animation:spin 700ms linear infinite}
+@media (hover:hover) and (pointer:fine){
+.navl:hover{background-color:rgba(255,255,255,0.45)}
+.tiltwrap:hover .tilt{transform:rotateY(6deg) rotateX(4deg) rotateZ(-1deg)}
+.stack:hover .p1{transform:translate(26px,-40px) rotate(7deg)}
+.stack:hover .p2{transform:translate(-12px,-26px) rotate(-5deg)}
+.stack:hover .front{transform:translateZ(20px);box-shadow:0 22px 44px rgba(30,24,18,0.16)}
+}
+@media (prefers-reduced-motion:reduce){.r,.stack,.file{animation-name:fade}.tilt{transform:none}.stack .p1,.stack .p2,.stack .front,.tilt{transition:none}.spin{animation:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px 22px; background: radial-gradient(900px 640px at 50% -5%, #D6D1C9, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), radial-gradient(640px 480px at 100% 55%, #CAC4BA, transparent 70%), #BCB8B1; font-family: Geist, sans-serif; color: #1B1A17; font-variant-numeric: tabular-nums">
+<div style="max-width: 1360px; margin: 0 auto; box-sizing: border-box; padding: 12px; border-radius: 30px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.42); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 30px 80px rgba(30,24,18,0.14); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); display: flex; flex-wrap: wrap; gap: 12px">
+<div class="r" style="flex: 1 1 240px; min-width: 0; display: grid"><dc-import name="Sidebar" active="compliance" hint-size="100%,900px"></dc-import></div>
+<main style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; padding: 22px 18px; display: flex; flex-wrap: wrap; gap: 24px; align-content: flex-start">
+
+<section class="r d1 tiltwrap" aria-label="File cabinets" style="flex: 1 1 340px; min-width: 0; perspective: 1500px">
+<div class="tilt" style="box-sizing: border-box; padding: 26px 22px; border-radius: 28px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.55); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 40px 80px rgba(30,24,18,0.16); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); display: flex; flex-direction: column; gap: 30px">
+<div><p style="margin: 0 0 6px; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: #4F4A43">ROSTER / FILES</p><h1 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 46px; line-height: 1">Compliance<br>files</h1></div>
+<sc-for list="{{cabinets}}" as="c" hint-placeholder-count="5">
+<div class="stack" style="margin-top: 14px; animation-delay: {{c.d}}">
+<div class="p1" aria-hidden="true" style="position: absolute; inset: 0; border-radius: 18px; background: #F4F1EC; border: 1px solid #FFFFFF; box-shadow: 0 6px 14px rgba(30,24,18,0.08); padding: 10px 14px; box-sizing: border-box; font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.12em; color: #7A7368; text-align: right">{{c.tag}}</div>
+<div class="p2" aria-hidden="true" style="position: absolute; inset: 0; border-radius: 18px; background: #FBFAF7; border: 1px solid #FFFFFF; box-shadow: 0 6px 14px rgba(30,24,18,0.08); padding: 10px 14px; box-sizing: border-box"><span style="display: block; width: 60%; height: 4px; margin-top: 6px; border-radius: 4px; background: #E3DED6"></span><span style="display: block; width: 40%; height: 4px; margin-top: 6px; border-radius: 4px; background: #E3DED6"></span></div>
+<button type="button" class="front press" sc-camel-on-click="{{c.pick}}" aria-pressed="{{c.on}}" style="position: relative; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 18px 18px 18px 20px; border-radius: 18px; border: 1px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font: 14px Geist, sans-serif; text-align: left; cursor: pointer; box-shadow: 0 10px 24px rgba(30,24,18,0.1)">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'Instrument Serif', serif; font-size: 24px; line-height: 1.05">{{c.name}}</span><span style="font-size: 12px; opacity: 0.75">{{c.count}} files</span></span>
+<span style="width: 34px; height: 34px; border-radius: 999px; border: 1px solid {{c.ring}}; display: grid; place-items: center"><svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></span>
+</button>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section class="r d2" style="flex: 1.6 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<div style="box-sizing: border-box; padding: 22px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+<div><div style="font-size: 12px; color: #4F4A43">Cabinet</div><h2 style="margin: 2px 0 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 34px; line-height: 1">{{cur.name}}</h2></div>
+<button type="button" class="press" sc-camel-on-click="{{exportIt}}" style="display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 18px; border-radius: 12px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 13px Geist, sans-serif; cursor: pointer"><sc-if value="{{busy}}" hint-placeholder-val="{{ false }}"><span class="spin" aria-hidden="true"></span></sc-if>{{exportLabel}}</button>
+</div>
+<label style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 12px; background: rgba(255,255,255,0.32); border: 1px solid rgba(255,255,255,0.55); color: #4F4A43; font-size: 13px"><svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search files</span><input type="search" value="{{q}}" sc-camel-on-input="{{onQ}}" placeholder="Search this cabinet" style="flex: 1; min-width: 0; border: 0; background: transparent; outline: none; font: 14px Geist, sans-serif; color: #1B1A17"></label>
+<div>
+<sc-for list="{{files}}" as="f" hint-placeholder-count="6">
+<a href="Agent.dc.html" class="file navl" style="display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 11px 8px; border-radius: 10px; border-top: 1px solid rgba(30,24,18,0.08); text-decoration: none; animation-delay: {{f.d}}">
+<span style="width: 34px; height: 40px; border-radius: 6px; background: #FBFAF7; box-shadow: 0 2px 6px rgba(30,24,18,0.12); display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 8px; color: #4F4A43">{{f.ext}}</span>
+<span style="display: flex; flex-direction: column; min-width: 0"><span style="font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{f.name}}</span><span style="font-size: 12px; color: #4F4A43">{{f.meta}}</span></span>
+<span style="font-size: 12px; font-weight: 600; color: {{f.stC}}">{{f.status}}</span>
+</a>
+</sc-for>
+</div>
+</div>
+
+<div style="box-sizing: border-box; padding: 22px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 14px; font-weight: 500">Licence expiry radar</h2><span style="font-size: 12px; color: #4F4A43">Next 90 days · reminders go out at 90, 60 and 30</span></div>
+<div style="position: relative; height: 92px">
+<div style="position: absolute; left: 0; right: 0; top: 46px; height: 1px; background: rgba(30,24,18,0.25)"></div>
+<sc-for list="{{marks}}" as="m" hint-placeholder-count="4">
+<span style="position: absolute; left: {{m.x}}; top: 40px; font-family: 'Geist Mono', monospace; font-size: 10px; color: #4F4A43; transform: translateX(-50%); padding-top: 20px">{{m.label}}</span>
+</sc-for>
+<sc-for list="{{expiring}}" as="e" hint-placeholder-count="5">
+<a href="Agent.dc.html" title="{{e.name}}" style="position: absolute; left: {{e.x}}; top: {{e.y}}; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none"><span style="font-size: 11px; font-weight: 500; white-space: nowrap">{{e.name}}</span><span style="width: 10px; height: 10px; border-radius: 99px; background: {{e.c}}; box-shadow: 0 0 0 4px rgba(255,255,255,0.5)"></span></a>
+</sc-for>
+</div>
+</div>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1200}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { cab: 0, q: '', exp: 'idle' };
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  renderVals() {
+    const cabinets = [
+      { name: 'Licences', tag: 'LICENCE', count: 486, ext: 'IMG', files: [['Maya Chen · licence.jpg', 'Matched to state record · 3 Oct', 'Verified'], ['Rosa Alvarez · licence.jpg', 'Number mismatch · ••• 312 vs ••• 321', 'Check'], ['Kwame Osei · licence.jpg', 'Expires 5 Dec 2026', 'Expiring'], ['Jordan Ellis · licence.jpg', 'Matched to state record · 3 Oct', 'Verified'], ['Sam Okafor · licence.jpg', 'Matched to state record · 9 Oct', 'Verified'], ['Priya Nair · licence.jpg', 'Matched to state record · today', 'Verified']] },
+      { name: 'W-9 forms', tag: 'W-9', count: 471, ext: 'PDF', files: [['Theo Brooks · W-9.pdf', 'Name differs from licence', 'Check'], ['Maya Chen · W-9.pdf', 'TIN masked · received 3 Oct', 'Received'], ['Jordan Ellis · W-9.pdf', 'TIN masked · received 3 Oct', 'Received'], ['Lena Park · W-9', 'Waiting on agent', 'Pending'], ['Priya Nair · W-9', 'Waiting on agent', 'Pending']] },
+      { name: 'Signed riders', tag: 'RIDER', count: 512, ext: 'PDF', files: [['Maya Chen · rider v2.pdf', 'E-signed 3 Oct · certificate attached', 'Signed'], ['Team Ellis · team rider v1.pdf', 'E-signed 3 Oct', 'Signed'], ['Marcus Hale · rider v4.pdf', 'E-signed 2 Sep', 'Signed'], ['Rosa Alvarez · rider v1.pdf', 'Sent · not opened yet', 'Pending']] },
+      { name: 'Contractor agreements', tag: 'AGREEMENT', count: 498, ext: 'PDF', files: [['Maya Chen · ICA.pdf', 'Signed 3 Oct', 'Signed'], ['Jordan Ellis · ICA.pdf', 'Signed 3 Oct', 'Signed'], ['Lena Park · ICA.pdf', 'Sent today', 'Pending']] },
+      { name: 'Audit exports', tag: 'AUDIT', count: 38, ext: 'PDF', files: [['Maya Chen · full audit file.pdf', 'Exported 6 Nov by Adaya Owako', 'Ready'], ['October payroll · payout checks.pdf', 'Exported 1 Nov', 'Ready'], ['Team Ellis · split history.pdf', 'Exported 28 Oct', 'Ready']] }
+    ];
+    const stC = { Verified: '#2F7D4F', Received: '#2F7D4F', Signed: '#2F7D4F', Ready: '#2F7D4F', Check: '#B03A26', Expiring: '#B03A26', Pending: '#4F4A43' };
+    const cur = cabinets[this.state.cab];
+    const q = this.state.q.toLowerCase();
+    const files = cur.files.filter((f) => !q || f[0].toLowerCase().includes(q)).map((f, i) => ({ name: f[0], meta: f[1], status: f[2], stC: stC[f[2]], ext: cur.ext, d: (i * 40) + 'ms' }));
+    const exp = this.state.exp;
+    return {
+      cur, files, q: this.state.q,
+      onQ: (e) => this.setState({ q: e.target.value }),
+      cabinets: cabinets.map((c, i) => {
+        const on = i === this.state.cab;
+        return { name: c.name, tag: c.tag, count: c.count, d: (120 + i * 70) + 'ms', on: on ? 'true' : 'false',
+          bg: on ? '#1E1C19' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1B1A17', bd: on ? '#1E1C19' : '#FFFFFF', ring: on ? 'rgba(255,255,255,0.4)' : 'rgba(30,24,18,0.18)',
+          pick: () => this.setState({ cab: i, q: '', exp: 'idle' }) };
+      }),
+      busy: exp === 'busy',
+      exportLabel: exp === 'busy' ? 'Preparing…' : exp === 'done' ? '✓ Export ready' : 'Export cabinet',
+      exportIt: () => { if (exp === 'busy') return; this.setState({ exp: 'busy' }); clearTimeout(this.t); this.t = setTimeout(() => this.setState({ exp: 'done' }), 1600); },
+      marks: [['0%', 'TODAY'], ['33%', '30 DAYS'], ['66%', '60 DAYS'], ['99%', '90 DAYS']].map(([x, label]) => ({ x, label })),
+      expiring: [['Kwame Osei', 21, '#B03A26'], ['Grace Kim', 38, '#4F4A43'], ['Owen Price', 55, '#4F4A43'], ['Sofia Marino', 71, '#4F4A43'], ['Ben Shah', 84, '#4F4A43']].map(([name, day, c], i) => ({ name, c, x: (day / 90 * 100) + '%', y: i % 2 ? '0px' : '10px' }))
+    };
+  }
+}
+</script>
+
+
+</body></html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Riders and tier approvals</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#BCB8B1;font-family:Geist,sans-serif;color:#1B1A17}
+a{color:#1B1A17}a:hover{color:#3E3A34}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes step{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@keyframes toast{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:none}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0.0),0 20px 40px rgba(30,24,18,0.2)}50%{box-shadow:0 0 0 6px rgba(255,255,255,0.35),0 20px 40px rgba(30,24,18,0.2)}}
+.r{animation:rise 560ms var(--ease-out) both}.d1{animation-delay:60ms}.d2{animation-delay:110ms}.d3{animation-delay:160ms}
+.press{transition:transform 160ms var(--ease-out),background-color 160ms ease}.press:active{transform:scale(0.97)}
+.navl{transition:transform 160ms var(--ease-out),background-color 160ms ease}.navl:active{transform:scale(0.97)}
+.stairs{transform:rotateX(18deg) rotateY(-22deg);transform-style:preserve-3d}
+.blk{animation:step 520ms var(--ease-out) both;transition:height 420ms cubic-bezier(0.77,0,0.175,1)}
+.next{animation:step 520ms var(--ease-out) both,glow 2.4s ease-in-out 600ms infinite}
+.toast{animation:toast 400ms ease both}
+.qi{transition:background-color 160ms ease,transform 160ms var(--ease-out)}
+@media (hover:hover) and (pointer:fine){.navl:hover{background-color:rgba(255,255,255,0.45)}.qi:hover{background-color:rgba(255,255,255,0.3)}}
+@media (prefers-reduced-motion:reduce){.r,.blk,.toast{animation-name:fade}.next{animation:fade 300ms both}.stairs{transform:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px 22px; background: radial-gradient(900px 640px at 50% -5%, #D6D1C9, transparent 70%), radial-gradient(700px 520px at 0% 100%, #A8A299, transparent 70%), radial-gradient(640px 480px at 100% 55%, #CAC4BA, transparent 70%), #BCB8B1; font-family: Geist, sans-serif; color: #1B1A17; font-variant-numeric: tabular-nums">
+<div style="position: relative; max-width: 1360px; margin: 0 auto; box-sizing: border-box; padding: 12px; border-radius: 30px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.42); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 30px 80px rgba(30,24,18,0.14); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); display: flex; flex-wrap: wrap; gap: 12px; overflow: hidden">
+<div class="r" style="flex: 1 1 240px; min-width: 0; display: grid"><dc-import name="Sidebar" active="riders" hint-size="100%,900px"></dc-import></div>
+<main style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; padding: 22px 18px; display: flex; flex-direction: column; gap: 18px">
+
+<header class="r d1" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div><p style="margin: 0 0 6px; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: #4F4A43">ROSTER / RIDERS</p><h1 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 56px; line-height: 1">Tier clearance</h1></div>
+<div style="display: flex; gap: 22px; font-size: 13px"><span><span style="font-family: 'Instrument Serif', serif; font-size: 30px">{{pendingCount}}</span> waiting</span><span><span style="font-family: 'Instrument Serif', serif; font-size: 30px">{{doneCount}}</span> cleared today</span></div>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<section class="r d2" aria-label="Approval queue" style="flex: 1 1 340px; min-width: 0; box-sizing: border-box; padding: 14px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{queue}}" as="q" hint-placeholder-count="4">
+<button type="button" class="qi" sc-camel-on-click="{{q.pick}}" aria-pressed="{{q.on}}" style="text-align: left; padding: 14px; border-radius: 14px; border: 1px solid {{q.bd}}; background: {{q.bg}}; font: 13px Geist, sans-serif; color: #1B1A17; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px">
+<span style="font-weight: 600; font-size: 14px">{{q.name}}</span><span style="font-family: 'Instrument Serif', serif; font-size: 22px; line-height: 1">{{q.change}}</span>
+<span style="color: #4F4A43">{{q.reason}}</span><span style="font-size: 11px; font-weight: 600; color: {{q.stC}}">{{q.status}}</span>
+</button>
+</sc-for>
+</section>
+
+<section class="r d3" style="flex: 2 1 520px; min-width: 0; box-sizing: border-box; padding: 24px; border-radius: 22px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px">
+<div><div style="font-size: 12px; color: #4F4A43">{{sel.kind}} rider · {{sel.version}}</div><h2 style="margin: 4px 0 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 40px; line-height: 1">{{sel.name}}</h2></div>
+<a href="Agent.dc.html" style="align-self: flex-start; font-size: 13px; font-weight: 500">Open agent card →</a>
+</div>
+
+<div style="perspective: 1400px; padding: 10px 0 0">
+<div class="stairs" role="img" aria-label="{{sel.aria}}" style="display: flex; align-items: flex-end; gap: 10px; height: 230px">
+<sc-for list="{{sel.tiers}}" as="t" hint-placeholder-count="4">
+<div class="{{t.cls}}" style="flex: 1; height: {{t.h}}; box-sizing: border-box; padding: 14px; border-radius: 16px 16px 6px 6px; background: {{t.bg}}; color: {{t.fg}}; border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 20px 40px rgba(30,24,18,0.16); display: flex; flex-direction: column; justify-content: space-between; animation-delay: {{t.d}}">
+<span style="font-family: 'Instrument Serif', serif; font-size: 30px; line-height: 1">{{t.split}}</span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 600">{{t.tag}}</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; opacity: 0.8">{{t.range}}</span></span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding-top: 8px; border-top: 1px solid rgba(30,24,18,0.1)">
+<div><div style="font-size: 12px; color: #4F4A43">Commission this year</div><div style="font-family: 'Geist Mono', monospace; font-size: 15px; margin-top: 4px">{{sel.ytd}}</div></div>
+<div><div style="font-size: 12px; color: #4F4A43">Crossed on</div><div style="font-family: 'Geist Mono', monospace; font-size: 15px; margin-top: 4px">{{sel.crossed}}</div></div>
+<div><div style="font-size: 12px; color: #4F4A43">Applies from</div><div style="font-family: 'Geist Mono', monospace; font-size: 15px; margin-top: 4px">Next closed deal</div></div>
+</div>
+
+<sc-if value="{{selPending}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" class="press" sc-camel-on-click="{{approve}}" style="flex: 1 1 200px; height: 46px; border-radius: 14px; border: 0; background: #1E1C19; color: #FFFFFF; font: 500 14px Geist, sans-serif; cursor: pointer">Approve and draft rider</button>
+<button type="button" class="press" sc-camel-on-click="{{hold}}" style="flex: 1 1 160px; height: 46px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.3); color: #1B1A17; font: 500 14px Geist, sans-serif; cursor: pointer">Hold for review</button>
+</div>
+</sc-if>
+<sc-if value="{{selDone}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 12px 12px 16px; border-radius: 14px; background: rgba(255,255,255,0.3); font-size: 13px"><span>{{sel.doneText}}</span><button type="button" class="press" sc-camel-on-click="{{revert}}" style="height: 38px; padding: 0 16px; border-radius: 11px; border: 1px solid rgba(30,24,18,0.18); background: rgba(255,255,255,0.5); color: #1B1A17; font: 500 13px Geist, sans-serif; cursor: pointer">{{revertLabel}}</button></div>
+</sc-if>
+<p style="margin: 0; font-size: 12px; color: #4F4A43">Approving drafts the new rider for e-signature and logs who approved it. Pay never changes on its own.</p>
+</section>
+</div>
+</main>
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}">
+<div class="toast" role="status" style="position: absolute; left: 50%; bottom: 24px; margin-left: -190px; width: 380px; box-sizing: border-box; padding: 14px 18px; border-radius: 16px; background: #1E1C19; color: #FFFFFF; font-size: 13px; box-shadow: 0 20px 50px rgba(30,24,18,0.3); display: flex; justify-content: space-between; gap: 12px"><span>{{toastText}}</span><button type="button" sc-camel-on-click="{{undo}}" style="border: 0; background: transparent; color: #E8E2D8; font: 600 13px Geist, sans-serif; cursor: pointer; text-decoration: underline">Undo</button></div>
+</sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1200}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: 0, status: ['pending', 'pending', 'pending', 'approved'], toast: '', last: -1 };
+  }
+  setStatus(i, s, text) {
+    const status = this.state.status.slice(); status[i] = s;
+    clearTimeout(this.tt);
+    this.tt = setTimeout(() => this.setState({ toast: '' }), 4000);
+    this.setState({ status, toast: text, last: i });
+  }
+  componentWillUnmount() { clearTimeout(this.tt); }
+  renderVals() {
+    const items = [
+      { name: 'Maya Chen', kind: 'Individual', version: 'v2 → v3', from: '80%', to: '85%', reason: 'Crossed $40,000 GCI', ytd: '$41,250', crossed: '14 Nov 2026', ladder: [['70%', '$0–20K'], ['80%', '$20–40K'], ['85%', '$40K +']], cur: 1 },
+      { name: 'Team Ellis', kind: 'Team', version: 'v1 → v2', from: '75%', to: '78%', reason: 'Crossed $250,000 team GCI', ytd: '$251,900', crossed: '13 Nov 2026', ladder: [['75%', '$0–250K'], ['78%', '$250–500K'], ['80%', '$500K +']], cur: 0 },
+      { name: 'Marcus Hale', kind: 'Individual', version: 'v4 → v5', from: '85%', to: '90%', reason: 'Crossed $80,000 GCI', ytd: '$80,600', crossed: '12 Nov 2026', ladder: [['75%', '$0–20K'], ['80%', '$20–40K'], ['85%', '$40–80K'], ['90%', '$80K +']], cur: 2 },
+      { name: 'Aisha Bello', kind: 'Individual', version: 'v1 → v2', from: '70%', to: '80%', reason: 'Crossed $20,000 GCI', ytd: '$20,400', crossed: '11 Nov 2026', ladder: [['70%', '$0–20K'], ['80%', '$20–40K'], ['85%', '$40K +']], cur: 0 }
+    ];
+    const st = this.state.status;
+    const label = { pending: 'Waiting', approved: 'Approved', held: 'On hold' };
+    const col = { pending: '#4F4A43', approved: '#2F7D4F', held: '#B03A26' };
+    const queue = items.map((it, i) => {
+      const on = i === this.state.sel;
+      return { name: it.name, change: it.from + ' → ' + it.to, reason: it.reason, status: label[st[i]], stC: col[st[i]], on: on ? 'true' : 'false',
+        bg: on ? 'rgba(255,255,255,0.45)' : 'transparent', bd: on ? 'rgba(255,255,255,0.8)' : 'transparent', pick: () => this.setState({ sel: i }) };
+    });
+    const it = items[this.state.sel];
+    const s = st[this.state.sel];
+    const nTiers = it.ladder.length;
+    const tiers = it.ladder.map(([split, range], i) => {
+      const isCur = i === it.cur, isNext = i === it.cur + 1;
+      const reached = s === 'approved' ? i <= it.cur + 1 : i <= it.cur;
+      const nowHere = s === 'approved' ? isNext : isCur;
+      return {
+        split, range, d: (i * 90) + 'ms', h: (38 + (i / Math.max(1, nTiers - 1)) * 60) + '%',
+        cls: isNext && s !== 'approved' ? 'next' : 'blk',
+        tag: nowHere ? 'Current' : isNext ? 'Unlocked · needs approval' : reached ? 'Passed' : 'Ahead',
+        bg: nowHere ? '#1E1C19' : isNext ? 'linear-gradient(160deg, #FFFFFF, #EDE8E0)' : reached ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.18)',
+        fg: nowHere ? '#FFFFFF' : '#1B1A17'
+      };
+    });
+    const sel = { ...it, tiers, aria: it.name + ' tier ladder, moving from ' + it.from + ' to ' + it.to,
+      doneText: s === 'approved' ? '✓ Approved · rider ' + it.version.split(' → ')[1] + ' sent for e-signature' : 'On hold · flagged for finance review' };
+    return {
+      queue, sel, selPending: s === 'pending', selDone: s !== 'pending',
+      pendingCount: st.filter((x) => x === 'pending').length, doneCount: st.filter((x) => x === 'approved').length,
+      approve: () => this.setStatus(this.state.sel, 'approved', it.name + ' approved · ' + it.from + ' → ' + it.to),
+      hold: () => this.setStatus(this.state.sel, 'held', it.name + ' put on hold'),
+      revertLabel: s === 'approved' ? 'Undo approval' : 'Release hold',
+      revert: () => this.setStatus(this.state.sel, 'pending', s === 'approved' ? it.name + ' back to ' + it.from + ' · rider ' + it.version.split(' → ')[0] + ' restored' : it.name + ' back in the queue'),
+      undo: () => { if (this.state.last < 0) return; const status = this.state.status.slice(); status[this.state.last] = 'pending'; this.setState({ status, toast: '' }); },
+      toast: !!this.state.toast, toastText: this.state.toast
+    };
+  }
+}
+</script>
+
+
+</body></html>
