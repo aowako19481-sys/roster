@@ -27,7 +27,7 @@ Checks: `npm run typecheck`, `npm run lint`, `npm run build`.
 1. Authentication: switch off "Allow new users to sign up".
 2. Authentication -> Users: add each tester by email.
 3. Authentication -> Email templates -> Magic Link: include `{{ .Token }}` so the email shows the code.
-4. SQL editor: run `supabase/migrations/0001_step1_dashboard.sql`, then `supabase/migrations/0002_first_run_tour.sql`, then `supabase/seed.sql`.
+4. SQL editor: run `supabase/setup_test_project.sql` (the two migrations and the seed joined into one paste).
    Both are safe to run again. Run the seed again after adding a new tester.
 
 ## Rules this repo follows
