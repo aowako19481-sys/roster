@@ -46,7 +46,7 @@ export default function HomePage() {
               <span className="card" aria-hidden="true"><span className="label">Form W‑9</span><b className="t">Tax details</b><i></i><i></i><i></i><span className="stamp">Received</span></span>
               <span className="card" aria-hidden="true"><span className="label">Rider</span><b className="t">Split 85%</b><i></i><i></i><i></i><span className="stamp">Signed</span></span>
               <span className="card" aria-hidden="true"><span className="label">Direct deposit</span><b className="t">•• 6789</b><i></i><i></i><i></i><span className="stamp">Authorised</span></span>
-              <span className="card" aria-hidden="true"><span className="label">Deposit record</span><b className="t">410 Mercer St</b><i></i><i></i><i></i><span className="stamp">Filed</span></span>
+              <span className="card" aria-hidden="true"><span className="label">Deposit record</span><b className="t">12 Example St</b><i></i><i></i><i></i><span className="stamp">Filed</span></span>
               <span className="logo" id="logo"><span className="k">Kinu</span><span className="tg" id="tg">handles everything in between.</span></span>
             </span>
             <span className="hB" id="hB"><span>You’re paid.</span><b id="hAmt">$37,179.00</b></span>
@@ -94,7 +94,7 @@ export default function HomePage() {
           <div className="moments" id="moments">
             <div className="phone" aria-hidden="true"><div className="scr" id="mPhone"></div></div>
             <svg className="wire" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 C30 2, 70 38, 100 20"/><path className="pulse" id="mPulse" pathLength={1} d="M0 20 C30 2, 70 38, 100 20"/></svg>
-            <div className="deskwin" aria-hidden="true"><p className="label">Your screen · Sample Brokerage</p><div id="mDesk"></div></div>
+            <div className="deskwin" aria-hidden="true"><p className="label">Your screen · Your brokerage</p><div id="mDesk"></div></div>
           </div>
           <p className="sr" id="mLive" aria-live="polite"></p>
           <div className="steps" id="steps" role="tablist" aria-label="Moments">
