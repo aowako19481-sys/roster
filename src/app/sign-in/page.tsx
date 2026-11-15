@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 import { SignInForm } from "./SignInForm";
 import styles from "./sign-in.module.css";
+import { VariantB } from "./variants/B";
+import { VariantC } from "./variants/C";
 
 export const metadata: Metadata = { title: "Sign in" };
 
-export default function SignInPage() {
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ v?: string }> }) {
+  // TEMPORARY: design options to choose between. Removed once one is picked.
+  const { v } = await searchParams;
+  if (v === "b") return <VariantB />;
+  if (v === "c") return <VariantC />;
+
   return (
     <div className={styles.page}>
       <div className={styles.scene}>

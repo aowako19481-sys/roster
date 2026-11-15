@@ -2,12 +2,14 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { requestCode, verifyCode, type RequestState, type VerifyState } from "./actions";
-import styles from "./sign-in.module.css";
+import defaultStyles from "./sign-in.module.css";
+
+type Styles = Record<string, string>;
 
 const CODE_LENGTH = 6;
 const EMPTY_CODE = Array.from({ length: CODE_LENGTH }, () => "");
 
-export function SignInForm() {
+export function SignInForm({ styles = defaultStyles }: { styles?: Styles }) {
   const [request, requestAction, requestPending] = useActionState<RequestState, FormData>(
     requestCode,
     { status: "idle", email: "" },
@@ -21,6 +23,7 @@ export function SignInForm() {
       <CodeStep
         key={request.sentAt}
         email={request.email}
+        styles={styles}
         onBack={() => setDismissedSend(request.sentAt)}
       />
     );
@@ -81,7 +84,7 @@ export function SignInForm() {
   );
 }
 
-function CodeStep({ email, onBack }: { email: string; onBack: () => void }) {
+function CodeStep({ email, styles, onBack }: { email: string; styles: Styles; onBack: () => void }) {
   const [state, action, pending] = useActionState<VerifyState, FormData>(verifyCode, {
     status: "idle",
   });
