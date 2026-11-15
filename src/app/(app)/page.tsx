@@ -42,9 +42,10 @@ export default async function DashboardPage() {
   const peak = data.timeline ? Math.max(...data.timeline.counts) : 0;
 
   const quick = [
-    { href: "/riders", label: "Tier approvals", meta: String(membership.waitingApprovals) },
-    { href: "/welcome-email", label: "Welcome email", meta: "view" },
-    { href: "/agent-onboarding", label: "Agent’s onboarding view", meta: "test" },
+    { href: "/invite", label: "Invite agents", meta: "new batch" },
+    { href: "/riders", label: "Tier approvals", meta: `${membership.waitingApprovals} waiting` },
+    { href: "/welcome-email", label: "Welcome email", meta: "preview" },
+    { href: "/agent-onboarding", label: "Agent’s onboarding view", meta: "test it" },
     { href: "/reports", label: "Year-end 1099s", meta: String(now.getFullYear()) },
   ];
 
@@ -89,16 +90,6 @@ export default async function DashboardPage() {
             </Link>
             <NotificationsBell notes={notes} />
           </div>
-          <ul className={styles.quick} aria-label="Quick actions">
-            {quick.map((item) => (
-              <li key={item.label}>
-                <Link href={item.href} className={styles.quickLink}>
-                  {item.label}
-                  <span className={styles.quickMeta}>{item.meta}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
         </div>
         <div className={`${styles.r} ${styles.d2}`}>
           <LiveCounter batches={data.batches} sent={data.totalSent} ready={data.totalReady} lastRead={lastRead} />
@@ -245,6 +236,25 @@ export default async function DashboardPage() {
       <div className={`${styles.r} ${styles.d6}`}>
         <CohortTable title={data.cohortLabel} rows={data.rows} />
       </div>
+
+      <nav aria-labelledby="jump-title" className={`${styles.jump} ${styles.r} ${styles.d6}`}>
+        <h2 id="jump-title" className={styles.h2}>
+          Quick actions
+        </h2>
+        <ul className={styles.jumpList}>
+          {quick.map((item) => (
+            <li key={item.label}>
+              <Link href={item.href} className={`${styles.card} ${styles.jumpLink}`}>
+                <span className={styles.jumpMeta}>{item.meta}</span>
+                <span className={`display ${styles.jumpLabel}`}>{item.label}</span>
+                <span className={styles.jumpArrow} aria-hidden="true">
+                  →
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </>
   );
 }

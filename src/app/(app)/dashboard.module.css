@@ -162,31 +162,6 @@
   color: var(--ink);
   text-decoration: none;
 }
-.quick {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 18px;
-  list-style: none;
-  margin: 0;
-  padding: 14px 0 0;
-  border-top: 1px solid var(--line-strong);
-}
-.quickLink {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 7px;
-  padding: 4px 0;
-  font-size: 14px;
-  font-weight: 300;
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 160ms ease;
-}
-.quickMeta {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--mute);
-}
 
 .bellWrap {
   position: relative;
@@ -461,31 +436,10 @@
 /* --- live counter --- */
 .live {
   position: relative;
-  min-height: 400px;
+  min-height: 380px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-}
-@keyframes giantIn {
-  from {
-    opacity: 0;
-    transform: translateY(-44%) scale(1.04);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(-50%);
-  }
-}
-.giant {
-  position: absolute;
-  left: -0.05em;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: clamp(160px, 17.5vw, 260px);
-  font-weight: 800;
-  line-height: 0.8;
-  letter-spacing: -0.05em;
-  animation: giantIn 900ms var(--ease-out) both;
 }
 .livePanel {
   position: relative;
@@ -894,6 +848,58 @@
   color: var(--mute);
 }
 
+/* --- quick actions: big tiles at the foot of the page --- */
+.jump {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}
+.jumpList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+.jumpLink {
+  position: relative;
+  height: 168px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    transform 260ms var(--ease-out),
+    background-color 160ms ease;
+}
+.jumpLink:hover {
+  color: var(--ink);
+}
+.jumpMeta {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.jumpLabel {
+  max-width: 9em;
+  font-size: 19px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.jumpArrow {
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  font-size: 22px;
+  transition: transform 260ms var(--ease-out);
+}
+
 /* --- placeholder page for sections built later --- */
 .soon {
   max-width: 560px;
@@ -930,8 +936,12 @@
   .cta:hover .ctaIcon {
     transform: rotate(90deg);
   }
-  .quickLink:hover {
-    border-bottom-color: var(--ink);
+  .jumpLink:hover {
+    background-color: rgba(255, 255, 255, 0.28);
+    transform: translateY(-4px);
+  }
+  .jumpLink:hover .jumpArrow {
+    transform: translateX(6px);
   }
   .hr:hover {
     transform: translateY(-8px);
@@ -951,6 +961,18 @@
   }
 }
 
+@media (max-width: 1100px) {
+  .jumpList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .jumpLink {
+    height: 130px;
+  }
+  .jumpLabel {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+}
 @media (max-width: 1000px) {
   .hero {
     grid-template-columns: minmax(0, 1fr);
@@ -968,14 +990,7 @@
   }
   .live {
     min-height: 0;
-    padding-top: 90px;
     justify-content: center;
-  }
-  .giant {
-    top: 0;
-    transform: none;
-    animation-name: fade;
-    font-size: 150px;
   }
   .stat {
     border-right: 0;
@@ -994,11 +1009,12 @@
   .row,
   .bar,
   .tick,
-  .giant,
   .pop {
     animation-name: fade;
   }
-  .cta:hover .ctaIcon {
+  .cta:hover .ctaIcon,
+  .jumpLink:hover,
+  .jumpLink:hover .jumpArrow {
     transform: none;
   }
   .hr:hover {

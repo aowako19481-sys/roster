@@ -39,12 +39,7 @@ export function LiveCounter({
 
   return (
     <section aria-label="Live onboarding counter" className={styles.live}>
-      {/* Oversized figure behind the glass. Decorative: the same number is in the panel. */}
-      <span className="orb" aria-hidden="true" style={{ width: 150, height: 150, right: -30, top: -40 }} />
-      <span key={`g${ready}`} className={`display metal ${styles.giant}`} aria-hidden="true">
-        {ready}
-      </span>
-
+      <span className="orb" aria-hidden="true" style={{ width: 170, height: 170, right: -34, top: -44 }} />
       <div className={`${styles.card} ${styles.livePanel}`}>
         <div className={styles.liveTitle}>
           <span className={styles.liveDot} aria-hidden="true" />

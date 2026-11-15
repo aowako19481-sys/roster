@@ -56,7 +56,7 @@ function DockLink({ item, pathname }: { item: Item; pathname: string }) {
   );
 }
 
-/** Main navigation: a floating glass dock at the bottom of every page. */
+/** Main navigation: a glass rail with its own column at the side of every page. */
 export function Dock() {
   const pathname = usePathname();
   return (
