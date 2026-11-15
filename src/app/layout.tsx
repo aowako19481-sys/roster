@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#BCB8B1",
+  themeColor: "#B6B7B9",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

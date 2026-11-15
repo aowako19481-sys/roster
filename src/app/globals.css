@@ -1,29 +1,30 @@
 /* Design tokens, taken from design/SignIn.html, design/Main.html and
-   design/Sidebar.html. Status colours and the faint grey are a little darker
-   than the prototype so small text passes WCAG AA on the grey glass. */
+   design/Sidebar.html. The palette is true neutral grey with clear glass panels. The only
+   colour is a muted red and green for status, always next to words. */
 :root {
-  --bg: #bcb8b1;
-  --bg-light: #d6d1c9;
-  --bg-dark: #a8a299;
-  --bg-warm: #cac4ba;
+  --bg: #b6b7b9;
+  --bg-light: #dcdddf;
+  --bg-dark: #9c9da0;
+  --bg-warm: #cbccce;
 
-  --ink: #1b1a17;
-  --ink-strong: #1e1c19;
-  --ink-soft: #3e3a34;
-  --mute: #443f38;
-  --faint: #5f594f;
-  --red: #7f2012;
-  --green: #184a2c;
-  --green-live: #2f7d4f;
+  --ink: #17181a;
+  --ink-strong: #18191b;
+  --ink-soft: #36373a;
+  --mute: #3f4145;
+  --faint: #585a5f;
+  --red: #7a2a24;
+  --green: #25493a;
+  --green-live: #3d7a5c;
   --white: #ffffff;
 
-  --line: rgba(30, 24, 18, 0.08);
-  --line-strong: rgba(30, 24, 18, 0.14);
+  --line: rgba(18, 19, 22, 0.09);
+  --line-strong: rgba(18, 19, 22, 0.15);
 
-  --glass: rgba(255, 255, 255, 0.14);
-  --glass-border: rgba(255, 255, 255, 0.45);
-  --control: rgba(255, 255, 255, 0.32);
-  --control-border: rgba(255, 255, 255, 0.55);
+  --glass: linear-gradient(140deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.1) 55%, rgba(255, 255, 255, 0.18) 100%);
+  --glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 0 -1px 0 rgba(255, 255, 255, 0.12), 0 14px 36px rgba(18, 19, 22, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.66);
+  --control: rgba(255, 255, 255, 0.36);
+  --control-border: rgba(255, 255, 255, 0.7);
 
   --sans: var(--font-geist), system-ui, sans-serif;
   --mono: var(--font-geist-mono), ui-monospace, monospace;

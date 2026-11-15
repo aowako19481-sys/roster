@@ -1,57 +1,223 @@
+/* Sign-in. One wide sheet of clear glass over drifting sample documents:
+   crisp where they stick out, blurred where they pass behind the glass. */
+
 .page {
   min-height: 100vh;
-  padding: 40px 24px;
+  padding: 72px 28px;
+  overflow: hidden;
   background:
-    radial-gradient(900px 640px at 30% -5%, var(--bg-light), transparent 70%),
-    radial-gradient(700px 520px at 0% 100%, var(--bg-dark), transparent 70%),
-    radial-gradient(640px 480px at 100% 55%, var(--bg-warm), transparent 70%),
+    radial-gradient(760px 560px at 18% 0%, rgba(255, 255, 255, 0.6), transparent 70%),
+    radial-gradient(620px 520px at 100% 30%, rgba(255, 255, 255, 0.34), transparent 70%),
+    radial-gradient(820px 620px at 0% 100%, rgba(108, 110, 114, 0.55), transparent 70%),
+    radial-gradient(700px 560px at 88% 104%, rgba(120, 122, 126, 0.45), transparent 70%),
     var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.inner {
+.scene {
+  position: relative;
   width: 100%;
-  max-width: 1240px;
+  max-width: 1120px;
+}
+
+/* --- documents behind the glass --- */
+.deco {
+  position: absolute;
+  inset: 0;
+  perspective: 1600px;
+  pointer-events: none;
+}
+@keyframes drift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -12px;
+  }
+}
+.doc {
+  position: absolute;
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid var(--white);
+  background: linear-gradient(150deg, #ffffff 0%, #eceded 48%, #f6f6f7 72%, #d9dadc 100%);
+  box-shadow:
+    0 40px 70px rgba(18, 19, 22, 0.22),
+    0 6px 14px rgba(18, 19, 22, 0.08);
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--ink);
+  animation: drift 9s ease-in-out infinite;
+}
+.docLicence {
+  width: 340px;
+  height: 212px;
+  top: -112px;
+  right: -72px;
+  transform: rotateX(18deg) rotateY(-16deg) rotateZ(9deg);
+}
+.docW9 {
+  width: 250px;
+  height: 320px;
+  top: 150px;
+  left: -128px;
+  transform: rotateX(10deg) rotateY(22deg) rotateZ(-11deg);
+  animation-duration: 11s;
+  animation-delay: -3s;
+}
+.docRider {
+  width: 300px;
+  height: 196px;
+  bottom: -150px;
+  left: 37%;
+  background: linear-gradient(150deg, #2a2b2e 0%, #17181a 60%, #232427 100%);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: var(--white);
+  transform: rotateX(22deg) rotateY(8deg) rotateZ(-7deg);
+  animation-duration: 10s;
+  animation-delay: -6s;
+}
+.docTop,
+.docFoot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 12px;
+}
+.docOk {
+  color: var(--green);
+  font-weight: 600;
+}
+.docMono {
+  font-family: var(--mono);
+  font-size: 20px;
+  letter-spacing: 0.08em;
+}
+.docSerif {
+  font-family: var(--serif);
+  font-size: 26px;
+  line-height: 1;
+}
+.docBig {
+  font-family: var(--serif);
+  font-size: 72px;
+  line-height: 0.9;
+}
+.docTiny {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+}
+.docLines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.docLines i {
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(18, 19, 22, 0.1);
+}
+.docLines i:nth-child(2) {
+  width: 72%;
+}
+.docLines i:nth-child(3) {
+  width: 46%;
+}
+
+/* --- the glass sheet --- */
+.panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 420px);
   gap: 56px;
+  align-items: stretch;
+  min-height: 600px;
+  padding: 48px;
+  border-radius: 36px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.07) 45%, rgba(255, 255, 255, 0.16) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.18),
+    0 50px 110px rgba(18, 19, 22, 0.2);
+  -webkit-backdrop-filter: blur(30px) saturate(1.05);
+  backdrop-filter: blur(30px) saturate(1.05);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .panel {
+    background: rgba(208, 209, 211, 0.96);
+  }
 }
 
 .intro {
-  flex: 1 1 460px;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 24px;
 }
-
+.wordRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
 .wordmark {
   font-family: var(--mono);
   font-size: 18px;
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
 }
-
+.product {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
 .headline {
+  margin-top: auto;
   font-family: var(--serif);
   font-weight: 400;
-  font-size: clamp(46px, 9vw, 76px);
-  line-height: 0.95;
-  letter-spacing: -0.02em;
+  font-size: clamp(48px, 7.4vw, 92px);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
 }
 .headlineSoft {
   font-style: italic;
   color: var(--mute);
 }
-
 .lede {
-  max-width: 460px;
+  max-width: 440px;
   font-size: 16px;
   line-height: 1.55;
   color: var(--ink-soft);
+}
+.facts {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line-strong);
+}
+.facts li {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line-strong);
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.factNum {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--mute);
 }
 
 /* --- entrance motion --- */
@@ -68,117 +234,19 @@
   animation-delay: 220ms;
 }
 
-/* --- 3D stack of sample documents --- */
-.stage {
-  height: 300px;
-  perspective: 1400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-.float {
-  animation: float 7s ease-in-out infinite;
-}
-.iso {
-  position: relative;
-  width: 300px;
-  height: 190px;
-  transform: rotateX(55deg) rotateZ(-38deg);
-  transform-style: preserve-3d;
-  transition: transform 600ms var(--ease-out);
-}
-.sheet {
-  position: absolute;
-  inset: 0;
-  padding: 20px;
-  border-radius: 22px;
-  border: 1px solid var(--white);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform 600ms var(--ease-out);
-}
-.s1 {
-  transform: translateZ(0);
-  background: linear-gradient(150deg, #f7f5f1, #dcd7cf);
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 30px 50px rgba(30, 24, 18, 0.18);
-}
-.s2 {
-  transform: translateZ(46px);
-  background: linear-gradient(150deg, #ffffff, #e6e2db);
-  box-shadow: 0 20px 40px rgba(30, 24, 18, 0.14);
-}
-.s3 {
-  transform: translateZ(92px);
-  background: linear-gradient(155deg, #ffffff 0%, #efede8 45%, #f8f2ea 70%, #e3e0da 100%);
-  box-shadow: 0 14px 30px rgba(30, 24, 18, 0.12);
-}
-@media (hover: hover) and (pointer: fine) {
-  .stage:hover .iso {
-    transform: rotateX(50deg) rotateZ(-32deg);
-  }
-  .stage:hover .s2 {
-    transform: translateZ(70px);
-  }
-  .stage:hover .s3 {
-    transform: translateZ(140px);
-  }
-}
-.sheetLabel,
-.sheetTop {
-  font-size: 12px;
-  color: var(--mute);
-}
-.sheetTop {
-  display: flex;
-  justify-content: space-between;
-}
-.verified {
-  color: var(--green);
-  font-weight: 600;
-}
-.sheetSerif {
-  font-family: var(--serif);
-  font-size: 34px;
-}
-.sheetMono {
-  font-family: var(--mono);
-  font-size: 16px;
-  letter-spacing: 0.08em;
-}
-.sheetMonoSmall {
-  font-family: var(--mono);
-  font-size: 13px;
-}
-
-/* --- frosted sign-in panel --- */
-.panel {
-  flex: 0 1 430px;
+/* --- form card: a second, brighter layer of glass --- */
+.formCard {
   min-width: 0;
-  padding: 34px;
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  align-self: center;
+  padding: 32px;
+  border-radius: 26px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.38));
+  border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 30px 80px rgba(30, 24, 18, 0.16);
-  -webkit-backdrop-filter: blur(28px);
-  backdrop-filter: blur(28px);
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .panel {
-    background: rgba(214, 210, 203, 0.96);
-  }
+    inset 0 1px 0 var(--white),
+    0 24px 50px rgba(18, 19, 22, 0.12);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
 }
 
 @keyframes swap {
@@ -203,11 +271,12 @@
 .title {
   font-family: var(--serif);
   font-weight: 400;
-  font-size: 40px;
+  font-size: 44px;
   line-height: 1;
+  letter-spacing: -0.01em;
 }
 .sub {
-  margin-top: 8px;
+  margin-top: 10px;
   font-size: 14px;
   line-height: 1.5;
   color: var(--mute);
@@ -221,18 +290,37 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
   font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
 }
 .input {
-  height: 48px;
+  height: 52px;
   padding: 0 16px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(18, 19, 22, 0.14);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 1px 2px rgba(18, 19, 22, 0.06);
+  font-family: var(--sans);
   font-size: 16px;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--ink);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+.input:hover,
+.digit:hover {
+  border-color: rgba(18, 19, 22, 0.3);
+}
+.input:focus,
+.digit:focus {
+  background: var(--white);
 }
 .input::placeholder {
   color: var(--faint);
@@ -254,10 +342,13 @@
 }
 
 .primary {
-  height: 48px;
+  height: 52px;
   border-radius: 14px;
   border: 0;
-  background: var(--ink-strong);
+  background: linear-gradient(180deg, #2b2c2f, #17181a);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 10px 22px rgba(18, 19, 22, 0.22);
   color: var(--white);
   font-size: 15px;
   font-weight: 500;
@@ -278,15 +369,15 @@
 .or span {
   flex: 1;
   height: 1px;
-  background: rgba(30, 24, 18, 0.15);
+  background: var(--line-strong);
 }
 
 .secondary {
   height: 48px;
   padding: 0 12px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(18, 19, 22, 0.12);
+  background: rgba(255, 255, 255, 0.4);
   color: var(--ink);
   font-size: 14px;
   font-weight: 500;
@@ -298,11 +389,9 @@
 .secondary:disabled {
   cursor: not-allowed;
   color: var(--mute);
-  background: rgba(255, 255, 255, 0.2);
 }
 
 .small {
-  margin-top: 4px;
   font-size: 13px;
   color: var(--mute);
 }
@@ -313,13 +402,14 @@
   gap: 8px;
 }
 .digit {
-  height: 58px;
+  height: 60px;
   min-width: 0;
   padding: 0;
   text-align: center;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(18, 19, 22, 0.14);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 1px 2px rgba(18, 19, 22, 0.06);
   font-family: var(--mono);
   font-size: 22px;
   font-weight: 500;
@@ -343,7 +433,7 @@
   gap: 10px;
   margin-top: 22px;
   padding-top: 18px;
-  border-top: 1px solid rgba(30, 24, 18, 0.12);
+  border-top: 1px solid var(--line-strong);
   font-size: 12px;
   line-height: 1.5;
   color: var(--mute);
@@ -353,25 +443,45 @@
   margin-top: 1px;
 }
 
-@media (max-width: 640px) {
-  .page {
-    padding: 28px 16px;
-    align-items: flex-start;
+@media (max-width: 1000px) {
+  .panel {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+    min-height: 0;
+    padding: 36px;
   }
-  .inner {
-    gap: 28px;
+  .headline {
+    margin-top: 12px;
   }
-  .stage {
+  .formCard {
+    align-self: stretch;
+  }
+  .docW9 {
     display: none;
   }
+}
+@media (max-width: 640px) {
+  .page {
+    padding: 20px 12px;
+    align-items: flex-start;
+  }
   .panel {
-    flex-basis: 100%;
-    padding: 26px 22px;
+    padding: 22px 16px 16px;
+    border-radius: 28px;
+    gap: 24px;
+  }
+  .formCard {
+    padding: 24px 20px;
+    border-radius: 22px;
+  }
+  .facts,
+  .deco {
+    display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .float {
+  .doc {
     animation: none;
   }
   .rise,

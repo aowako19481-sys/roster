@@ -1,10 +1,15 @@
 .page {
   min-height: 100vh;
   padding: 28px 22px;
+  /* Soft light and shade behind the glass, so the panels have something to
+     blur. Greys only. */
   background:
-    radial-gradient(900px 640px at 50% -5%, var(--bg-light), transparent 70%),
-    radial-gradient(700px 520px at 0% 100%, var(--bg-dark), transparent 70%),
-    radial-gradient(640px 480px at 100% 55%, var(--bg-warm), transparent 70%),
+    radial-gradient(520px 380px at 12% 8%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(620px 460px at 78% 0%, rgba(255, 255, 255, 0.38), transparent 70%),
+    radial-gradient(560px 520px at 96% 48%, rgba(120, 122, 126, 0.42), transparent 70%),
+    radial-gradient(640px 520px at 38% 58%, rgba(255, 255, 255, 0.3), transparent 70%),
+    radial-gradient(720px 560px at 0% 100%, rgba(112, 114, 118, 0.5), transparent 70%),
+    radial-gradient(600px 460px at 70% 100%, rgba(255, 255, 255, 0.3), transparent 70%),
     var(--bg);
   font-variant-numeric: tabular-nums;
 }
@@ -14,11 +19,11 @@
   margin: 0 auto;
   padding: 12px;
   border-radius: 30px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.42);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04) 60%, rgba(255, 255, 255, 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.55);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 30px 80px rgba(30, 24, 18, 0.14);
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 40px 90px rgba(18, 19, 22, 0.16);
   -webkit-backdrop-filter: blur(30px);
   backdrop-filter: blur(30px);
   display: flex;
@@ -53,7 +58,7 @@
   border: 1px solid rgba(255, 255, 255, 0.55);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 30px 80px rgba(30, 24, 18, 0.16);
+    0 30px 80px rgba(18, 19, 22, 0.16);
   -webkit-backdrop-filter: blur(28px);
   backdrop-filter: blur(28px);
   display: flex;
