@@ -50,6 +50,7 @@ export function buildNav(access: Access): NavGroups {
     item("/deals", "Deals", ICONS.deals, has("deals.view"), financeLocked),
     item("/payments", "Payments", ICONS.payments, has("deals.view"), financeLocked),
     item("/payroll", "Payroll", ICONS.payroll, has("deals.view"), financeLocked),
+    item("/templates", "Documents", ICONS.riders, has("deals.view"), financeLocked),
     item("/calculator", "Calculator", ICONS.calculator, has("deals.view"), financeLocked),
     item("/statements", "Statements", ICONS.statements, has("statements.view"), financeLocked),
   ]);

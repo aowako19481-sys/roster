@@ -7,7 +7,7 @@ import styles from "./Dock.module.css";
 export type NavItem = { href: string; label: string; icon: string; locked?: boolean };
 export type NavGroups = { ops: NavItem[]; finance: NavItem[]; addons: NavItem[]; admin: NavItem[] };
 
-const FINANCE_PATHS = ["/finance", "/deals", "/payments", "/payroll", "/calculator", "/statements", "/payouts"];
+const FINANCE_PATHS = ["/finance", "/deals", "/payments", "/payroll", "/calculator", "/statements", "/payouts", "/templates"];
 const LOCK = "M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6z";
 
 function under(pathname: string, href: string) {

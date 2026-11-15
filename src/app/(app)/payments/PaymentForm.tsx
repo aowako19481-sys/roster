@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useActionState, useRef, useState } from "react";
+import { DropZone } from "@/components/DropZone";
 import { ui } from "@/components/ui";
 import { PAYMENT_METHODS } from "@/lib/finance";
 import { money } from "@/lib/format";
@@ -59,10 +60,7 @@ function Fields({ deals, preselect, today, pending, askDual }: { deals: DealOpti
         </label>
       </div>
 
-      <label className={ui.field}>
-        Proof (optional): PDF, JPEG, PNG or WebP, 10 MB at most
-        <input className={ui.input} type="file" name="proof" accept="application/pdf,image/jpeg,image/png,image/webp" style={{ paddingTop: 9 }} />
-      </label>
+      <DropZone name="proof" label="Proof of payment (optional)" />
 
       <fieldset className={ui.form} style={{ border: 0, padding: 0, margin: 0 }}>
         <legend className={ui.h2}>Which deals is it for?</legend>

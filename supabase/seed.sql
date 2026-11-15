@@ -303,6 +303,37 @@ join public.packet_items i on i.workspace_id = a.workspace_id and i.required
 where a.workspace_id = '00000000-0000-4000-8000-000000000001' and a.onboarding_status in ('ready', 'flagged')
   and (i.applies_to = 'everyone' or exists (select 1 from public.team_members tm where tm.agent_id = a.id));
 
+-- ---------------------------------------------------- autofill documents --
+insert into public.doc_templates (id, workspace_id, name, purpose, body, attach_proof, attach_receipt) values
+  ('00000000-0000-4000-8000-000000000b01', '00000000-0000-4000-8000-000000000001', 'Deposit record', 'deposit_record',
+$doc$# {{brokerage}}
+## Deposit record
+
+PP number: {{pp_number}}
+Prepared: {{today}}
+
+Property: {{address}}
+Deal type: {{type}}
+Deposit date: {{deposit_date}}
+Gross commission: {{gci}}
+{{parties}}
+
+## Payments received
+{{payments_table}}
+
+## Referral fees
+{{referral_lines}}
+
+## Agents and payouts
+{{payouts_table}}
+
+Deposited to account: {{fill:Operating account ending}}
+Deposit slip number: {{fill:Deposit slip number}}
+Notes: {{fill:Notes}}
+
+---
+{{signature_lines}}$doc$, true, true);
+
 -- ------------------------------------------------ second, smaller brokerage --
 insert into public.agents (workspace_id, full_name, email, office, office_id, licence_masked, licence_status, w9_status, rider_status, onboarding_status, status, cohort, cohort_position, joined_on)
 select '00000000-0000-4000-8000-000000000002', n.full_name,

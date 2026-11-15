@@ -11,7 +11,7 @@ Product spec: `docs/blueprint.md`. Build plan: `PLAN.md`. Design references: `de
 - **Kinu console** (Kinu staff only): every brokerage, its plan pieces with lock/unlock, people, price estimate; create and open brokerages.
 - **Roles and permissions**: seven built-in roles, custom roles, big powers (override, release payroll), offices, invitations, "view as role" preview, audit log.
 - **Ops**: dashboard, agents and agent cards, invitations with private onboarding links, the agent portal (details, licence, W-9, rider signature, onboarding packet), teams, riders and tier approvals with undo, files, reports.
-- **Finance**: overview and run sheet, deals with the rider check on save, fees, checklist, payments split across deals, payroll calendar with cutoff, held folder, release and close, GCI calculator, agent statements.
+- **Finance**: overview and run sheet, deals with the rider check on save, fees, checklist, payments split across deals (drop-in proof of payment), deal editing, autofill documents a manager lays out (deposit record with proof of payment and bank receipt on each deal's Documents tab), payroll calendar with cutoff, held folder, release and close, GCI calculator, agent statements.
 - **Add-ons**: Retention Insights, Exit Kit, Payout checks.
 - Outside services are placeholders: see `docs/PLACEHOLDERS.md`. How pages are written: `docs/BUILD_GUIDE.md`.
 
@@ -31,7 +31,7 @@ Checks: `npm run typecheck`, `npm run lint`, `npm run build`.
 2. Authentication -> Users: add each tester by email.
 3. Authentication -> URL Configuration: set Site URL to the deployed address and add `<address>/auth/callback` to Redirect URLs, so the emailed link works.
    (Showing a 6-digit code in the email needs custom SMTP; Supabase locks templates on its built-in sender.)
-4. SQL editor: run `supabase/setup_test_project.sql` (the two migrations and the seed joined into one paste).
+4. SQL editor: run `supabase/setup_test_project.sql` (every migration and the seed joined into one paste; safe to run again).
    Both are safe to run again. Run the seed again after adding a new tester.
 
 ## Rules this repo follows

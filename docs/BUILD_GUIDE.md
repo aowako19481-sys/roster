@@ -6,7 +6,7 @@ Design references (look only, never copy): `design/*.html`.
 ## The rule that matters most
 
 **The database decides. The app asks.** Permissions, the rider check, payouts and every approval
-live in SQL (`supabase/migrations/0003`–`0005`). Read those files before writing a page: they are
+live in SQL (`supabase/migrations/0003`–`0009`). Read those files before writing a page: they are
 the schema reference, and every function you may call is defined there with a comment.
 
 - Every query runs as the signed-in user through `createClient()` from `@/lib/supabase/server`.
@@ -113,6 +113,14 @@ Small spaced capitals use the global class `brandLabel`. Big figures use `ui.sta
 Real `<button>`, `<a>`, `<label>`, `<table>` with `<th scope>`. Every input has a label. Status is
 always a word (`Badge`), never colour alone. Everything works by keyboard. No new animation
 without a `prefers-reduced-motion` fallback (the kit already handles its own).
+
+## Autofill documents
+
+Managers (`payroll.manage`) write layouts at `/templates`: plain text with `{{placeholders}}`,
+section tags and `{{fill:Label}}` boxes (`src/lib/autofill.ts`). Each deal's Documents tab
+(`/deals/[id]/documents`) fills the active deposit record from the database and attaches proof of
+payment and bank receipt images. Layout text is always rendered as text blocks, never as HTML.
+Uploaded files are checked by their first bytes and served only through our own routes.
 
 ## Outside services are placeholders
 

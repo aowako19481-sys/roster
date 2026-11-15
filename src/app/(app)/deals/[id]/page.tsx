@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionForm, Submit } from "@/components/ActionForm";
-import { Badge, ButtonLink, Card, Empty, PageHeader, Placeholder, Stat, ui } from "@/components/ui";
+import { Badge, ButtonLink, Card, Empty, PageHeader, Placeholder, Stat, Tabs, ui } from "@/components/ui";
 import { requireCap } from "@/lib/access";
 import {
   DEAL_TYPES,
@@ -133,6 +133,7 @@ export default async function DealSheetPage({ params, searchParams }: Props) {
         <Badge tone={dealStatusTone(deal.status)}>{dealStatusLabel(deal.status)}</Badge>
         <ButtonLink href="/deals">All deals</ButtonLink>
       </PageHeader>
+      <Tabs items={[{ href: `/deals/${deal.id}`, label: "Deal sheet" }, { href: `/deals/${deal.id}/documents`, label: "Documents" }]} current={`/deals/${deal.id}`} />
 
       {frozen && (
         <Card>

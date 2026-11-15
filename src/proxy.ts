@@ -14,7 +14,8 @@ function buildCsp(nonce: string) {
     // Stylesheets come from our own origin only. Inline style attributes are
     // allowed because card positions and bar widths are computed values.
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data:",
+    // blob: is for the local preview of a file the person has just chosen to upload.
+    "img-src 'self' data: blob:",
     "font-src 'self'",
     // The browser never talks to Supabase or any third party; all data access
     // happens on the server.

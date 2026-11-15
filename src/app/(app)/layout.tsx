@@ -20,9 +20,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const nav = buildNav(access);
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-print-root="">
       <div className={styles.wrap}>
-        <header className={styles.bar}>
+        <header className={styles.bar} data-app-chrome="">
           <Link href="/" className={`brandType ${styles.wordmark}`}>
             {BRAND}
           </Link>
@@ -77,7 +77,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </header>
 
         {access.viewAs && (
-          <p className={styles.preview} role="status">
+          <p className={styles.preview} role="status" data-app-chrome="">
             Previewing as <strong>{roleLabel(access.viewAs)}</strong>. Pages and buttons are limited to what this role is
             allowed. Nothing can be changed while previewing.
           </p>
@@ -85,7 +85,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
         {ws ? (
           <div className={styles.body}>
-            <div className={styles.rail}>
+            <div className={styles.rail} data-app-chrome="">
               <Dock groups={nav} />
             </div>
             <main id="content" className={styles.main}>
