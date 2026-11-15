@@ -15,7 +15,7 @@
 }
 .hero h1 span {
   color: transparent;
-  background: linear-gradient(100deg, #fff 0%, #cdbcff 60%, #8f73f0 100%);
+  background: linear-gradient(100deg, var(--grad-a) 0%, var(--grad-b) 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -52,7 +52,7 @@
   bottom: -60%;
   width: 90%;
   aspect-ratio: 1;
-  background: radial-gradient(closest-side, rgba(185, 163, 255, 0.28), transparent);
+  background: radial-gradient(closest-side, var(--panel-glow), transparent);
   pointer-events: none;
   transition: transform 0.6s var(--ease-out);
 }
@@ -75,7 +75,7 @@
 .meter {
   height: 6px;
   border-radius: 99px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--line-strong);
   margin-top: 14px;
   overflow: hidden;
 }
@@ -83,7 +83,7 @@
   display: block;
   height: 100%;
   border-radius: 99px;
-  background: linear-gradient(90deg, #8f73f0, #cdbcff);
+  background: var(--accent);
   width: var(--w);
   transform-origin: left;
   animation: grow 1.1s var(--ease-out) 0.3s both;
@@ -115,17 +115,17 @@
   overflow: visible;
 }
 .bar {
-  fill: #b9a3ff;
+  fill: var(--accent);
   transform-box: fill-box;
   transform-origin: bottom;
   animation: growY 0.9s var(--ease-out) both;
   animation-delay: calc(var(--i, 0) * 45ms);
 }
 .barOn {
-  fill: #e6dcff;
+  fill: var(--grad-b);
 }
 .grid {
-  stroke: rgba(255, 255, 255, 0.1);
+  stroke: var(--line-strong);
   stroke-width: 1;
 }
 .axis {
@@ -143,8 +143,8 @@
   transform: translate(-50%, -8px);
   padding: 8px 12px;
   border-radius: 12px;
-  background: #f4f2ff;
-  color: #0d0b18;
+  background: var(--ink);
+  color: var(--bg-light);
   font-size: 0.85rem;
   white-space: nowrap;
   pointer-events: none;
@@ -173,7 +173,7 @@
   transition: background 0.2s, transform 0.25s var(--ease-out);
 }
 .needs a:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--control);
   transform: translateX(4px);
 }
 .needs small {
@@ -249,6 +249,154 @@
   .panel,
   .bar,
   .meter i {
+    animation: none;
+  }
+}
+
+/* --- pills across the top --- */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.pills a,
+.pills button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  transition: transform 0.25s var(--ease-out), background 0.2s;
+}
+.pills a:hover,
+.pills button:hover {
+  transform: translateY(-2px);
+}
+.pills .pillOn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+.pills .spacer {
+  flex: 1;
+}
+.count {
+  font-size: 0.75rem;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+/* --- widgets on the left, the scene in the middle --- */
+.deck {
+  display: grid;
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+.side {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+.dial {
+  position: relative;
+  width: min(100%, 170px);
+  aspect-ratio: 1;
+  margin: 10px auto 4px;
+}
+.dial svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.dial circle {
+  fill: none;
+  stroke-width: 2.4;
+}
+.dialTrack {
+  stroke: var(--line-strong);
+  stroke-dasharray: 0.6 1.6;
+}
+.dialValue {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: var(--off, 100);
+  animation: dial 1.4s var(--ease-out) 0.3s both;
+}
+.dial div {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  font-size: 2.1rem;
+  font-weight: 250;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.stage {
+  position: relative;
+  min-height: 560px;
+  padding: 0;
+  display: grid;
+}
+.caption {
+  position: absolute;
+  left: 26px;
+  bottom: 22px;
+  max-width: 24em;
+  pointer-events: none;
+}
+.caption h1 {
+  font-size: clamp(1.6rem, 2.8vw, 2.6rem);
+  font-weight: 250;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  margin: 8px 0 6px;
+}
+.caption h1 span {
+  color: transparent;
+  background: linear-gradient(100deg, var(--grad-a) 0%, var(--grad-b) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+@keyframes dial {
+  from {
+    stroke-dashoffset: 100;
+  }
+}
+@media (max-width: 1000px) {
+  .deck {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .caption {
+    position: static;
+    padding: 0 22px 20px;
+  }
+}
+@media (max-width: 520px) {
+  .side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialValue {
     animation: none;
   }
 }

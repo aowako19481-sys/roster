@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, ButtonLink, Card, Empty, PageHeader, Stat, ui, type Tone } from "@/components/ui";
-import { requirePlatformAdmin } from "@/lib/access";
+import { cookies } from "next/headers";
+import { LOOK_COOKIE, requirePlatformAdmin } from "@/lib/access";
 import { ADDONS, BILLING_LABEL, WORKSPACE_STATUSES, addonLabel, planLabel, priceEstimate } from "@/lib/admin-pages";
 import { BRAND } from "@/lib/brand";
 import { day, money, titleCase } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { switchWorkspace } from "../actions";
 import { FounderDashboard, type Pulse } from "./FounderDashboard";
+import type { OrbitGroup } from "./FounderOrbit";
 import styles from "./kinu.module.css";
 
 export const metadata: Metadata = { title: "Console" };
@@ -39,7 +41,10 @@ export default async function ConsolePage({ searchParams }: Props) {
   });
   const found = (data ?? { total: 0, all: 0, unpaid: 0, rows: [] }) as Found;
   // The founder also gets the whole-business view above the list.
-  const pulse = access.isFounder ? ((await supabase.rpc("platform_pulse")).data as Pulse | null) : null;
+  const [pulseRes, orbitRes] = access.isFounder ? await Promise.all([supabase.rpc("platform_pulse"), supabase.rpc("platform_orbit")]) : [null, null];
+  const pulse = (pulseRes?.data ?? null) as Pulse | null;
+  const groups = (Array.isArray(orbitRes?.data) ? orbitRes.data : []) as OrbitGroup[];
+  const look = (await cookies()).get(LOOK_COOKIE)?.value === "violet" ? "violet" : "silver";
   const pages = Math.max(1, Math.ceil(found.total / PAGE_SIZE));
   const link = (to: number) => {
     const next = new URLSearchParams();
@@ -54,7 +59,7 @@ export default async function ConsolePage({ searchParams }: Props) {
   return (
     <div className={ui.stack}>
       {pulse ? (
-        <FounderDashboard pulse={pulse} firstName={access.displayName.split(" ")[0] ?? access.displayName} />
+        <FounderDashboard pulse={pulse} groups={groups} look={look} firstName={access.displayName.split(" ")[0] ?? access.displayName} />
       ) : (
         <>
       <PageHeader eyebrow={`${BRAND} staff`} title="Console" sub="Every brokerage account. Nothing inside a brokerage is shown until you open it.">
@@ -73,6 +78,7 @@ export default async function ConsolePage({ searchParams }: Props) {
         </>
       )}
 
+      <div id="brokerages" />
       <Card title="Find a brokerage">
         <form className={styles.filters} action="/kinu" method="get" role="search">
           <label className={styles.search}>

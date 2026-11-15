@@ -336,3 +336,37 @@ export async function setPlanPiece(_prev: Result, form: FormData): Promise<Resul
   revalidatePath("/", "layout");
   return done(`${piece.label} ${want}.`);
 }
+
+/** The contact details and picture on a brokerage's ID card. */
+export async function setProfile(_prev: Result, form: FormData): Promise<Result> {
+  const denied = await staffOnly();
+  if (denied) return fail(denied);
+  const id = uuid(form, "id");
+  if (!id) return fail("That brokerage could not be found.");
+  const emailTyped = text(form, "contact_email", 254);
+  if (emailTyped && !emailField(form, "contact_email")) return fail("The contact email does not look right.");
+  const website = text(form, "website", 200);
+  if (website && !/^(https?:\/\/)?[a-z0-9.-]+\.[a-z]{2,}(\/\S*)?$/i.test(website)) return fail("The website address does not look right.");
+
+  const supabase = await createClient();
+  let logo: string | null = null;
+  const picture = fileField(form, "logo");
+  if (picture) {
+    if (!picture.type.startsWith("image/")) return fail("The picture must be a JPEG, PNG or WebP image.");
+    const stored = await storeBillingFile(supabase, id, picture);
+    if ("message" in stored) return fail(stored.message);
+    logo = stored.path;
+  }
+  const { data: before } = logo ? await supabase.from("workspaces").select("logo_path").eq("id", id).maybeSingle() : { data: null };
+  const { error } = await supabase.rpc("platform_set_profile", {
+    ws: id, new_contact: text(form, "contact_name", 120), new_email: emailTyped.toLowerCase(), new_phone: text(form, "contact_phone", 40),
+    new_address: text(form, "address", 240), new_website: website, new_logo: logo,
+  });
+  if (error) {
+    if (logo) await supabase.storage.from(BILLING_BUCKET).remove([logo]);
+    return failure(error);
+  }
+  if (logo && before?.logo_path) await supabase.storage.from(BILLING_BUCKET).remove([before.logo_path]);
+  revalidatePath(`/kinu/${id}`);
+  return done("Saved to the ID card.");
+}

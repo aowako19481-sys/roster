@@ -222,21 +222,30 @@
 }
 
 /* --- the founder console's frame --- */
-.page[data-founder] {
+.page[data-founder="violet"] {
   background: #07060d;
 }
+.page[data-founder="violet"] .wrap {
+  position: relative;
+  z-index: 1;
+}
+.page[data-founder="violet"] .bar {
+  border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+.page[data-founder="violet"] .loadingBar::after,
+.page[data-founder="violet"] .avatar {
+  background: linear-gradient(140deg, #b9a3ff, #6f55d9);
+  color: #0b0a12;
+}
+.page[data-founder="violet"] .skeleton span {
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
+}
+
+/* Either founder look: the page sits above the moving backdrop. */
 .page[data-founder] .wrap {
   position: relative;
   z-index: 1;
 }
-.page[data-founder] .bar {
-  border-bottom-color: rgba(255, 255, 255, 0.16);
-}
-.page[data-founder] .loadingBar::after,
-.page[data-founder] .avatar {
-  background: linear-gradient(140deg, #b9a3ff, #6f55d9);
-  color: #0b0a12;
-}
-.page[data-founder] .skeleton span {
-  background: linear-gradient(100deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
+.page[data-founder="silver"] {
+  background: #b9babc;
 }

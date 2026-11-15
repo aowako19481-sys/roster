@@ -119,11 +119,11 @@
 }
 
 /* inside the founder console */
-:global([data-founder]) .zone {
+:global([data-founder="violet"]) .zone {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.28);
 }
-:global([data-founder]) .zone:hover,
-:global([data-founder]) .zone:focus-within {
+:global([data-founder="violet"]) .zone:hover,
+:global([data-founder="violet"]) .zone:focus-within {
   background: rgba(255, 255, 255, 0.1);
 }

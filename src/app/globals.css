@@ -29,6 +29,16 @@
   --sans: var(--font-outfit), system-ui, sans-serif;
   --mono: var(--font-geist-mono), ui-monospace, monospace;
 
+  /* Accent used by the founder console; plain ink in the regular look. */
+  --accent: #17181a;
+  --on-accent: #ffffff;
+  --grad-a: #17181a;
+  --grad-b: #7d7e83;
+  --panel-glow: rgba(255, 255, 255, 0.55);
+  --orb-a: #ffffff;
+  --orb-b: #8d8e93;
+  --orb-c: #2a2b2e;
+
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
@@ -243,7 +253,7 @@ p {
 
 /* --- The founder console: one account's own look. Every colour is re-pointed
    here, so the same components draw themselves dark, with a violet accent. --- */
-[data-founder] {
+[data-founder="violet"] {
   --bg: #08070f;
   --bg-light: #15131f;
   --bg-dark: #050409;
@@ -257,6 +267,13 @@ p {
   --green: #8fe3bd;
   --green-live: #8fe3bd;
   --accent: #b9a3ff;
+  --on-accent: #0d0b18;
+  --grad-a: #ffffff;
+  --grad-b: #8f73f0;
+  --panel-glow: rgba(185, 163, 255, 0.28);
+  --orb-a: #f1eaff;
+  --orb-b: #9a80f2;
+  --orb-c: #2a1d66;
   --line: rgba(255, 255, 255, 0.1);
   --line-strong: rgba(255, 255, 255, 0.2);
   --glass: linear-gradient(140deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.035) 55%, rgba(185, 163, 255, 0.08) 100%);
@@ -267,18 +284,18 @@ p {
   color: var(--ink);
   color-scheme: dark;
 }
-[data-founder] a {
+[data-founder="violet"] a {
   color: var(--ink);
 }
-[data-founder] :is(input, select, textarea) {
+[data-founder="violet"] :is(input, select, textarea) {
   color: var(--ink);
 }
-[data-founder] option {
+[data-founder="violet"] option {
   color: #17181a;
 }
-[data-founder] ::placeholder {
+[data-founder="violet"] ::placeholder {
   color: var(--faint);
 }
-[data-founder] :focus-visible {
+[data-founder="violet"] :focus-visible {
   outline-color: var(--accent);
 }

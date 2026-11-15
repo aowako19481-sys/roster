@@ -11,7 +11,7 @@ import { roleLabel } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { switchWorkspace } from "../../actions";
 import { AuditTable } from "../../settings/audit/AuditTable";
-import { addContract, fileMonth, inviteOwner, removeContract, setAccount, updateBrokerage } from "../actions";
+import { addContract, fileMonth, inviteOwner, removeContract, setAccount, setProfile, updateBrokerage } from "../actions";
 import kinu from "../kinu.module.css";
 import { PieceToggle } from "../PieceToggle";
 import styles from "../../settings/settings.module.css";
@@ -40,7 +40,7 @@ export default async function BrokeragePage({ params, searchParams }: Props) {
   const supabase = await createClient();
   const { data: ws } = await supabase
     .from("workspaces")
-    .select("id, account_no, name, timezone, status, has_ops, has_finance, addons, created_at, plan_name, owner_seats, agent_seats, quoted_monthly")
+    .select("id, account_no, name, timezone, status, has_ops, has_finance, addons, created_at, plan_name, owner_seats, agent_seats, quoted_monthly, contact_name, contact_email, contact_phone, address, website, logo_path")
     .eq("id", id)
     .maybeSingle();
   if (!ws) notFound();
@@ -90,22 +90,48 @@ export default async function BrokeragePage({ params, searchParams }: Props) {
       </PageHeader>
 
       <section className={kinu.file} aria-label="Account file">
-        <div>
-          <span className={kinu.no}>Account KN-{ws.account_no} · since {day(ws.created_at)}</span>
-          <h2>{ws.name}</h2>
-          <div className={`${ui.inline} ${kinu.tags}`}>
-            <Badge tone={STATUS_TONE[ws.status] ?? "plain"}>{titleCase(ws.status)}</Badge>
-            <Badge tone={billing === "paid" ? "ok" : billing === "invoiced" ? "warn" : "muted"}>{BILLING_LABEL[billing]}</Badge>
+        <div className={kinu.who}>
+          {ws.logo_path ? (
+            // eslint-disable-next-line @next/next/no-img-element -- a private picture served by our own route
+            <img className={kinu.photo} src={`${here}/logo`} alt={`${ws.name} logo`} />
+          ) : (
+            <span className={kinu.photo} aria-hidden="true">{ws.name.split(/\s+/).filter(Boolean).slice(0, 2).map((word: string) => word.charAt(0).toUpperCase()).join("")}</span>
+          )}
+          <div style={{ minWidth: 0 }}>
+            <span className={kinu.no}>Account KN-{ws.account_no} · since {day(ws.created_at)}</span>
+            <h2>{ws.name}</h2>
+            <div className={`${ui.inline} ${kinu.tags}`}>
+              <Badge tone={STATUS_TONE[ws.status] ?? "plain"}>{titleCase(ws.status)}</Badge>
+              <Badge tone={billing === "paid" ? "ok" : billing === "invoiced" ? "warn" : "muted"}>{BILLING_LABEL[billing]}</Badge>
+            </div>
+            <dl className={kinu.contact}>
+              <div><dt>Contact</dt><dd>{ws.contact_name || "Not added"}</dd></div>
+              <div><dt>Email</dt><dd>{ws.contact_email ? <a href={`mailto:${ws.contact_email}`}>{ws.contact_email}</a> : "Not added"}</dd></div>
+              <div><dt>Phone</dt><dd>{ws.contact_phone || "Not added"}</dd></div>
+              <div><dt>Address</dt><dd>{ws.address || "Not added"}</dd></div>
+              {ws.website && <div><dt>Website</dt><dd>{ws.website}</dd></div>}
+            </dl>
           </div>
         </div>
-        <dl className={kinu.facts}>
-          <div><dt>Plan</dt><dd>{planLabel(ws.plan_name)}</dd></div>
-          <div><dt>Monthly</dt><dd>{ws.quoted_monthly !== null ? money(Number(ws.quoted_monthly)) : `${money(price.total)} est.`}</dd></div>
-          <div><dt>Agent seats</dt><dd>{agents}{ws.agent_seats !== null ? ` of ${ws.agent_seats}` : ""}{overSeats ? " · over" : ""}</dd></div>
-          <div><dt>Owner / Admin seats</dt><dd>{owners} of {ws.owner_seats}</dd></div>
-          <div><dt>Offices</dt><dd>{officesRes.count ?? 0}</dd></div>
-          <div><dt>Contract to</dt><dd>{contracts[0] ? day(contracts[0].ends_on) : "None filed"}</dd></div>
-        </dl>
+        <div>
+          <dl className={kinu.facts}>
+            <div><dt>Plan</dt><dd>{planLabel(ws.plan_name)}</dd></div>
+            <div><dt>Monthly</dt><dd>{ws.quoted_monthly !== null ? money(Number(ws.quoted_monthly)) : `${money(price.total)} est.`}</dd></div>
+            <div><dt>Agent seats</dt><dd>{agents}{ws.agent_seats !== null ? ` of ${ws.agent_seats}` : ""}{overSeats ? " · over" : ""}</dd></div>
+            <div><dt>Owner / Admin seats</dt><dd>{owners} of {ws.owner_seats}</dd></div>
+            <div><dt>Offices</dt><dd>{officesRes.count ?? 0}</dd></div>
+            <div><dt>Contract to</dt><dd>{contracts[0] ? day(contracts[0].ends_on) : "None filed"}</dd></div>
+          </dl>
+          <p className={kinu.docsHead}>On file</p>
+          <ul className={kinu.docs}>
+            {months[0]?.invoice_path && <li><a href={`${here}/files/${months[0].id}/invoice`} target="_blank" rel="noopener noreferrer">Latest invoice · {monthLabel(months[0].month)}<span className="sr-only"> (opens in a new tab)</span></a></li>}
+            {months.find((month) => month.proof_path) && (
+              <li><a href={`${here}/files/${months.find((month) => month.proof_path)!.id}/proof`} target="_blank" rel="noopener noreferrer">Latest proof of payment · {monthLabel(months.find((month) => month.proof_path)!.month)}<span className="sr-only"> (opens in a new tab)</span></a></li>
+            )}
+            {contracts[0] && <li><a href={`${here}/files/${contracts[0].id}/contract`} target="_blank" rel="noopener noreferrer">{contracts[0].title} · to {day(contracts[0].ends_on)}<span className="sr-only"> (opens in a new tab)</span></a></li>}
+            {!months[0]?.invoice_path && !contracts[0] && <li>No invoice or contract filed yet.</li>}
+          </ul>
+        </div>
       </section>
 
       <Tabs
@@ -126,6 +152,38 @@ export default async function BrokeragePage({ params, searchParams }: Props) {
 
       {tab === "overview" && (
         <>
+      <Card title="ID card details" aside={<span className={ui.soft}>Shown at the top of this file</span>}>
+        <ActionForm action={setProfile}>
+          <input type="hidden" name="id" value={ws.id} />
+          <div className={ui.formRow}>
+            <label className={ui.field}>
+              Main contact
+              <input className={ui.input} name="contact_name" defaultValue={ws.contact_name} maxLength={120} />
+            </label>
+            <label className={ui.field}>
+              Contact email
+              <input className={ui.input} name="contact_email" type="email" defaultValue={ws.contact_email} maxLength={254} />
+            </label>
+            <label className={ui.field}>
+              Phone
+              <input className={ui.input} name="contact_phone" defaultValue={ws.contact_phone} maxLength={40} />
+            </label>
+          </div>
+          <div className={ui.formRow}>
+            <label className={ui.field}>
+              Address
+              <input className={ui.input} name="address" defaultValue={ws.address} maxLength={240} />
+            </label>
+            <label className={ui.field}>
+              Website
+              <input className={ui.input} name="website" defaultValue={ws.website} maxLength={200} />
+            </label>
+          </div>
+          <DropZone name="logo" label="Logo or photo (replaces the current one)" accept="image/jpeg,image/png,image/webp" hint="JPEG, PNG or WebP" />
+          <div><Submit>Save ID card</Submit></div>
+        </ActionForm>
+      </Card>
+
       <Card title="Plan and seats" aside={<span className={ui.soft}>What this brokerage is contracted for</span>}>
         <ActionForm action={setAccount}>
           <input type="hidden" name="id" value={ws.id} />

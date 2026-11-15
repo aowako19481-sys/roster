@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { VIEW_AS_COOKIE, WORKSPACE_COOKIE, getAccess } from "@/lib/access";
+import { LOOK_COOKIE, VIEW_AS_COOKIE, WORKSPACE_COOKIE, getAccess } from "@/lib/access";
 import { BUILT_IN_ROLES } from "@/lib/roles";
 import { sessionCookieOptions } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -62,4 +62,11 @@ export async function setViewAs(form: FormData) {
     jar.delete(VIEW_AS_COOKIE);
   }
   redirect("/");
+}
+
+/** The founder console's colours. A preference only; it grants nothing. */
+export async function setLook(form: FormData) {
+  const jar = await cookies();
+  jar.set(LOOK_COOKIE, form.get("look") === "violet" ? "violet" : "silver", { ...sessionCookieOptions, maxAge: 60 * 60 * 24 * 365 });
+  redirect("/kinu");
 }

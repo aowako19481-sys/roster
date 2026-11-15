@@ -459,45 +459,45 @@
 }
 
 /* --- inside the founder console --- */
-:global([data-founder]) .btnPrimary,
-:global([data-founder]) .btnPrimary:hover {
+:global([data-founder="violet"]) .btnPrimary,
+:global([data-founder="violet"]) .btnPrimary:hover {
   background: linear-gradient(180deg, #cdbcff, #9a80f2);
   color: #0d0b18;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 12px 30px rgba(140, 110, 255, 0.35);
 }
-:global([data-founder]) .tabOn,
-:global([data-founder]) .tabOn:hover {
+:global([data-founder="violet"]) .tabOn,
+:global([data-founder="violet"]) .tabOn:hover {
   background: #f4f2ff;
   border-color: #f4f2ff;
   color: #0d0b18;
 }
-:global([data-founder]) .tab {
+:global([data-founder="violet"]) .tab {
   border-color: rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.05);
 }
-:global([data-founder]) .badge {
+:global([data-founder="violet"]) .badge {
   border-color: rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.06);
 }
-:global([data-founder]) .btn {
+:global([data-founder="violet"]) .btn {
   border-color: rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.07);
   color: var(--ink);
 }
-:global([data-founder]) .btn:hover {
+:global([data-founder="violet"]) .btn:hover {
   background: rgba(255, 255, 255, 0.14);
 }
-:global([data-founder]) .input,
-:global([data-founder]) .select,
-:global([data-founder]) .textarea {
+:global([data-founder="violet"]) .input,
+:global([data-founder="violet"]) .select,
+:global([data-founder="violet"]) .textarea {
   background: rgba(255, 255, 255, 0.07);
   border-color: rgba(255, 255, 255, 0.18);
   color: var(--ink);
 }
-:global([data-founder]) .warn {
+:global([data-founder="violet"]) .warn {
   color: #ffd28a;
   border-color: rgba(255, 210, 138, 0.45);
 }
-:global([data-founder]) .muted {
+:global([data-founder="violet"]) .muted {
   color: var(--mute);
 }

@@ -7,6 +7,8 @@ import { createClient, getUser } from "@/lib/supabase/server";
 
 export const WORKSPACE_COOKIE = "kinu_ws";
 export const VIEW_AS_COOKIE = "kinu_as";
+/** The founder console's colours: "silver" (the regular greys) or "violet". */
+export const LOOK_COOKIE = "kinu_look";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export type Workspace = {

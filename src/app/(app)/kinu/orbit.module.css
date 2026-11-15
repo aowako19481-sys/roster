@@ -1,0 +1,333 @@
+.orbit {
+  position: relative;
+  min-height: 560px;
+  display: grid;
+  overflow: hidden;
+  border-radius: 24px;
+}
+.search {
+  position: absolute;
+  z-index: 3;
+  top: 20px;
+  right: 22px;
+  width: min(420px, calc(100% - 44px));
+  transform-origin: right center;
+  transition: transform 0.45s var(--ease-in-out), opacity 0.3s;
+}
+.search input {
+  width: 100%;
+  height: 50px;
+  padding: 0 46px 0 20px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--control);
+  color: var(--ink);
+  font: inherit;
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+.search kbd {
+  position: absolute;
+  right: 16px;
+  top: 13px;
+  font: inherit;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 7px;
+  border: 1px solid var(--line-strong);
+  color: var(--faint);
+}
+.results {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 6px;
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+  background: var(--bg-light);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.28);
+}
+.results button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.results button:hover,
+.results button:focus-visible {
+  background: var(--control);
+}
+.results small,
+.none {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.none {
+  padding: 11px 14px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+.graph {
+  width: 100%;
+  height: 100%;
+  min-height: 560px;
+  display: block;
+  transition: transform 1.1s var(--ease-in-out), opacity 0.7s;
+  transform-origin: 15% 50%;
+}
+.trunk,
+.branch {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 1.2;
+}
+.trunkOn {
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  filter: drop-shadow(0 0 5px var(--panel-glow));
+}
+.branch {
+  stroke: var(--ink);
+  stroke-opacity: 0.55;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 0.8s var(--ease-out) forwards;
+  animation-delay: calc(var(--i) * 40ms);
+}
+.halo {
+  fill: var(--panel-glow);
+  opacity: 0.35;
+  animation: breathe 5s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.ring,
+.ringB {
+  fill: none;
+  stroke: var(--ink);
+  stroke-opacity: 0.5;
+  stroke-width: 1;
+  stroke-dasharray: 2 7;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spin 26s linear infinite;
+}
+.ringB {
+  stroke-dasharray: 1 4;
+  stroke-opacity: 0.3;
+  animation-duration: 16s;
+  animation-direction: reverse;
+}
+.coreText {
+  fill: var(--faint);
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0.5em;
+}
+.node rect:first-child {
+  fill: var(--control);
+  stroke: var(--glass-border);
+  transition: fill 0.3s, stroke 0.3s;
+}
+.nodeOn rect:first-child {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+.nodeCount {
+  fill: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.nodeLabel {
+  fill: var(--mute);
+  font-family: var(--sans);
+  font-size: 10.5px;
+}
+.nodeOn .nodeCount,
+.nodeOn .nodeLabel {
+  fill: var(--on-accent);
+}
+.hit {
+  fill: transparent;
+  cursor: pointer;
+}
+.hit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.leaf {
+  animation: fade 0.6s var(--ease-out) both;
+  animation-delay: calc(180ms + var(--i) * 45ms);
+}
+.leaf circle {
+  fill: var(--ink);
+}
+.leaf:hover .leafName {
+  text-decoration: underline;
+}
+.leafName {
+  fill: var(--ink);
+  font-family: var(--sans);
+  font-size: 13.5px;
+}
+.leafNo {
+  fill: var(--faint);
+  font-family: var(--mono);
+  font-size: 10.5px;
+}
+/* --- locating a brokerage: the search shuts, the scene pulls in, the reel lands --- */
+.flying .search {
+  transform: scaleX(0);
+  opacity: 0;
+}
+.flying .graph {
+  transform: scale(2.6);
+  opacity: 0.12;
+}
+.locate {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+  animation: appear 0.4s ease both;
+}
+.locLabel,
+.locNo {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.locNo {
+  font-family: var(--mono);
+  letter-spacing: 0.12em;
+  animation: appear 0.4s ease 1s both;
+}
+.reel {
+  height: 1.15em;
+  overflow: hidden;
+  font-size: clamp(1.8rem, 4.4vw, 3.6rem);
+  font-weight: 250;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  max-width: 90vw;
+  mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+}
+.reelStrip {
+  display: grid;
+  animation: reel 1.05s cubic-bezier(0.2, 0.9, 0.15, 1) both;
+}
+.reelStrip span {
+  height: 1.15em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--faint);
+}
+.reelStrip .reelHit {
+  color: var(--ink);
+}
+.scan {
+  display: block;
+  width: min(420px, 70vw);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: scan 1.2s ease-in-out 0.2s both;
+}
+@keyframes reel {
+  from {
+    transform: translateY(0);
+    filter: blur(3px);
+  }
+  to {
+    transform: translateY(calc(var(--n) * -1.15em));
+    filter: blur(0);
+  }
+}
+@keyframes scan {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes breathe {
+  50% {
+    transform: scale(1.12);
+    opacity: 0.55;
+  }
+}
+@media (max-width: 760px) {
+  .orbit,
+  .graph {
+    min-height: 420px;
+  }
+  .search {
+    position: relative;
+    top: 0;
+    right: 0;
+    margin: 16px auto 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .branch {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .leaf,
+  .halo,
+  .ring,
+  .ringB,
+  .locate,
+  .reelStrip,
+  .scan {
+    animation: none;
+  }
+  .graph,
+  .search {
+    transition: none;
+  }
+}
+/* The greeting steps aside while a brokerage is being located. */
+.orbit + div {
+  transition: opacity 0.3s;
+}
+.flying + div {
+  opacity: 0;
+}

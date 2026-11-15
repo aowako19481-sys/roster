@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { FounderBackdrop } from "@/components/FounderBackdrop";
 import { AutoSelect } from "@/components/ActionForm";
 import { Dock } from "@/components/Dock";
-import { getAccess } from "@/lib/access";
+import { LOOK_COOKIE, getAccess } from "@/lib/access";
 import { BRAND } from "@/lib/brand";
 import { buildNav } from "@/lib/nav";
 import { BUILT_IN_ROLES, roleLabel } from "@/lib/roles";
@@ -21,12 +21,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // The founder's own look, on the console pages only.
   const path = (await headers()).get("x-kinu-path") ?? "";
   const founderView = access.isFounder && !ws && (path === "/kinu" || path.startsWith("/kinu/"));
+  const look = (await cookies()).get(LOOK_COOKIE)?.value === "violet" ? "violet" : "silver";
   const mayPreview = Boolean(ws) && (access.isPlatformAdmin || access.role === "owner_admin");
   const nav = buildNav(access);
 
   return (
-    <div className={styles.page} data-print-root="" data-founder={founderView ? "" : undefined}>
-      {founderView && <FounderBackdrop />}
+    <div className={styles.page} data-print-root="" data-founder={founderView ? look : undefined}>
+      {founderView && <FounderBackdrop look={look} />}
       <div className={styles.wrap}>
         <header className={styles.bar} data-app-chrome="">
           <Link href="/" className={`brandType ${styles.wordmark}`}>

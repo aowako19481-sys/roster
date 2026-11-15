@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ButtonLink, ui } from "@/components/ui";
 import { monthLabel } from "@/lib/admin-pages";
 import { day, money } from "@/lib/format";
+import { setLook } from "../actions";
+import { FounderOrbit, type OrbitGroup } from "./FounderOrbit";
 import { CountUp, PaidChart } from "./FounderWidgets";
 import styles from "./founder.module.css";
 
@@ -19,8 +20,8 @@ function greeting() {
   return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 }
 
-/** The founder's view of the whole business. Totals only: nothing from inside a brokerage. */
-export function FounderDashboard({ pulse, firstName }: { pulse: Pulse; firstName: string }) {
+/** The founder's view of the whole business. Totals and names only: nothing from inside a brokerage. */
+export function FounderDashboard({ pulse, groups, firstName, look }: { pulse: Pulse; groups: OrbitGroup[]; firstName: string; look: "silver" | "violet" }) {
   const months = pulse.months ?? [];
   const points = months.map((entry) => ({
     label: monthLabel(entry.month).slice(0, 3),
@@ -36,40 +37,53 @@ export function FounderDashboard({ pulse, firstName }: { pulse: Pulse; firstName
 
   return (
     <>
-      <header className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>Founder console · {new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "America/New_York" }).format(new Date())}</p>
-          <h1>{greeting()}, <span>{firstName}</span>.</h1>
-          <p className={styles.quiet}>{needs ? `${needs} thing${needs === 1 ? "" : "s"} could use you today.` : "Nothing is waiting on you."}</p>
-        </div>
-        <div className={ui.inline}>
-          <ButtonLink href="/kinu/inbox">Inbox{pulse.open_leads ? ` (${pulse.open_leads})` : ""}</ButtonLink>
-          <ButtonLink href="/kinu/cabinet">Filing cabinet</ButtonLink>
-          <ButtonLink href="/kinu/new" primary>New brokerage</ButtonLink>
-        </div>
-      </header>
+      <nav className={styles.pills} aria-label="Founder console">
+        <Link href="/kinu" className={styles.pillOn} aria-current="page">Overview</Link>
+        <a href="#brokerages">Brokerages</a>
+        <Link href="/kinu/inbox">Inbox{pulse.open_leads > 0 && <span className={styles.count}>{pulse.open_leads}</span>}</Link>
+        <Link href="/kinu/cabinet">Filing cabinet</Link>
+        <span className={styles.spacer} />
+        <form action={setLook}>
+          <input type="hidden" name="look" value={look === "violet" ? "silver" : "violet"} />
+          <button type="submit">{look === "violet" ? "Silver look" : "Violet look"}</button>
+        </form>
+        <Link href="/kinu/new" className={styles.pillOn}>+ New brokerage</Link>
+      </nav>
 
-      <section className={styles.tiles} aria-label="The business at a glance">
-        <div className={styles.tile} style={{ ["--i" as string]: 0 }}>
-          <span className={styles.eyebrow}>Brokerages</span>
-          <span className={styles.value}><CountUp value={Number(pulse.brokerages)} /></span>
-          <span className={styles.note}>{pulse.active} active{pulse.paused ? ` · ${pulse.paused} paused` : ""} · {joinedThisMonth} joined this month</span>
+      <section className={styles.deck}>
+        <div className={styles.side}>
+          <div className={styles.tile} style={{ ["--i" as string]: 0 }}>
+            <span className={styles.eyebrow}>Brokerages</span>
+            <span className={styles.value}><CountUp value={Number(pulse.brokerages)} /></span>
+            <span className={styles.note}>{pulse.active} active{pulse.paused ? ` · ${pulse.paused} paused` : ""} · {joinedThisMonth} new this month</span>
+          </div>
+          <div className={styles.tile} style={{ ["--i" as string]: 1 }}>
+            <span className={styles.eyebrow}>Collected this month</span>
+            <div className={styles.dial} role="img" aria-label={`${collected} percent of this month's invoices collected`}>
+              <svg viewBox="0 0 36 36"><circle className={styles.dialTrack} cx="18" cy="18" r="15.9155" /><circle className={styles.dialValue} cx="18" cy="18" r="15.9155" pathLength={100} style={{ ["--off" as string]: 100 - collected }} /></svg>
+              <div>{collected}%</div>
+            </div>
+            <span className={styles.note}>{billed > 0 ? `${money(paid)} of ${money(billed)} invoiced` : "Nothing invoiced yet this month"}</span>
+          </div>
+          <div className={styles.tile} style={{ ["--i" as string]: 2 }}>
+            <span className={styles.eyebrow}>Quoted per month</span>
+            <span className={styles.value}><CountUp value={Number(pulse.quoted)} money /></span>
+            <span className={styles.note}>{pulse.unquoted ? `${pulse.unquoted} active account${pulse.unquoted === 1 ? "" : "s"} with no quote yet` : "Every active account has a quote"}</span>
+          </div>
+          <div className={styles.tile} style={{ ["--i" as string]: 3 }}>
+            <span className={styles.eyebrow}>Agents on Kinu</span>
+            <span className={styles.value}><CountUp value={Number(pulse.agents)} /></span>
+            <span className={styles.note}>{Number(pulse.seats).toLocaleString("en-US")} seats contracted · {pulse.staff} staff logins</span>
+          </div>
         </div>
-        <div className={styles.tile} style={{ ["--i" as string]: 1 }}>
-          <span className={styles.eyebrow}>Agents on Kinu</span>
-          <span className={styles.value}><CountUp value={Number(pulse.agents)} /></span>
-          <span className={styles.note}>{Number(pulse.seats).toLocaleString("en-US")} seats contracted · {pulse.staff} staff logins</span>
-        </div>
-        <div className={styles.tile} style={{ ["--i" as string]: 2 }}>
-          <span className={styles.eyebrow}>Quoted per month</span>
-          <span className={styles.value}><CountUp value={Number(pulse.quoted)} money /></span>
-          <span className={styles.note}>{pulse.unquoted ? `${pulse.unquoted} active account${pulse.unquoted === 1 ? "" : "s"} with no quote yet` : "Every active account has a quote"}</span>
-        </div>
-        <div className={styles.tile} style={{ ["--i" as string]: 3 }}>
-          <span className={styles.eyebrow}>Collected this month</span>
-          <span className={styles.value}><CountUp value={paid} money /></span>
-          <span className={styles.note}>{billed > 0 ? `${collected}% of ${money(billed)} invoiced` : "Nothing invoiced yet this month"}</span>
-          <div className={styles.meter} role="img" aria-label={`${collected} percent of this month's invoices collected`}><i style={{ ["--w" as string]: `${collected}%` }} /></div>
+
+        <div className={`${styles.panel} ${styles.stage}`} style={{ ["--i" as string]: 1 }}>
+          <FounderOrbit groups={groups} />
+          <div className={styles.caption}>
+            <p className={styles.eyebrow}>Founder console · {new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "America/New_York" }).format(new Date())}</p>
+            <h1>{greeting()}, <span>{firstName}</span>.</h1>
+            <p className={styles.quiet}>{needs ? `${needs} thing${needs === 1 ? "" : "s"} could use you today.` : "Nothing is waiting on you."}</p>
+          </div>
         </div>
       </section>
 
