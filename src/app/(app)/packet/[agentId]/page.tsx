@@ -39,6 +39,7 @@ export default async function AgentPacketPage({ params }: { params: Promise<{ ag
       <PageHeader eyebrow="Onboarding packet" title={agent.full_name} sub={`${agent.office} · what this agent has completed, and what is still to do.`}>
         <ButtonLink href="/packet">All paperwork</ButtonLink>
         <ButtonLink href={`/agents/${agent.id}`}>Agent card</ButtonLink>
+        <ButtonLink href={`/agents/${agent.id}/file`} primary>Open agent file</ButtonLink>
       </PageHeader>
       <Card title="Paperwork">
         {mine.length ? (

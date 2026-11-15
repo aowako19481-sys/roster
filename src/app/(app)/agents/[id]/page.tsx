@@ -295,7 +295,7 @@ export default async function AgentCardPage({ params }: Props) {
 
       <div className={ui.grid2}>
         {can("files.view") && (
-          <Card title="Documents" aside={<Link href="/files" className={ui.linkBtn}>All files</Link>}>
+          <Card title="Documents" aside={<Link href={`/agents/${id}/file`} className={ui.linkBtn}>Open agent file</Link>}>
             {documents.length ? (
               <ul className={ui.list}>
                 {documents.map((doc) => (
