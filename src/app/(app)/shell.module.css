@@ -274,3 +274,12 @@
   background: var(--accent);
   color: var(--on-accent);
 }
+
+/* --- Advanced view: every page sits on clear glass over the moving silver backdrop --- */
+.page[data-view="advanced"] {
+  background: #b9babc;
+}
+.page[data-view="advanced"] .wrap {
+  position: relative;
+  z-index: 1;
+}

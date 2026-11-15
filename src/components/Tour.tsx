@@ -45,10 +45,27 @@ function buildSteps(firstName: string): Step[] {
       body: `Anything ${BRAND} could not settle by itself, like a licence number that does not match.`,
     },
     {
+      target: "advanced",
+      title: "Standard or Advanced",
+      body: "Switch to Advanced for a home screen: every tool as a tile, and a search that pulls up any agent\u2019s ID card. Switch back whenever you like.",
+    },
+    {
       target: "jump",
       title: "Quick actions",
       body: "The jobs you will do most often, one tap away. That is the whole tour.",
     },
+  ];
+}
+
+function advancedSteps(firstName: string): Step[] {
+  return [
+    { title: `Advanced view, ${firstName}`, body: "The same dashboard, with more on show. Every button works exactly as before. This takes under a minute." },
+    { target: "finder", title: "Find any agent", body: "Type a name. The reel spins through your roster and lands on the match. Open it to see the agent\u2019s ID card, then jump to their card, file or paperwork." },
+    { target: "trackers", title: "Live trackers", body: "Each ring is one onboarding step across your current intake: how many are done, and how many to go." },
+    { target: "nav", title: "Everything is still here", body: "Agents, riders, deals, payroll and the rest sit in the same place. Only the look has changed." },
+    { target: "tier", title: "Tier clearance", body: "Approve or hold a tier move right here, the same as in Standard." },
+    { target: "flags", title: "Needs a human", body: `Anything ${BRAND} could not settle by itself.` },
+    { target: "advanced", title: "Switch back any time", body: "Standard and Advanced show the same information. Use whichever you prefer; your choice is remembered." },
   ];
 }
 
@@ -67,12 +84,19 @@ export function Tour({
   firstName,
   autoStart,
   onDone,
+  advanced = false,
+  offer = false,
 }: {
   firstName: string;
   autoStart: boolean;
   onDone: () => Promise<void>;
+  /** Use the Advanced view's own stops. */
+  advanced?: boolean;
+  /** Show a small pop-up offering the tour, instead of starting it unasked. */
+  offer?: boolean;
 }) {
-  const steps = buildSteps(firstName);
+  const steps = advanced ? advancedSteps(firstName) : buildSteps(firstName);
+  const [offering, setOffering] = useState(offer);
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [box, setBox] = useState<Box | null>(null);
@@ -212,8 +236,31 @@ export function Tour({
           setOpen(true);
         }}
       >
-        Replay the tour
+        {advanced ? "Play the Advanced tour" : "Replay the tour"}
       </button>
+
+      {offering && !open && (
+        <div className={styles.offer} role="dialog" aria-labelledby="tour-offer">
+          <p id="tour-offer" className={styles.offerTitle}>You are in Advanced view.</p>
+          <p className={styles.offerBody}>Want a one-minute tour of what is new?</p>
+          <div className={styles.offerActions}>
+            <button
+              type="button"
+              className={styles.offerPlay}
+              onClick={() => {
+                setOffering(false);
+                setIndex(0);
+                setOpen(true);
+              }}
+            >
+              <span aria-hidden="true">▶</span> Play the tour
+            </button>
+            <button type="button" className={styles.offerSkip} onClick={() => setOffering(false)}>
+              Not now
+            </button>
+          </div>
+        </div>
+      )}
 
       {open &&
         step &&

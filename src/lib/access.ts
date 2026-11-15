@@ -9,6 +9,10 @@ export const WORKSPACE_COOKIE = "kinu_ws";
 export const VIEW_AS_COOKIE = "kinu_as";
 /** The founder console's colours: "silver" (the regular greys) or "violet". */
 export const LOOK_COOKIE = "kinu_look";
+/** A brokerage member's choice of home screen: "advanced", or the standard dashboard. */
+export const VIEW_COOKIE = "kinu_view";
+/** Set for a minute after switching to Advanced, so the tour can be offered once. */
+export const TOUR_OFFER_COOKIE = "kinu_tour_offer";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export type Workspace = {

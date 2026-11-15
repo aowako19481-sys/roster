@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+import { AdvancedDeck } from "./advanced/AdvancedDeck";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CohortTable } from "@/components/dashboard/CohortTable";
@@ -6,7 +8,7 @@ import { LiveCounter } from "@/components/dashboard/LiveCounter";
 import { NotificationsBell } from "@/components/dashboard/NotificationsBell";
 import { getDashboardData, type Tone } from "@/lib/dashboard";
 import { Tour } from "@/components/Tour";
-import { requireCap } from "@/lib/access";
+import { TOUR_OFFER_COOKIE, VIEW_COOKIE, requireCap } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { completeTour } from "./actions";
 import styles from "./dashboard.module.css";
@@ -37,6 +39,11 @@ export default async function DashboardPage() {
   const tz = access.workspace.timezone;
   const data = await getDashboardData(access.workspace.id, tz);
   const firstName = access.displayName.split(" ")[0] ?? access.displayName;
+
+  // Advanced view: the same dashboard with a finder and live trackers on top.
+  const jar = await cookies();
+  const advanced = jar.get(VIEW_COOKIE)?.value === "advanced";
+  const offerTour = advanced && jar.get(TOUR_OFFER_COOKIE)?.value === "1";
   const lastRead = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: tz }).format(now);
 
   // Has this person seen the first-run tour? Row-level security returns only
@@ -73,6 +80,7 @@ export default async function DashboardPage() {
 
   return (
     <>
+      {advanced && <AdvancedDeck data={data} />}
       <section className={styles.hero} aria-label="Today">
         <div className={`${styles.heroText} ${styles.r} ${styles.d1}`}>
           <p className={`brandLabel ${styles.eyebrow}`}>
@@ -103,6 +111,8 @@ export default async function DashboardPage() {
         </div>
       </section>
 
+      {/* In Advanced view the rings above carry these same figures. */}
+      {!advanced && (
       <section aria-label={`${data.cohortLabel} progress`} className={`${styles.card} ${styles.stats} ${styles.r} ${styles.d3}`}>
         {data.stats.map((stat) => (
           <div key={stat.label} className={styles.stat}>
@@ -123,6 +133,7 @@ export default async function DashboardPage() {
           </div>
         ))}
       </section>
+      )}
 
       <div className={styles.bento}>
         <div className={`${styles.span12} ${styles.r} ${styles.d4}`}>
@@ -258,7 +269,7 @@ export default async function DashboardPage() {
         </ul>
       </nav>
 
-      <Tour firstName={firstName} autoStart={showTour} onDone={completeTour} />
+      <Tour firstName={firstName} autoStart={showTour && !advanced} onDone={completeTour} advanced={advanced} offer={offerTour} />
     </>
   );
 }

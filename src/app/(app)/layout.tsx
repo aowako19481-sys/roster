@@ -4,11 +4,11 @@ import { redirect } from "next/navigation";
 import { FounderBackdrop } from "@/components/FounderBackdrop";
 import { AutoSelect } from "@/components/ActionForm";
 import { Dock } from "@/components/Dock";
-import { LOOK_COOKIE, getAccess } from "@/lib/access";
+import { LOOK_COOKIE, VIEW_COOKIE, getAccess } from "@/lib/access";
 import { BRAND } from "@/lib/brand";
 import { buildNav } from "@/lib/nav";
 import { BUILT_IN_ROLES, roleLabel } from "@/lib/roles";
-import { leaveWorkspace, setLook, setViewAs, signOut, switchWorkspace } from "./actions";
+import { leaveWorkspace, setLook, setView, setViewAs, signOut, switchWorkspace } from "./actions";
 import styles from "./shell.module.css";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -21,12 +21,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // The founder's own look, on the console pages only.
   const path = (await headers()).get("x-kinu-path") ?? "";
   const founderView = access.isFounder && !ws && (path === "/kinu" || path.startsWith("/kinu/"));
-  const look = (await cookies()).get(LOOK_COOKIE)?.value === "violet" ? "violet" : "silver";
+  const jar = await cookies();
+  const look = jar.get(LOOK_COOKIE)?.value === "violet" ? "violet" : "silver";
+  // A brokerage member's Advanced view: the same pages in a high-tech skin, over the moving silver backdrop.
+  const advanced = Boolean(ws) && jar.get(VIEW_COOKIE)?.value === "advanced";
   const mayPreview = Boolean(ws) && (access.isPlatformAdmin || access.role === "owner_admin");
   const nav = buildNav(access);
 
   return (
-    <div className={styles.page} data-print-root="" data-founder={founderView ? look : undefined}>
+    <div className={styles.page} data-print-root="" data-founder={founderView ? look : undefined} data-view={advanced ? "advanced" : undefined}>
+      {advanced && <FounderBackdrop look="silver" />}
       {founderView && <FounderBackdrop look={look} />}
       <div className={styles.wrap}>
         <header className={styles.bar} data-app-chrome="">
@@ -66,6 +70,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           )}
 
           <div className={styles.barEnd}>
+            {ws && access.caps.has("agents.view") && (
+              <form action={setView} className={styles.look} role="group" aria-label="Home screen" data-tour="advanced">
+                <button type="submit" name="view" value="standard" aria-pressed={!advanced}>
+                  Standard
+                </button>
+                <button type="submit" name="view" value="advanced" aria-pressed={advanced}>
+                  Advanced
+                </button>
+              </form>
+            )}
             {founderView && (
               <form action={setLook} className={styles.look} role="group" aria-label="Console colours">
                 <input type="hidden" name="back" value={path} />

@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { LOOK_COOKIE, VIEW_AS_COOKIE, WORKSPACE_COOKIE, getAccess } from "@/lib/access";
+import { LOOK_COOKIE, TOUR_OFFER_COOKIE, VIEW_AS_COOKIE, VIEW_COOKIE, WORKSPACE_COOKIE, getAccess } from "@/lib/access";
 import { BUILT_IN_ROLES } from "@/lib/roles";
 import { sessionCookieOptions } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -71,4 +71,17 @@ export async function setLook(form: FormData) {
   // Back to the console page the founder was on; never anywhere else.
   const back = String(form.get("back") ?? "");
   redirect(/^\/kinu(\/[A-Za-z0-9\-/]*)?$/.test(back) ? back : "/kinu");
+}
+
+/** Standard dashboard or the Advanced view home screen. A preference only; it grants nothing. */
+export async function setView(form: FormData) {
+  const jar = await cookies();
+  if (form.get("view") === "advanced") {
+    jar.set(VIEW_COOKIE, "advanced", { ...sessionCookieOptions, maxAge: 60 * 60 * 24 * 365 });
+    jar.set(TOUR_OFFER_COOKIE, "1", { ...sessionCookieOptions, maxAge: 90 });
+  } else {
+    jar.delete(VIEW_COOKIE);
+    jar.delete(TOUR_OFFER_COOKIE);
+  }
+  redirect("/");
 }
