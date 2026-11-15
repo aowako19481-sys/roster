@@ -5,12 +5,13 @@ import { ActionForm, Submit } from "@/components/ActionForm";
 import { Badge, ButtonLink, Card, Empty, PageHeader, Placeholder, Stat, ui } from "@/components/ui";
 import { requireCap } from "@/lib/access";
 import {
+  DEAL_TYPES,
   FEE_KINDS, OVERRIDE_REASONS, checkLabel, checkTone, dealStatusLabel, dealStatusTone, dealTypeLabel, failsCheck, feeKindLabel,
   inBatches, isFrozen, overrideReasonLabel, paymentMethodLabel, targetPayroll, urgentEmail, waitingLabel, weekDay,
 } from "@/lib/finance";
 import { day, dayTime, money, pct, titleCase, todayIso } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
-import { addFee, overrideLine, pushThrough, removeFee, saveLine, sendAgentEmail, setDealStatus, setWaiting, tickItem } from "../actions";
+import { addFee, editDeal, overrideLine, pushThrough, removeFee, saveLine, sendAgentEmail, setDealStatus, setWaiting, tickItem } from "../actions";
 import { TickBox } from "./TickBox";
 
 export const metadata: Metadata = { title: "Deal sheet" };
@@ -145,6 +146,55 @@ export default async function DealSheetPage({ params, searchParams }: Props) {
       {deal.status === "held" && (
         <Card>
           <p><strong className={ui.strong}>Held.</strong> {deal.held_reason ?? "No reason recorded."}</p>
+        </Card>
+      )}
+
+      {canEdit && (
+        <Card title="Deal details">
+          <details>
+            <summary className={ui.linkBtn}>Edit address, GCI, type, deposit date or PP number</summary>
+            <ActionForm action={editDeal} style={{ marginTop: 16 }}>
+              <input type="hidden" name="id" value={deal.id} />
+              <label className={ui.field}>
+                Address
+                <input className={ui.input} name="address" defaultValue={deal.address} required minLength={3} maxLength={200} />
+              </label>
+              <div className={ui.formRow}>
+                <label className={ui.field}>
+                  GCI ($)
+                  <input className={ui.input} name="gci" defaultValue={Number(deal.gci).toFixed(2)} required inputMode="decimal" maxLength={16} />
+                </label>
+                <label className={ui.field}>
+                  Type
+                  <select className={ui.select} name="deal_type" defaultValue={deal.deal_type}>
+                    {DEAL_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className={ui.field}>
+                  Deposit date
+                  <input className={ui.input} name="deposit_date" type="date" defaultValue={deal.deposit_date ?? ""} />
+                </label>
+                <label className={ui.field}>
+                  PP number
+                  <input className={ui.input} name="pp_number" defaultValue={deal.pp_number ?? ""} maxLength={40} />
+                </label>
+              </div>
+              <label className={ui.check}>
+                <input type="checkbox" name="confirm_dual" />
+                <span>If another deal already uses this address, save anyway: this is a separate deal (for example a dual).</span>
+              </label>
+              <p className={ui.help}>
+                Payouts and the rider check are worked out again when you save. If this deal was already cleared and you
+                change the GCI or type, it goes back to open and needs clearing again. Every change is recorded in the
+                audit trail.
+              </p>
+              <Submit>Save details</Submit>
+            </ActionForm>
+          </details>
         </Card>
       )}
 

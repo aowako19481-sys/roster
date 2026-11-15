@@ -143,6 +143,57 @@ export async function createDeal(_prev: DealFormState, form: FormData): Promise<
 
 // ------------------------------------------------------------ agent lines --
 
+/**
+ * Change a deal's details after it was created. The database freezes deals
+ * that are already in a payroll, works the payouts out again, and sends a
+ * cleared deal back to open if its GCI or type changed.
+ */
+export async function editDeal(_prev: Result, form: FormData): Promise<Result> {
+  const gate = await actionAccess("deals.edit");
+  if ("denied" in gate) return fail(gate.denied);
+  const ws = gate.access.workspace.id;
+  const id = uuid(form, "id");
+  if (!id) return fail("That deal could not be found.");
+
+  const address = text(form, "address", 200);
+  const gci = num(form, "gci");
+  const dealType = text(form, "deal_type", 20);
+  const depositTyped = text(form, "deposit_date", 12);
+  const deposit = depositTyped ? isoDate(form, "deposit_date") : null;
+  const pp = text(form, "pp_number", 40);
+  if (address.length < 3) return fail("Type the address.");
+  if (gci === null || gci < 0 || gci > 100_000_000) return fail("Type the GCI as an amount, for example 14250.00.");
+  if (!DEAL_TYPE_VALUES.includes(dealType)) return fail("Choose the deal type.");
+  if (depositTyped && !deposit) return fail("The deposit date is not a valid date.");
+
+  const supabase = await createClient();
+  const deal = await findDeal(supabase, ws, id);
+  if (!deal) return fail("That deal could not be found.");
+  if (isFrozen(deal.status)) return fail(FROZEN);
+
+  // Same address already on file? Ask, rather than refuse: it may be a dual.
+  if (address.toLowerCase() !== deal.address.toLowerCase() && form.get("confirm_dual") !== "on") {
+    const { data: twins } = await supabase.rpc("find_duplicates", { ws, deal_address: address, skip: id });
+    if (Array.isArray(twins) && twins.length > 0) {
+      return fail("Another deal already uses that address. Is this a dual? If it is a separate deal, tick the box below and save again.");
+    }
+  }
+
+  const { data, error } = await supabase.from("deals")
+    .update({ address, gci: toCents(gci), deal_type: dealType, deposit_date: deposit, pp_number: pp || null })
+    .eq("id", id).eq("workspace_id", ws)
+    .select("status");
+  if (error) return failure(error);
+  const saved = (data as { status: string }[] | null)?.[0];
+  if (!saved) return fail("That deal could not be found.");
+  refresh(id);
+  return done(
+    deal.status === "cleared" && saved.status === "open"
+      ? "Saved. Because the money or type changed, this deal is open again and needs clearing for payroll."
+      : "Saved. Payouts and the rider check have been worked out again.",
+  );
+}
+
 export async function saveLine(_prev: Result, form: FormData): Promise<Result> {
   const gate = await actionAccess("deals.edit");
   if ("denied" in gate) return fail(gate.denied);
