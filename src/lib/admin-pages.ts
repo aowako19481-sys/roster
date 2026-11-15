@@ -354,3 +354,31 @@ export function suggestedOpener(firstName: string, signals: RiskSignal[]): strin
 }
 
 export const CHECK_IN_OUTCOMES = ["Open to a split review", "Happy, no action", "Needs more leads", "Considering leaving"] as const;
+
+// ------------------------------------------------------------- plan pieces --
+
+/** Every piece of the plan that staff can lock or unlock for a brokerage. */
+export const PLAN_PIECES = [
+  { key: "ops", label: "Ops", kind: "product", perAgent: PRODUCT_PRICE.ops,
+    locks: "Ops pages show as a locked preview in the navigation, and the database refuses inviting or editing agents, riders, teams and file changes for everyone in the brokerage." },
+  { key: "finance", label: "Finance", kind: "product", perAgent: PRODUCT_PRICE.finance,
+    locks: "Finance pages show as a locked preview in the navigation, and the database refuses deals, payments, payroll, payouts, statements and overrides for everyone in the brokerage." },
+  { key: "retention", label: "Retention Insights + Exit Kit", kind: "addon", perAgent: 3.5,
+    locks: "Retention and Exit kit show as a locked preview in the navigation and open the “not in your plan” page instead." },
+  { key: "finance_shield", label: "Finance Shield", kind: "addon", perAgent: 0.75,
+    locks: "Payout checks shows as a locked preview in the navigation and opens the “not in your plan” page instead." },
+  { key: "compliance", label: "Compliance pack", kind: "addon", perAgent: 0.75,
+    locks: "The compliance pack pages (audit files and the year-end 1099 pack) open the “not in your plan” page instead." },
+] as const;
+export type PlanPieceKey = (typeof PLAN_PIECES)[number]["key"];
+
+export function planPiece(value: unknown) {
+  return PLAN_PIECES.find((piece) => piece.key === value) ?? null;
+}
+
+/** Whether a brokerage has a piece switched on. */
+export function pieceUnlocked(ws: { has_ops: boolean; has_finance: boolean; addons: string[] | null }, key: PlanPieceKey): boolean {
+  if (key === "ops") return ws.has_ops;
+  if (key === "finance") return ws.has_finance;
+  return (ws.addons ?? []).includes(key);
+}

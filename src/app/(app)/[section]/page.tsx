@@ -6,17 +6,7 @@ import styles from "../dashboard.module.css";
 // Pages that exist in the design but are built in later steps. Listing them
 // here keeps every sidebar link real and honest about what is not ready.
 const SECTIONS: Record<string, { title: string; step: string }> = {
-  agents: { title: "Agents", step: "Ops core" },
-  teams: { title: "Registered teams", step: "Ops core" },
-  riders: { title: "Tier clearance", step: "Ops core" },
-  files: { title: "Compliance files", step: "Ops core" },
-  reports: { title: "Reports and 1099s", step: "Add-ons" },
-  retention: { title: "Retention insights", step: "Add-ons" },
   payouts: { title: "Payout checks", step: "Finance core" },
-  "exit-kit": { title: "Exit kit", step: "Add-ons" },
-  invite: { title: "Invite agents", step: "Ops core" },
-  "welcome-email": { title: "Welcome email", step: "Ops core" },
-  "agent-onboarding": { title: "Agent’s onboarding view", step: "Ops core" },
 };
 
 type Props = { params: Promise<{ section: string }> };

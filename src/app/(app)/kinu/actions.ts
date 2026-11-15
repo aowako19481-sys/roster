@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getAccess } from "@/lib/access";
-import { WORKSPACE_STATUSES, addonsField, emailField, ticked, timezoneField } from "@/lib/admin-pages";
+import { ADDONS, WORKSPACE_STATUSES, addonsField, emailField, pieceUnlocked, planPiece, ticked, timezoneField } from "@/lib/admin-pages";
 import { done, fail, failure, text, uuid, type Result } from "@/lib/result";
 import { createClient } from "@/lib/supabase/server";
 
@@ -96,4 +96,44 @@ export async function inviteOwner(_prev: Result, form: FormData): Promise<Result
   return done(invite?.accepted_at
     ? "Added as an owner. They already had a login, so they can sign in now."
     : "Invitation recorded. It is waiting until this person has a login.");
+}
+
+/** Lock or unlock one piece of a brokerage's plan, leaving every other piece as it is. */
+export async function setPlanPiece(_prev: Result, form: FormData): Promise<Result> {
+  const denied = await staffOnly();
+  if (denied) return fail(denied);
+
+  const id = uuid(form, "id");
+  if (!id) return fail("That brokerage could not be found.");
+  const piece = planPiece(text(form, "piece", 20));
+  if (!piece) return fail("Choose a piece of the plan from the list.");
+  const want = text(form, "to", 10);
+  if (want !== "locked" && want !== "unlocked") return fail("Choose whether to lock or unlock it.");
+  const unlock = want === "unlocked";
+
+  const supabase = await createClient();
+  const { data: ws } = await supabase.from("workspaces").select("id, has_ops, has_finance, addons").eq("id", id).maybeSingle();
+  if (!ws) return fail("That brokerage could not be found.");
+  if (pieceUnlocked(ws, piece.key) === unlock) return done(`${piece.label} is already ${want}.`);
+
+  // Send only the one thing that changes; the database keeps the rest.
+  const args: { ws: string; ws_ops?: boolean; ws_finance?: boolean; ws_addons?: string[] } = { ws: id };
+  if (piece.key === "ops" || piece.key === "finance") {
+    const other = piece.key === "ops" ? ws.has_finance : ws.has_ops;
+    if (!unlock && !other) {
+      return fail("A brokerage cannot have both Ops and Finance locked. To stop it being used, set its status to Paused instead.");
+    }
+    if (piece.key === "ops") args.ws_ops = unlock; else args.ws_finance = unlock;
+  } else {
+    const current: string[] = ws.addons ?? [];
+    args.ws_addons = ADDONS.map((addon) => addon.key as string)
+      .filter((key) => (key === piece.key ? unlock : current.includes(key)));
+  }
+
+  const { error } = await supabase.rpc("platform_update_workspace", args);
+  if (error) return failure(error);
+  revalidatePath("/kinu");
+  revalidatePath(`/kinu/${id}`);
+  revalidatePath("/", "layout");
+  return done(`${piece.label} ${want}.`);
 }
