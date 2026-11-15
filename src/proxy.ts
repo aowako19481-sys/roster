@@ -4,7 +4,9 @@ import { sessionCookieOptions, supabaseEnv } from "@/lib/supabase/env";
 
 const PUBLIC_PATHS = new Set(["/sign-in"]);
 // Reachable while signed out, and left alone when signed in.
-const OPEN_PATHS = new Set(["/auth/callback"]);
+const OPEN_PATHS = new Set(["/auth/callback", "/home", "/sitemap.xml"]);
+// The public website: the landing page and the policy pages.
+const isSitePath = (pathname: string) => pathname === "/legal" || pathname.startsWith("/legal/");
 
 function buildCsp(nonce: string) {
   const isDev = process.env.NODE_ENV === "development";
@@ -64,7 +66,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.has(pathname);
   // The agent onboarding portal: reached by private link, with or without a session.
-  const isOpen = OPEN_PATHS.has(pathname) || pathname.startsWith("/welcome/");
+  const isOpen = OPEN_PATHS.has(pathname) || pathname.startsWith("/welcome/") || isSitePath(pathname);
 
   // A sign-in link can land on any page of the site (Supabase falls back to
   // the site's home address when the exact landing address is not on its
@@ -87,6 +89,18 @@ export async function proxy(request: NextRequest) {
       handoff.headers.set("Cache-Control", "private, no-store");
       return handoff;
     }
+  }
+
+  // A visitor who is not signed in sees the public website at the home
+  // address. Signed-in people get their dashboard there instead.
+  if (!user && pathname === "/") {
+    const target = request.nextUrl.clone();
+    target.pathname = "/home";
+    const site = NextResponse.rewrite(target, { request: { headers: requestHeaders } });
+    for (const cookie of response.cookies.getAll()) site.cookies.set(cookie);
+    site.headers.set("Content-Security-Policy", csp);
+    site.headers.set("Cache-Control", "private, no-store");
+    return site;
   }
 
   let redirectTo: string | null = null;

@@ -7,6 +7,7 @@ Product spec: `docs/blueprint.md`. Build plan: `PLAN.md`. Design references: `de
 
 ## What is built
 
+- **Public website** (signed-out visitors at the home address): animated landing page, tier preview, pricing, a Get started form that lands in the Kinu console inbox, and ten policy pages under `/legal`. Company details and prices live in `src/lib/company.ts`; policy wording in `src/lib/legal.ts`.
 - **Sign-in**: emailed link or code through Supabase; existing users only.
 - **Kinu console** (Kinu staff only): every brokerage, its plan pieces with lock/unlock, people, price estimate; create and open brokerages.
 - **Roles and permissions**: seven built-in roles, custom roles, big powers (override, release payroll), offices, invitations, "view as role" preview, audit log.

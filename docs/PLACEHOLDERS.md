@@ -20,6 +20,8 @@ service will connect. Nothing in this list is live yet. Each needs an account, a
 | Monitoring | Server logs | Error alerts | Sentry |
 | Retention check-ins | Risk list and openers | Saving check-in notes | A small database addition |
 
+Public website: the policy pages are drafts written to match the product and have not been reviewed by a lawyer; `src/lib/company.ts` still needs the legal company name, address, contact email and governing state. Live chat is not built (it needs a paid chat service); Get started messages go to the console inbox.
+
 Before real client data (blueprint sections 9 and 10): paid Supabase and Vercel plans with
 backups, a penetration test, lawyer review of terms and privacy policy, insurance, and data
 processing agreements with each provider.

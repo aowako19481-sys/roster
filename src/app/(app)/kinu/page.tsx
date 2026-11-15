@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ActionForm, Submit } from "@/components/ActionForm";
-import { Badge, Card, Empty, PageHeader, Stat, ui, type Tone } from "@/components/ui";
+import { Badge, ButtonLink, Card, Empty, PageHeader, Stat, ui, type Tone } from "@/components/ui";
 import { requirePlatformAdmin } from "@/lib/access";
 import { ADDONS, MONTHLY_MINIMUM, PLAN_PIECES, TIMEZONES, addonLabel, pieceUnlocked, priceEstimate } from "@/lib/admin-pages";
 import { BRAND } from "@/lib/brand";
@@ -45,7 +45,9 @@ export default async function ConsolePage() {
         eyebrow={`${BRAND} staff`}
         title="Console"
         sub="Every brokerage, what it has switched on, and who is in it. Only staff can see this page."
-      />
+      >
+        <ButtonLink href="/kinu/inbox">Website inbox</ButtonLink>
+      </PageHeader>
 
       <section className={`${ui.card} ${ui.pad} ${ui.grid4}`} aria-label="Totals">
         <Stat label="Brokerages" value={rows.length} note={`${rows.filter((row) => row.status === "active").length} active`} />
