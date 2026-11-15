@@ -2,7 +2,7 @@
 
 import { BRAND } from "@/lib/brand";
 import { useActionState, useEffect, useRef, useState } from "react";
-import { requestCode, verifyCode, type RequestState, type VerifyState } from "./actions";
+import { requestCode, verifyCode, verifyPassword, type RequestState, type VerifyState } from "./actions";
 import defaultStyles from "./sign-in.module.css";
 
 type Styles = Record<string, string>;
@@ -18,6 +18,18 @@ export function SignInForm({ styles = defaultStyles, notice }: { styles?: Styles
   // The send the person chose to leave by pressing "Use a different email".
   const [dismissedSend, setDismissedSend] = useState<number | undefined>(undefined);
   const onCodeStep = request.status === "sent" && request.sentAt !== dismissedSend;
+
+  if (request.status === "password" && request.sentAt !== dismissedSend) {
+    return (
+      <PasswordStep
+        key={request.sentAt}
+        email={request.email}
+        styles={styles}
+        requestAction={requestAction}
+        onBack={() => setDismissedSend(request.sentAt)}
+      />
+    );
+  }
 
   if (onCodeStep) {
     return (
@@ -63,6 +75,72 @@ export function SignInForm({ styles = defaultStyles, notice }: { styles?: Styles
         {requestPending ? "Sending code…" : "Continue"}
       </button>
     </form>
+  );
+}
+
+function PasswordStep({
+  email,
+  styles,
+  requestAction,
+  onBack,
+}: {
+  email: string;
+  styles: Styles;
+  requestAction: (formData: FormData) => void;
+  onBack: () => void;
+}) {
+  const [state, action, pending] = useActionState<VerifyState, FormData>(verifyPassword, { status: "idle" });
+  const error = state.status === "error" ? state.message : undefined;
+
+  return (
+    <div className={styles.step}>
+      <form action={action} className={styles.step} noValidate>
+        <div>
+          <h2 className={styles.title}>Welcome back</h2>
+          <p className={styles.sub}>
+            <strong className={styles.email}>{email}</strong>
+          </p>
+        </div>
+
+        <input type="hidden" name="email" value={email} />
+        {/* Lets password managers match the account. */}
+        <input type="text" name="username" autoComplete="username" value={email} readOnly hidden />
+
+        <label className={styles.field}>
+          Password
+          <input
+            className={styles.input}
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            autoFocus
+            required
+            maxLength={200}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? "password-error" : undefined}
+          />
+        </label>
+
+        <p id="password-error" role="alert" className={styles.error}>
+          {error}
+        </p>
+
+        <button type="submit" className={`${styles.primary} press`} disabled={pending}>
+          {pending ? "Signing in…" : "Sign in"}
+        </button>
+      </form>
+
+      <form action={requestAction}>
+        <input type="hidden" name="email" value={email} />
+        <input type="hidden" name="mode" value="link" />
+        <button type="submit" className={styles.linkButton}>
+          Email me a link instead
+        </button>
+      </form>
+      <button type="button" className={styles.linkButton} onClick={onBack}>
+        Use a different email
+      </button>
+    </div>
   );
 }
 

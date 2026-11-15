@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export type RequestState = {
-  status: "idle" | "sent" | "error";
+  status: "idle" | "sent" | "password" | "error";
   email: string;
   message?: string;
   /** Changes on every successful send so the form can react to a re-send. */
@@ -16,6 +16,20 @@ export type VerifyState = {
   status: "idle" | "error";
   message?: string;
 };
+
+/**
+ * TEMPORARY, for the builder only: emails allowed to sign in with a password
+ * instead of an emailed link. Read from a server-side setting, so the list is
+ * never in the code or the browser. Remove the setting to switch this off.
+ */
+function passwordEmails(): Set<string> {
+  return new Set(
+    (process.env.PASSWORD_SIGN_IN_EMAILS ?? "")
+      .split(",")
+      .map((entry) => entry.trim().toLowerCase())
+      .filter(Boolean),
+  );
+}
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const CODE_PATTERN = /^\d{6}$/;
@@ -42,6 +56,12 @@ export async function requestCode(_prev: RequestState, formData: FormData): Prom
       email: typeof typed === "string" ? typed.slice(0, 254) : "",
       message: "Enter a valid work email, like you@brokerage.com.",
     };
+  }
+
+  // The builder's own account can use a password. No email is sent for it,
+  // unless they ask for a link instead.
+  if (passwordEmails().has(email) && formData.get("mode") !== "link") {
+    return { status: "password", email, sentAt: Date.now() };
   }
 
   // Where the link in the email should land. Next.js has already checked that
@@ -79,6 +99,28 @@ export async function requestCode(_prev: RequestState, formData: FormData): Prom
   }
 
   return { status: "sent", email, sentAt: Date.now() };
+}
+
+/** Password sign-in, only for emails on the server-side allow-list. */
+export async function verifyPassword(_prev: VerifyState, formData: FormData): Promise<VerifyState> {
+  const email = readEmail(formData);
+  const password = formData.get("password");
+  const wrong = { status: "error" as const, message: "That email and password do not match." };
+
+  if (!email || typeof password !== "string" || password.length === 0 || password.length > 200) return wrong;
+  // Checked again here: the browser cannot unlock the password route for other accounts.
+  if (!passwordEmails().has(email)) return wrong;
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) {
+    if (isRateLimit(error)) {
+      return { status: "error", message: "Too many attempts. Wait a few minutes, then try again." };
+    }
+    return wrong;
+  }
+
+  redirect("/");
 }
 
 /** Step 2: check the code. On success the session cookie is set and we go home. */
