@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Every page is rendered per request. The security policy in src/proxy.ts
+// issues a fresh nonce each time, which a pre-built static page cannot carry.
+export const dynamic = "force-dynamic";
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
