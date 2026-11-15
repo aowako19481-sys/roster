@@ -287,3 +287,8 @@
 .ks .doc .list { list-style: none; padding: 0; display: grid; gap: 0; }
 .ks .doc .list a { display: flex; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line-strong); text-decoration: none; font-size: var(--s-1); color: var(--ink); }
 .ks .doc .list small { color: var(--faint); font-size: .9rem; }
+.ks .term { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; border: 1px solid var(--line-night); margin-bottom: 22px; }
+.ks .term button { font: inherit; font-size: .9rem; padding: 9px 18px; border-radius: 999px; border: 0; background: transparent; color: var(--night-mute); cursor: pointer; }
+.ks .term button[aria-pressed=true] { background: #fff; color: var(--night); }
+.ks .quote { margin-top: 44px; padding: 24px 26px; border: 1px solid var(--line-night); border-radius: 22px; display: flex; flex-wrap: wrap; gap: 18px; justify-content: space-between; align-items: center; }
+.ks .quote > div { max-width: 44em; min-width: 0; }
