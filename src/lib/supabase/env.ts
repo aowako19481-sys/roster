@@ -10,3 +10,15 @@ export function supabaseEnv() {
   }
   return { url, key };
 }
+
+/**
+ * Session cookies are only ever read on the server, so the browser's
+ * JavaScript is not allowed to see them (httpOnly), and outside local
+ * development they are only sent over HTTPS (secure).
+ */
+export const sessionCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+};

@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { supabaseEnv } from "@/lib/supabase/env";
+import { sessionCookieOptions, supabaseEnv } from "@/lib/supabase/env";
 
 const PUBLIC_PATHS = new Set(["/sign-in"]);
 
@@ -37,6 +37,7 @@ export async function proxy(request: NextRequest) {
 
   const { url, key } = supabaseEnv();
   const supabase = createServerClient(url, key, {
+    cookieOptions: sessionCookieOptions,
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -46,7 +47,7 @@ export async function proxy(request: NextRequest) {
         requestHeaders.set("cookie", request.cookies.toString());
         response = NextResponse.next({ request: { headers: requestHeaders } });
         for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, options);
+          response.cookies.set(name, value, { ...options, ...sessionCookieOptions });
         }
       },
     },
