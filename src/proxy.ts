@@ -3,6 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { sessionCookieOptions, supabaseEnv } from "@/lib/supabase/env";
 
 const PUBLIC_PATHS = new Set(["/sign-in"]);
+// Reachable while signed out, and left alone when signed in.
+const OPEN_PATHS = new Set(["/auth/callback"]);
 
 function buildCsp(nonce: string) {
   const isDev = process.env.NODE_ENV === "development";
@@ -62,8 +64,10 @@ export async function proxy(request: NextRequest) {
   const isPublic = PUBLIC_PATHS.has(pathname);
 
   let redirectTo: string | null = null;
-  if (!user && !isPublic) redirectTo = "/sign-in";
-  if (user && isPublic) redirectTo = "/";
+  if (!OPEN_PATHS.has(pathname)) {
+    if (!user && !isPublic) redirectTo = "/sign-in";
+    if (user && isPublic) redirectTo = "/";
+  }
 
   if (redirectTo) {
     const target = request.nextUrl.clone();

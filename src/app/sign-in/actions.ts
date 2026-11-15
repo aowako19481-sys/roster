@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -31,7 +32,7 @@ function isRateLimit(error: { status?: number; code?: string }) {
   return error.status === 429 || (error.code ?? "").includes("rate_limit");
 }
 
-/** Step 1: email a one-time code to an existing user. Never creates accounts. */
+/** Step 1: email a sign-in link (and code) to an existing user. Never creates accounts. */
 export async function requestCode(_prev: RequestState, formData: FormData): Promise<RequestState> {
   const email = readEmail(formData);
   if (!email) {
@@ -43,10 +44,16 @@ export async function requestCode(_prev: RequestState, formData: FormData): Prom
     };
   }
 
+  // Where the link in the email should land. Next.js has already checked that
+  // this request came from our own site, and Supabase only honours addresses
+  // on its allow-list, so a forged value cannot send anyone elsewhere.
+  const origin = (await headers()).get("origin");
+  const emailRedirectTo = origin && /^https?:\/\/[^/]+$/.test(origin) ? `${origin}/auth/callback` : undefined;
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { shouldCreateUser: false },
+    options: { shouldCreateUser: false, emailRedirectTo },
   });
 
   if (error) {

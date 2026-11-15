@@ -10,7 +10,7 @@ type Styles = Record<string, string>;
 const CODE_LENGTH = 6;
 const EMPTY_CODE = Array.from({ length: CODE_LENGTH }, () => "");
 
-export function SignInForm({ styles = defaultStyles }: { styles?: Styles }) {
+export function SignInForm({ styles = defaultStyles, notice }: { styles?: Styles; notice?: string }) {
   const [request, requestAction, requestPending] = useActionState<RequestState, FormData>(
     requestCode,
     { status: "idle", email: "" },
@@ -30,7 +30,7 @@ export function SignInForm({ styles = defaultStyles }: { styles?: Styles }) {
     );
   }
 
-  const error = request.status === "error" ? request.message : undefined;
+  const error = request.status === "error" ? request.message : request.status === "idle" ? notice : undefined;
 
   return (
     <form action={requestAction} className={styles.step} noValidate>
@@ -125,8 +125,8 @@ function CodeStep({ email, styles, onBack }: { email: string; styles: Styles; on
       <div>
         <h2 className={styles.title}>Check your email</h2>
         <p className={styles.sub}>
-          If <strong className={styles.email}>{email}</strong> is set up for {BRAND}, a 6-digit code is on
-          its way. It expires soon, so use it now.
+          If <strong className={styles.email}>{email}</strong> is set up for {BRAND}, a sign-in email is on
+          its way. Open the link in it using this browser, or type the 6-digit code if it shows one.
         </p>
       </div>
 

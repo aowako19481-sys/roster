@@ -13,7 +13,11 @@ const THREADS = Array.from({ length: 22 }, (_, i) => {
   return `M -80 ${y + 150} C 320 ${y - lift}, 760 ${y + dip}, 1520 ${y - 170 + i * 5}`;
 });
 
-export default function SignInPage() {
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ link?: string }> }) {
+  // A fixed message when an emailed link did not work. The text never comes from the address bar.
+  const { link } = await searchParams;
+  const notice = link ? "That sign-in link has expired or was opened in a different browser. Enter your email to get a new one." : undefined;
+
   return (
     <div className={styles.page}>
       <div className={styles.silk} aria-hidden="true">
@@ -52,7 +56,7 @@ export default function SignInPage() {
           <span className={styles.monogram} aria-hidden="true">
             {BRAND.charAt(0)}
           </span>
-          <SignInForm styles={styles} />
+          <SignInForm styles={styles} notice={notice} />
         </main>
       </div>
     </div>

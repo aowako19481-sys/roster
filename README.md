@@ -7,7 +7,7 @@ Product spec: `docs/blueprint.md`. Build plan: `PLAN.md`. Design references: `de
 
 ## What is built (blueprint section 11, step 1)
 
-- `/sign-in`: email + 6-digit code sign-in through Supabase. Existing users only.
+- `/sign-in`: email sign-in through Supabase, by the link in the email or a 6-digit code. Existing users only.
 - `/`: dashboard with the shared sidebar, filled with fake sample data from Supabase.
 - Other navigation links open a "coming later" page.
 - A first-run walkthrough of the dashboard, shown once per account and replayable.
@@ -26,7 +26,8 @@ Checks: `npm run typecheck`, `npm run lint`, `npm run build`.
 
 1. Authentication: switch off "Allow new users to sign up".
 2. Authentication -> Users: add each tester by email.
-3. Authentication -> Email templates -> Magic Link: include `{{ .Token }}` so the email shows the code.
+3. Authentication -> URL Configuration: set Site URL to the deployed address and add `<address>/auth/callback` to Redirect URLs, so the emailed link works.
+   (Showing a 6-digit code in the email needs custom SMTP; Supabase locks templates on its built-in sender.)
 4. SQL editor: run `supabase/setup_test_project.sql` (the two migrations and the seed joined into one paste).
    Both are safe to run again. Run the seed again after adding a new tester.
 
