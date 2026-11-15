@@ -17,7 +17,7 @@ type Approval = {
 type WaitingRider = { id: string; agent_id: string | null; team_id: string | null; version: number; split_pct: number; created_at: string };
 
 const ORDER: Record<string, number> = { waiting: 0, held: 1, approved: 2 };
-const RULE = "Approving drafts the new rider and logs who approved it. Pay never changes on its own.";
+const RULE = "Approving drafts the new rider and logs who approved it.";
 
 export default async function RidersPage() {
   const access = await requireCap("splits.view");

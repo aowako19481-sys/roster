@@ -70,27 +70,90 @@ export const saveW9 = (token: string, legal: string, last4: string) =>
 export const signRider = (token: string, typedName: string, consent: boolean) =>
   call(token, "portal_sign_rider", { typed_name: typedName, consent, signer_note: "E-signature · typed name and consent" });
 
-const PHOTO_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "application/pdf": "pdf" };
-const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
+const UPLOAD_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "application/pdf": "pdf" };
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+/** Do the file's first bytes match the type it claims to be? */
+function looksLike(type: string, head: Uint8Array) {
+  const at = (i: number) => head[i] ?? -1;
+  if (type === "application/pdf") return at(0) === 0x25 && at(1) === 0x50 && at(2) === 0x44 && at(3) === 0x46;
+  if (type === "image/png") return at(0) === 0x89 && at(1) === 0x50 && at(2) === 0x4e && at(3) === 0x47;
+  if (type === "image/jpeg") return at(0) === 0xff && at(1) === 0xd8 && at(2) === 0xff;
+  if (type === "image/webp") return at(0) === 0x52 && at(1) === 0x49 && at(2) === 0x46 && at(3) === 0x46 && at(8) === 0x57 && at(9) === 0x45;
+  return false;
+}
+
+/** Checks and stores an agent's upload under their own folder, with a name we choose. */
+async function storeUpload(prefix: string, label: string, file: File): Promise<{ path: string } | { message: string }> {
+  const extension = UPLOAD_TYPES[file.type];
+  if (!extension) return { message: "Upload a photo (JPEG, PNG, WebP) or a PDF." };
+  if (file.size > MAX_UPLOAD_BYTES) return { message: "That file is larger than 10 MB." };
+  const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  if (!looksLike(file.type, head)) return { message: "That file is not a valid photo or PDF." };
+  const admin = client();
+  if (!admin) return { message: "Onboarding is not switched on yet." };
+  const path = `${prefix}/${label}-${randomUUID()}.${extension}`;
+  const { error } = await admin.storage.from("documents").upload(path, file, { contentType: file.type, upsert: false });
+  if (error) {
+    console.error("portal: upload failed", error.message.slice(0, 120));
+    return { message: "We could not save that file. Please try again." };
+  }
+  return { path };
+}
 
 export async function saveLicence(token: string, number: string, state: string, expires: string, photo: File | null): Promise<Call> {
   const lookup = await loadPortal(token);
   if (lookup.kind !== "ok") return { error: { code: "P0001", message: "This link has expired. Ask your brokerage for a new one." } };
-
   let path: string | null = null;
   if (photo && photo.size > 0) {
-    const extension = PHOTO_TYPES[photo.type];
-    if (!extension) return { error: { code: "P0001", message: "Upload a photo (JPEG, PNG, WebP) or a PDF." } };
-    if (photo.size > MAX_PHOTO_BYTES) return { error: { code: "P0001", message: "That file is larger than 10 MB." } };
-    const admin = client();
-    if (!admin) return { error: { code: "P0001", message: "Onboarding is not switched on yet." } };
-    // The name is ours, not the visitor's: brokerage/agent folder + a random id.
-    path = `${lookup.state.upload_prefix}/licence-${randomUUID()}.${extension}`;
-    const { error: uploadError } = await admin.storage.from("documents").upload(path, photo, { contentType: photo.type, upsert: false });
-    if (uploadError) {
-      console.error("portal: upload failed", uploadError.message.slice(0, 120));
-      return { error: { code: "P0001", message: "We could not save that file. Please try again." } };
-    }
+    const stored = await storeUpload(lookup.state.upload_prefix, "licence", photo);
+    if ("message" in stored) return { error: { code: "P0001", message: stored.message } };
+    path = stored.path;
   }
   return call(token, "portal_save_licence", { licence_no: number, licence_st: state, expires, file_path: path });
+}
+
+// ------------------------------------------------------------ the packet --
+
+export type PacketItem = {
+  id: string;
+  title: string;
+  kind: "sign" | "acknowledge" | "upload" | "outside";
+  body: string | null;
+  required: boolean;
+  has_file: boolean;
+  done: boolean;
+  done_at: string | null;
+};
+
+export async function loadPacket(token: string): Promise<PacketItem[]> {
+  if (!TOKEN_PATTERN.test(token)) return [];
+  const admin = client();
+  if (!admin) return [];
+  const { data, error } = await admin.rpc("portal_packet", { token_hash: hashToken(token) });
+  if (error || !Array.isArray(data)) return [];
+  return data as PacketItem[];
+}
+
+export async function completeItem(token: string, item: string, typedName: string, agreed: boolean, file: File | null): Promise<Call> {
+  let path: string | null = null;
+  if (file && file.size > 0) {
+    const lookup = await loadPortal(token);
+    if (lookup.kind !== "ok") return { error: { code: "P0001", message: "This link has expired. Ask your brokerage for a new one." } };
+    const stored = await storeUpload(lookup.state.upload_prefix, "paperwork", file);
+    if ("message" in stored) return { error: { code: "P0001", message: stored.message } };
+    path = stored.path;
+  }
+  return call(token, "portal_complete_item", { item, typed_name: typedName, agreed, file_path: path });
+}
+
+/** A one-minute link to the brokerage's document for one packet item, for this agent only. */
+export async function packetFileUrl(token: string, item: string): Promise<string | null> {
+  if (!TOKEN_PATTERN.test(token)) return null;
+  const admin = client();
+  if (!admin) return null;
+  const { data: path } = await admin.rpc("portal_item_file", { token_hash: hashToken(token), item });
+  if (typeof path !== "string" || !path) return null;
+  const { data } = await admin.storage.from("documents").createSignedUrl(path, 60);
+  return data?.signedUrl ?? null;
 }

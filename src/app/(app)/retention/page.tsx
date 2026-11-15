@@ -25,7 +25,7 @@ export default async function RetentionPage() {
   const supabase = await createClient();
 
   // Commission movement is only read for people who may see splits.
-  const columns = "id, full_name, office, status, licence_status, licence_expires_on, onboarding_status, invite_sent_at, created_at"
+  const columns = "id, full_name, office, status, licence_status, licence_expires_on, onboarding_status, invite_sent_at, joined_on, created_at"
     + (seeCommission ? ", gci_change_pct" : "");
   const { data: agentRows, error } = await supabase.from("agents").select(columns)
     .eq("workspace_id", ws.id).neq("status", "exited").order("full_name").limit(5000);

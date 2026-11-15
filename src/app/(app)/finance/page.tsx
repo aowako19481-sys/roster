@@ -25,11 +25,12 @@ export default async function FinancePage() {
   const ws = access.workspace.id;
   const supabase = await createClient();
 
+  const today = todayIso(access.workspace.timezone);
   const [dealsRes, settingsRes, openRunRes] = await Promise.all([
     supabase.from("deals").select("id, address, deal_type, gci, deposit_date, status, held_reason, waiting_on")
       .eq("workspace_id", ws).in("status", ["open", "cleared", "held"]).order("deposit_date", { ascending: true, nullsFirst: false }).limit(500),
     supabase.from("workspaces").select("payroll_weekdays, cutoff_time").eq("id", ws).maybeSingle(),
-    supabase.from("payrolls").select("pay_date, status").eq("workspace_id", ws).eq("status", "open").order("pay_date").limit(1),
+    supabase.from("payrolls").select("pay_date, status").eq("workspace_id", ws).eq("status", "open").gte("pay_date", today).order("pay_date").limit(1),
   ]);
   const deals = ((dealsRes.data ?? []) as Deal[])
     .sort((a, b) => (ORDER[a.status] ?? 9) - (ORDER[b.status] ?? 9) || (a.deposit_date ?? "9999").localeCompare(b.deposit_date ?? "9999") || a.address.localeCompare(b.address));
@@ -45,7 +46,6 @@ export default async function FinancePage() {
   const itemsByDeal = groupBy(items, (item) => item.deal_id);
   const hasPayment = new Set(paid.map((p) => p.deal_id));
 
-  const today = todayIso(access.workspace.timezone);
   const nextDate = upcomingPayDates(settings?.payroll_weekdays, today, 1)[0] ?? null;
   const openRun = (openRunRes.data as { pay_date: string }[] | null)?.[0] ?? null;
   const count = (status: string) => deals.filter((deal) => deal.status === status).length;

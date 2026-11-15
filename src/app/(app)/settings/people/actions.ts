@@ -136,10 +136,18 @@ export async function inviteMember(_prev: Result, form: FormData): Promise<Resul
   const { error } = await supabase.rpc("invite_member", args);
   if (error) return failure(error);
 
-  // With the server key in place, give the person a login so they can sign
-  // in, then ask the database again: it adds an existing user straight away.
+  const accepted = async () => {
+    const { data } = await supabase.from("member_invites").select("accepted_at")
+      .eq("workspace_id", ws).eq("email", email).maybeSingle();
+    return Boolean(data?.accepted_at);
+  };
+
+  // Someone who already has a login was added by the database straight away.
+  // Otherwise, with the server key in place, give the person a login so they
+  // can sign in, then ask the database again: it now adds them.
+  let joined = await accepted();
   let loginProblem = false;
-  if (supabaseSecretKey()) {
+  if (!joined && supabaseSecretKey()) {
     const admin = createAdminClient();
     if (admin) {
       const created = await admin.auth.admin.createUser({ email, email_confirm: true });
@@ -151,14 +159,13 @@ export async function inviteMember(_prev: Result, form: FormData): Promise<Resul
       } else {
         const again = await supabase.rpc("invite_member", args);
         if (again.error) return failure(again.error);
+        joined = await accepted();
       }
     }
   }
 
-  const { data: invite } = await supabase.from("member_invites").select("accepted_at")
-    .eq("workspace_id", ws).eq("email", email).maybeSingle();
   revalidatePath(PAGE);
-  if (invite?.accepted_at) return done("Added. They can sign in with that email now.");
+  if (joined) return done("Added. They can sign in with that email now.");
   if (loginProblem) return done("Invitation recorded, but their login could not be created just now. Invite them again in a moment.");
   return done("Invitation recorded. They will be able to sign in once the server key is added.");
 }

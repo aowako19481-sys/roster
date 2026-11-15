@@ -39,6 +39,7 @@ export function buildNav(access: Access): NavGroups {
     item("/agents", "Agents", ICONS.agents, has("agents.view")),
     item("/teams", "Teams", ICONS.teams, has("agents.view")),
     item("/riders", "Riders", ICONS.riders, has("splits.view")),
+    item("/packet", "Paperwork", ICONS.statements, has("agents.view")),
     item("/files", "Files", ICONS.files, has("files.view")),
     item("/reports", "Reports", ICONS.reports, has("reports.view")),
   ]);

@@ -279,6 +279,30 @@ insert into public.payment_allocations (payment_id, deal_id, workspace_id, amoun
   ('00000000-0000-4000-8000-0000000000f4', '00000000-0000-4000-8000-00000000e005', '00000000-0000-4000-8000-000000000001', 48600),
   ('00000000-0000-4000-8000-0000000000f5', '00000000-0000-4000-8000-00000000e006', '00000000-0000-4000-8000-000000000001', 6900);
 
+-- ------------------------------------------------------- onboarding packet --
+insert into public.packet_items (id, workspace_id, title, kind, body, required, applies_to, position) values
+  ('00000000-0000-4000-8000-000000000a01', '00000000-0000-4000-8000-000000000001', 'Independent contractor agreement', 'sign',
+   'Sets out that you work with the brokerage as an independent contractor, how commissions are paid, and how either side can end the arrangement.', true, 'everyone', 1),
+  ('00000000-0000-4000-8000-000000000a02', '00000000-0000-4000-8000-000000000001', 'Policy and procedures manual', 'acknowledge',
+   'How the office runs: deal files, deadlines, advertising rules and who to ask for what.', true, 'everyone', 2),
+  ('00000000-0000-4000-8000-000000000a03', '00000000-0000-4000-8000-000000000001', 'Fair housing policy', 'acknowledge',
+   'The brokerage''s commitment to fair housing and what it requires of every agent.', true, 'everyone', 3),
+  ('00000000-0000-4000-8000-000000000a04', '00000000-0000-4000-8000-000000000001', 'Errors and omissions insurance certificate', 'upload',
+   'If you carry your own policy, upload the current certificate. Skip this if you are covered by the brokerage''s policy.', false, 'everyone', 4),
+  ('00000000-0000-4000-8000-000000000a05', '00000000-0000-4000-8000-000000000001', 'Direct deposit set up with the payroll provider', 'outside',
+   'Bank details are never entered here. Set up direct deposit in the brokerage''s payroll system using the separate email from Finance, then confirm.', true, 'everyone', 5),
+  ('00000000-0000-4000-8000-000000000a06', '00000000-0000-4000-8000-000000000001', 'Team agreement', 'sign',
+   'For agents on a registered team: how the team works with the brokerage. How the team divides its split stays on the notices of contract.', true, 'team', 6);
+
+-- Everyone who has already finished onboarding has completed their paperwork.
+insert into public.agent_packet (workspace_id, agent_id, item_id, signed_name, consent, done_by, done_at)
+select a.workspace_id, a.id, i.id, case when i.kind = 'sign' then a.full_name end, i.kind in ('sign', 'acknowledge'),
+       case when i.kind = 'outside' then 'Finance' else 'agent' end, now() - interval '11 days'
+from public.agents a
+join public.packet_items i on i.workspace_id = a.workspace_id and i.required
+where a.workspace_id = '00000000-0000-4000-8000-000000000001' and a.onboarding_status in ('ready', 'flagged')
+  and (i.applies_to = 'everyone' or exists (select 1 from public.team_members tm where tm.agent_id = a.id));
+
 -- ------------------------------------------------ second, smaller brokerage --
 insert into public.agents (workspace_id, full_name, email, office, office_id, licence_masked, licence_status, w9_status, rider_status, onboarding_status, status, cohort, cohort_position, joined_on)
 select '00000000-0000-4000-8000-000000000002', n.full_name,

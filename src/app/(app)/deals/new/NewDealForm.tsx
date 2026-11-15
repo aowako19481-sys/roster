@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useRef, useState } from "react";
+import { startTransition, useActionState, useRef, useState } from "react";
 import { Badge, ui } from "@/components/ui";
 import { DEAL_TYPES, FEE_KINDS, PARTY_KINDS, dealStatusLabel, dealStatusTone, dealTypeLabel } from "@/lib/finance";
 import { money } from "@/lib/format";
@@ -33,11 +33,20 @@ export function NewDealForm({ agents, offices }: { agents: { id: string; label: 
   const drop = <T extends { key: number }>(set: React.Dispatch<React.SetStateAction<T[]>>, rowKey: number) =>
     set((rows) => rows.filter((row) => row.key !== rowKey));
 
+  // Submitted by hand so that a refusal (or the "Is this a dual?" question) does not clear what was typed.
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const submitter = (event.nativeEvent as SubmitEvent).submitter;
+    if (submitter instanceof HTMLButtonElement && submitter.name) data.set(submitter.name, submitter.value);
+    startTransition(() => action(data));
+  };
+
   const shareTotal = Math.round(lines.reduce((sum, line) => sum + (Number(line.share) || 0), 0) * 100) / 100;
   const duplicates = state.ok === false ? state.duplicates : undefined;
 
   return (
-    <form action={action} className={ui.form} noValidate>
+    <form onSubmit={onSubmit} className={ui.form} noValidate>
       <div className={ui.formRow}>
         <label className={ui.field} style={{ gridColumn: "span 2" }}>
           Address

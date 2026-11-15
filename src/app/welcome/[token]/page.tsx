@@ -3,21 +3,26 @@ import { ActionForm, Submit } from "@/components/ActionForm";
 import { ui } from "@/components/ui";
 import { BRAND } from "@/lib/brand";
 import { day, pct } from "@/lib/format";
-import { loadPortal, type PortalState } from "@/lib/portal";
-import { detailsStep, licenceStep, riderStep, w9Step } from "./actions";
+import { loadPacket, loadPortal, type PacketItem, type PortalState } from "@/lib/portal";
+import { detailsStep, licenceStep, packetStep, riderStep, w9Step } from "./actions";
 import styles from "./portal.module.css";
 
 export const metadata: Metadata = { title: "Welcome", robots: { index: false, follow: false }, referrer: "no-referrer" };
 
 type Props = { params: Promise<{ token: string }> };
-type StepKey = "details" | "licence" | "w9" | "rider";
+type StepKey = "details" | "licence" | "w9" | "rider" | "packet";
 
-function stepsOf(state: PortalState): { key: StepKey; label: string; done: boolean }[] {
+function stepsOf(state: PortalState, packet: PacketItem[]): { key: StepKey; label: string; done: boolean }[] {
+  const required = packet.filter((item) => item.required);
+  const paperwork = packet.length
+    ? [{ key: "packet" as const, label: `Your paperwork (${required.filter((item) => item.done).length} of ${required.length})`, done: required.every((item) => item.done) }]
+    : [];
   return [
     { key: "details", label: "Your details", done: state.details_done },
     { key: "licence", label: "Licence", done: state.licence_status !== "not_uploaded" },
     { key: "w9", label: "W-9", done: state.w9_status !== "pending" },
     { key: "rider", label: "Sign your rider", done: state.rider_status === "signed" },
+    ...paperwork,
   ];
 }
 
@@ -54,7 +59,8 @@ export default async function WelcomePage({ params }: Props) {
   }
 
   const state = lookup.state;
-  const steps = stepsOf(state);
+  const packet = await loadPacket(token);
+  const steps = stepsOf(state, packet);
   const current = steps.find((step) => !step.done)?.key ?? null;
   const finished = current === null;
 
@@ -68,7 +74,7 @@ export default async function WelcomePage({ params }: Props) {
         <p className={styles.lede}>
           {finished
             ? "Everything is in. Your brokerage will confirm your licence and let you know when you are live."
-            : "Four short steps and you are ready to go. You can stop and come back with the same link."}
+            : "A few short steps and you are ready to go. You can stop and come back with the same link."}
         </p>
         <ol className={styles.steps} aria-label="Onboarding steps">
           {steps.map((step, index) => (
@@ -215,6 +221,81 @@ export default async function WelcomePage({ params }: Props) {
           <>
             <h2 className={styles.h2}>Your commission rider</h2>
             <p className={ui.help}>Your brokerage has not sent your rider yet. They have been notified; come back with this same link.</p>
+          </>
+        )}
+
+        {(current === "packet" || (finished && packet.length > 0)) && (
+          <>
+            <h2 className={styles.h2}>Your paperwork</h2>
+            <p className={ui.help}>
+              {current === "packet"
+                ? "The documents your brokerage needs from you. Do them in any order."
+                : "All required paperwork is complete."}
+            </p>
+            <ul className={styles.items}>
+              {packet.map((item) => (
+                <li key={item.id} className={styles.item}>
+                  <div className={styles.itemHead}>
+                    <h3 className={styles.h3}>{item.title}</h3>
+                    <span className={`${ui.badge} ${item.done ? ui.ok : item.required ? "" : ui.muted}`}>
+                      {item.done ? "Done" : item.required ? "To do" : "Optional"}
+                    </span>
+                  </div>
+                  {item.body && <p className={ui.help}>{item.body}</p>}
+                  {item.has_file && (
+                    <a className={styles.docLink} href={`/welcome/${token}/doc/${item.id}`} target="_blank" rel="noopener noreferrer">
+                      Open the document<span className="sr-only"> for {item.title} (opens in a new tab)</span>
+                    </a>
+                  )}
+                  {!item.done && (
+                    <ActionForm action={packetStep}>
+                      <input type="hidden" name="token" value={token} />
+                      <input type="hidden" name="item" value={item.id} />
+                      {item.kind === "sign" && (
+                        <>
+                          <label className={ui.check}>
+                            <input type="checkbox" name="agreed" required />
+                            <span>I have read this document and agree to sign it electronically.</span>
+                          </label>
+                          <label className={ui.field}>
+                            Type your full name to sign: {state.full_name}
+                            <input className={ui.input} name="typed_name" required maxLength={120} autoComplete="off" spellCheck={false} />
+                          </label>
+                          <Submit small busy="Signing…">
+                            Sign
+                          </Submit>
+                        </>
+                      )}
+                      {item.kind === "acknowledge" && (
+                        <>
+                          <label className={ui.check}>
+                            <input type="checkbox" name="agreed" required />
+                            <span>I have read and understood this.</span>
+                          </label>
+                          <Submit small>Confirm</Submit>
+                        </>
+                      )}
+                      {item.kind === "upload" && (
+                        <>
+                          <label className={ui.field}>
+                            File (JPEG, PNG, WebP or PDF, up to 10 MB)
+                            <input className={styles.file} name="file" type="file" required accept="image/jpeg,image/png,image/webp,application/pdf" />
+                          </label>
+                          <Submit small busy="Uploading…">
+                            Upload
+                          </Submit>
+                        </>
+                      )}
+                      {item.kind === "outside" && (
+                        <Submit small variant="plain">
+                          I have done this
+                        </Submit>
+                      )}
+                    </ActionForm>
+                  )}
+                </li>
+              ))}
+            </ul>
           </>
         )}
 

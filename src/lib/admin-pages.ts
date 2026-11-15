@@ -279,6 +279,7 @@ export type RetentionAgent = {
   onboarding_status: string | null;
   gci_change_pct: number | null;
   invite_sent_at: string | null;
+  joined_on: string | null;
   created_at: string | null;
 };
 
@@ -287,7 +288,7 @@ export type DealActivity = { open: number; lastActivity: string | null };
 export type RiskSignal = { key: "quiet" | "drop" | "licence" | "onboarding"; label: string; points: number };
 
 export const RISK_RULES = [
-  { points: 30, text: "No open deal and nothing closed in the last 90 days (only counted when you may see deals and the agent has finished onboarding)." },
+  { points: 30, text: "No open deal and nothing closed in the last 90 days (only counted when you may see deals, for agents who are active and did not join in the last 90 days)." },
   { points: 25, text: "Commission down 20% or more against last quarter (15 points if it is down between 10% and 20%)." },
   { points: 20, text: "Licence flagged as a mismatch (15 points if it is marked expiring, or expires within 60 days)." },
   { points: 15, text: "Onboarding not finished more than 14 days after the invitation went out." },
@@ -312,7 +313,10 @@ export function riskScore(
   if (opts.seeDeals && (agent.status === "active" || agent.status === "flagged")) {
     const last = deals?.lastActivity ? Date.parse(deals.lastActivity) : null;
     const quiet = (deals?.open ?? 0) === 0 && (last === null || now - last > 90 * DAY_MS);
-    if (quiet) signals.push({ key: "quiet", label: "No recent deals", points: 30 });
+    // Someone who joined in the last 90 days has not had time to be quiet.
+    const joined = Date.parse(agent.joined_on ? `${agent.joined_on}T12:00:00Z` : agent.invite_sent_at ?? "");
+    const isNew = Number.isFinite(joined) && now - joined < 90 * DAY_MS;
+    if (quiet && !isNew) signals.push({ key: "quiet", label: "No recent deals", points: 30 });
   }
 
   if (opts.seeCommission && agent.gci_change_pct !== null) {

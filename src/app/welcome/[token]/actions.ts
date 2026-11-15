@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { saveDetails, saveLicence, saveW9, signRider } from "@/lib/portal";
-import { done, failure, isoDate, text, type Result } from "@/lib/result";
+import { completeItem, saveDetails, saveLicence, saveW9, signRider } from "@/lib/portal";
+import { done, fail, failure, isoDate, text, uuid, type Result } from "@/lib/result";
 
 const refresh = (token: string) => revalidatePath(`/welcome/${token}`);
 
@@ -36,6 +36,17 @@ export async function w9Step(_prev: Result, form: FormData): Promise<Result> {
 export async function riderStep(_prev: Result, form: FormData): Promise<Result> {
   const token = text(form, "token", 64);
   const { error } = await signRider(token, text(form, "typed_name", 120), form.get("consent") === "on");
+  if (error) return failure(error);
+  refresh(token);
+  return done();
+}
+
+export async function packetStep(_prev: Result, form: FormData): Promise<Result> {
+  const token = text(form, "token", 64);
+  const item = uuid(form, "item");
+  if (!item) return fail("Something went wrong. Reload the page and try again.");
+  const file = form.get("file");
+  const { error } = await completeItem(token, item, text(form, "typed_name", 120), form.get("agreed") === "on", file instanceof File ? file : null);
   if (error) return failure(error);
   refresh(token);
   return done();
