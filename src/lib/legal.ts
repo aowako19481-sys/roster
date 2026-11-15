@@ -61,8 +61,9 @@ export const LEGAL_PAGES: LegalPage[] = [
         "Some documents cannot be signed electronically, or need extra steps, under the law of some states. Deciding whether an electronic signature is right for a particular document is your responsibility.",
       ] },
       { heading: "5. Fees, renewal and taxes", body: [
-        `Prices are per agent per month, with a monthly minimum of $${PRICES.monthlyMinimum} and a one-time setup fee, as shown on our pricing page or in your order. Fees are billed in advance and exclude taxes, which you are responsible for.`,
-        "Subscriptions renew each month until cancelled. You can cancel at any time; see Refunds and Cancellation for how, and what happens next.",
+        `Prices are per agent seat per month: $${PRICES.monthly} month to month, or $${PRICES.annual.toFixed(2)} on a 12-month plan, with a monthly minimum of $${PRICES.monthlyMinimum} and a one-time setup fee, as shown on our pricing page or in your order. A custom quote in a signed order replaces these prices. Fees are billed monthly in advance and exclude taxes, which you are responsible for.`,
+        "Agent seats cover the whole brokerage across all its offices and teams. One Owner / Admin seat is included; more are available for a fee. If you use more agent seats than your order covers, we will bill the extra seats at your plan's rate from the month they were first used.",
+        "A month-to-month plan renews each month until cancelled. A 12-month plan is a commitment to 12 months, billed monthly, and renews for another 12 months unless you tell us at least 30 days before it ends. See Refunds and Cancellation for how to cancel and what happens next.",
         "We may change prices by giving you at least 30 days' notice before the change takes effect at your next renewal.",
       ] },
       { heading: "6. Acceptable use", body: ["You agree to follow the Acceptable Use policy. We may suspend access that puts the service, other customers or anyone's data at risk, and will tell you when we do."] },
@@ -198,12 +199,13 @@ export const LEGAL_PAGES: LegalPage[] = [
     intro: [`Plain rules for paying for ${BRAND} and for stopping.`],
     sections: [
       { heading: "Billing and renewal", body: [
-        `Subscriptions are billed monthly in advance, per agent on your roster, with a monthly minimum of $${PRICES.monthlyMinimum}. A one-time setup fee (from $${PRICES.setupFrom.toLocaleString("en-US")}) is billed when setup begins.`,
-        "Your subscription renews automatically each month until you cancel. The renewal terms are shown before you subscribe.",
+        `Both plans are billed monthly in advance, per agent seat, with a monthly minimum of $${PRICES.monthlyMinimum}. Month to month is $${PRICES.monthly} per seat. The 12-month plan is $${PRICES.annual.toFixed(2)} per seat. Nothing is charged for a year upfront. A one-time setup fee (from $${PRICES.setupFrom.toLocaleString("en-US")}) is billed when setup begins.`,
+        "A month-to-month plan renews each month until you cancel. A 12-month plan renews for another 12 months unless you tell us at least 30 days before it ends. The renewal terms are shown before you subscribe.",
       ] },
       { heading: "How to cancel", body: [
         `You can cancel at any time: ${reach}, from an owner of the brokerage's account, at least one working day before your next billing date. We will confirm in writing.`,
         "Cancellation takes effect at the end of the month you have already paid for. You keep full access until then.",
+        `Cancelling a 12-month plan early: the lower price was given in return for the 12-month commitment. If you cancel before the 12 months are up, the months you used are re-billed at the month-to-month price, so you owe the difference of $${(PRICES.monthly - PRICES.annual).toFixed(2)} per seat for each month used. You do not owe anything for the months you did not use. This does not apply if you cancel because we materially failed to provide the service.`,
       ] },
       { heading: "Refunds", body: [[
         "Monthly fees are not refunded for a month that has already started, except as set out below or where the law requires.",

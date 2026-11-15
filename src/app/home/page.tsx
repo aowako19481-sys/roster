@@ -66,13 +66,13 @@ export default function HomePage() {
           <div className="build">
             <div className="picks" id="picks">
               <p className="label">Products</p>
-              <button type="button" className="pick" data-k="ops" aria-pressed={true}><span className="sw" /><span><b>Ops</b><small>Onboard agents, start to ready</small></span><span className="p">$2.50</span></button>
-              <button type="button" className="pick" data-k="fin" aria-pressed={false}><span className="sw" /><span><b>Finance</b><small>Commission payroll, checked</small></span><span className="p">$2.50</span></button>
+              <button type="button" className="pick" data-k="ops" aria-pressed={true}><span className="sw" /><span><b>Ops</b><small>Onboard agents, start to ready</small></span></button>
+              <button type="button" className="pick" data-k="fin" aria-pressed={false}><span className="sw" /><span><b>Finance</b><small>Commission payroll, checked</small></span></button>
               <p className="label">Add‑ons</p>
-              <button type="button" className="pick" data-k="ret" aria-pressed={false}><span className="sw" /><span><b>Retention Insights + Exit Kit</b><small>See who may leave, and handle exits cleanly</small></span><span className="p">$4.00</span></button>
-              <button type="button" className="pick" data-k="shi" aria-pressed={false}><span className="sw" /><span><b>Finance Shield</b><small>Payout checks and override controls</small></span><span className="p">$1.00</span></button>
-              <button type="button" className="pick" data-k="com" aria-pressed={false}><span className="sw" /><span><b>Compliance pack</b><small>Audit files and year‑end exports</small></span><span className="p">$1.00</span></button>
-              <div className="total glass" aria-live="polite"><p className="label">For 500 agents, per month</p><div><span className="n" id="bTotal">$1,250</span><s id="bWas"></s></div><p className="save" id="bSave">Add Finance to run payroll from the same record.</p><button type="button" className="btn dark" data-start style={{ marginTop: "6px" }}>Get started with this</button></div>
+              <button type="button" className="pick" data-k="ret" aria-pressed={false}><span className="sw" /><span><b>Retention Insights + Exit Kit</b><small>See who may leave, and handle exits cleanly</small></span></button>
+              <button type="button" className="pick" data-k="shi" aria-pressed={false}><span className="sw" /><span><b>Finance Shield</b><small>Payout checks and override controls</small></span></button>
+              <button type="button" className="pick" data-k="com" aria-pressed={false}><span className="sw" /><span><b>Compliance pack</b><small>Audit files and year‑end exports</small></span></button>
+              <div className="total glass" aria-live="polite"><p className="label">In your Kinu</p><div><span className="n" id="bTotal">1 of 5</span></div><p className="save" id="bSave">Add Finance to run payroll from the same record.</p><button type="button" className="btn dark" data-start="" style={{ marginTop: "6px" }}>Get started with this</button></div>
             </div>
             <div className="win" aria-live="polite">
               <div className="rail" id="rail" aria-hidden="true"></div>
@@ -127,21 +127,35 @@ export default function HomePage() {
 
       <section className="night pad" id="pricing">
         <div className="wrap">
-          <p className="label">Everything, one price</p>
+          <p className="label">One price per agent seat</p>
           <div className="offer" style={{ marginTop: "20px" }}>
             <div>
-              <p className="was"><s id="pWas">$5,500</s> bought piece by piece</p>
-              <div className="now" id="pNow">$4,750</div>
-              <p className="lede" style={{ marginTop: "14px", color: "#fff" }}>a month for <b id="pN" style={{ fontWeight: "400" }}>500</b> agents. Every product. Every add‑on.</p>
-              <span className="tag" id="pSave">You keep $750 every month</span>
+              <div className="term" role="group" aria-label="How you pay">
+                <button type="button" id="termM" aria-pressed={false}>Month to month</button>
+                <button type="button" id="termA" aria-pressed={true}>12‑month plan</button>
+              </div>
+              <div className="now" id="pNow">$12.50</div>
+              <p className="lede" style={{ marginTop: "14px", color: "#fff" }}>per agent seat, per month. Every product. Every add‑on. Every office.</p>
+              <span className="tag" id="pSave">Two months’ worth saved every year</span>
             </div>
             <div>
-              <label htmlFor="p-agents" className="label">Agents on your roster</label><input id="p-agents" type="range" min="50" max="1500" step="10" defaultValue="500" style={{ accentColor: "#fff" }} />
-              <ul style={{ marginTop: "22px" }}><li><span>Ops</span><b>$2.50</b></li><li><span>Finance</span><b>$2.50</b></li><li><span>Retention Insights + Exit Kit</span><b>$4.00</b></li><li><span>Finance Shield</span><b>$1.00</b></li><li><span>Compliance pack</span><b>$1.00</b></li><li><span>Piece by piece, per agent</span><b>$11.00</b></li><li className="sum"><span>Everything together, per agent</span><b>$9.50</b></li></ul>
+              <label htmlFor="p-agents" className="label">Agent seats: <output id="pN">500</output></label><input id="p-agents" type="range" min="20" max="1500" step="10" defaultValue="500" style={{ accentColor: "#fff" }} />
+              <ul style={{ marginTop: "22px" }}>
+                <li className="sum"><span id="pLine">500 seats on the 12‑month plan</span><b id="pTotal">$6,250 a month</b></li>
+                <li><span>The same seats, month to month</span><b id="pOther">$7,500 a month</b></li>
+                <li><span>Ops and Finance</span><b>Included</b></li>
+                <li><span>Retention Insights + Exit Kit, Finance Shield, Compliance pack</span><b>Included</b></li>
+                <li><span>Offices, teams and staff logins</span><b>No extra charge</b></li>
+                <li><span>Owner / Admin seats</span><b>1 included</b></li>
+              </ul>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}><button type="button" className="btn light" data-start="">Get started</button><a className="btn line" href="#preview">See how it’s done</a></div>
             </div>
           </div>
-          <p className="fine" style={{ marginTop: "26px", maxWidth: "60em" }}>Staff logins are free. $500 monthly minimum. One‑time setup from $1,500. Subscriptions renew monthly until cancelled; cancel any time before the next billing date (see Refunds and Cancellation). Prices exclude tax.</p>
+          <div className="quote">
+            <div><p className="label">Large or multi‑branch brokerages</p><p style={{ marginTop: "8px", color: "#fff", fontSize: "1.2rem" }}>Over 500 agents, many branches, or a compliance hierarchy to mirror? You get a custom quote.</p></div>
+            <button type="button" className="btn line" data-start="">Contact {BRAND}</button>
+          </div>
+          <p className="fine" style={{ marginTop: "26px", maxWidth: "62em" }}>Both plans are billed monthly; nothing is charged for the year upfront. The 12‑month plan is a commitment: if it is cancelled before 12 months, the months used are re‑billed at the month‑to‑month price. $500 monthly minimum. One‑time setup from $1,500. Extra Owner / Admin seats are available on request. Plans renew until cancelled (see Refunds and Cancellation). Prices exclude tax.</p>
         </div>
       </section>
 
