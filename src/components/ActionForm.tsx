@@ -82,6 +82,7 @@ export function AutoSelect({
 }) {
   return (
     <select
+      key={value}
       name={name}
       defaultValue={value}
       aria-label={label}

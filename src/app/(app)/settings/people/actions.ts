@@ -5,8 +5,7 @@ import { actionAccess } from "@/lib/access";
 import { emailField, roleField, ticked } from "@/lib/admin-pages";
 import { done, fail, failure, text, uuid, type Result } from "@/lib/result";
 import { BUILT_IN_ROLES, CAP_GROUPS } from "@/lib/roles";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { supabaseSecretKey } from "@/lib/supabase/env";
+import { ensureLogin } from "@/lib/invite-login";
 import { createClient } from "@/lib/supabase/server";
 
 type Db = Awaited<ReturnType<typeof createClient>>;
@@ -147,20 +146,13 @@ export async function inviteMember(_prev: Result, form: FormData): Promise<Resul
   // can sign in, then ask the database again: it now adds them.
   let joined = await accepted();
   let loginProblem = false;
-  if (!joined && supabaseSecretKey()) {
-    const admin = createAdminClient();
-    if (admin) {
-      const created = await admin.auth.admin.createUser({ email, email_confirm: true });
-      const already = created.error
-        && (created.error.code === "email_exists" || /already (been )?registered|already exists/i.test(created.error.message ?? ""));
-      if (created.error && !already) {
-        console.error("invite: could not create login", created.error.code ?? created.error.status);
-        loginProblem = true;
-      } else {
-        const again = await supabase.rpc("invite_member", args);
-        if (again.error) return failure(again.error);
-        joined = await accepted();
-      }
+  if (!joined) {
+    const login = await ensureLogin(email);
+    if (login === "failed") loginProblem = true;
+    if (login === "ready") {
+      const again = await supabase.rpc("invite_member", args);
+      if (again.error) return failure(again.error);
+      joined = await accepted();
     }
   }
 

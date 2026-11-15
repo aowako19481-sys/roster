@@ -566,7 +566,7 @@ begin
     select * into cur from public.riders r
      where r.is_current and ((t.agent_id is not null and r.agent_id = t.agent_id) or (t.team_id is not null and r.team_id = t.team_id));
     new_rider := private.make_rider(ws, t.agent_id, t.team_id, t.to_pct, coalesce(cur.tiers, '[]'), 'signed',
-                                    'Tier approval. Drafted for e-signature.');
+                                    'Tier approved by the brokerage · takes effect from the next deal');
     update public.tier_approvals set status = 'approved', rider_from_id = cur.id, rider_to_id = new_rider,
            decided_by = (select auth.uid()), decided_at = now() where id = approval;
     perform private.log(ws, 'approve', 'tier', approval::text,

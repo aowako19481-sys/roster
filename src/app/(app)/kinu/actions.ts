@@ -6,6 +6,7 @@ import { getAccess } from "@/lib/access";
 import { ADDONS, WORKSPACE_STATUSES, addonsField, emailField, pieceUnlocked, planPiece, ticked, timezoneField } from "@/lib/admin-pages";
 import { done, fail, failure, text, uuid, type Result } from "@/lib/result";
 import { createClient } from "@/lib/supabase/server";
+import { ensureLogin } from "@/lib/invite-login";
 
 /** Staff-only actions. The database checks again on every call. */
 async function staffOnly(): Promise<string | null> {
@@ -40,6 +41,10 @@ export async function createBrokerage(_prev: Result, form: FormData): Promise<Re
     owner_email: owner,
   });
   if (error) return failure(error);
+  // Give a brand-new owner a login, then ask the database to add them.
+  if (owner && typeof data === "string" && (await ensureLogin(owner)) === "ready") {
+    await supabase.rpc("invite_member", { ws: data, invite_email: owner, invite_role: "owner_admin", invite_office: null });
+  }
   revalidatePath("/kinu");
   if (typeof data === "string" && /^[0-9a-f-]{36}$/i.test(data)) redirect(`/kinu/${data}`);
   return done("Brokerage created.");
@@ -89,13 +94,17 @@ export async function inviteOwner(_prev: Result, form: FormData): Promise<Result
   if (error) return failure(error);
 
   // Did they join straight away (they already had a login) or is the invitation waiting?
-  const { data: invite } = await supabase.from("member_invites").select("accepted_at")
-    .eq("workspace_id", id).eq("email", email).maybeSingle();
+  const lookup = () => supabase.from("member_invites").select("accepted_at").eq("workspace_id", id).eq("email", email).maybeSingle();
+  let { data: invite } = await lookup();
+  if (!invite?.accepted_at && (await ensureLogin(email)) === "ready") {
+    await supabase.rpc("invite_member", { ws: id, invite_email: email, invite_role: "owner_admin", invite_office: null });
+    ({ data: invite } = await lookup());
+  }
   revalidatePath("/kinu");
   revalidatePath(`/kinu/${id}`);
   return done(invite?.accepted_at
-    ? "Added as an owner. They already had a login, so they can sign in now."
-    : "Invitation recorded. It is waiting until this person has a login.");
+    ? "Added as an owner. They can sign in with that email now."
+    : "Invitation recorded. They will be able to sign in once the server key is added.");
 }
 
 /** Lock or unlock one piece of a brokerage's plan, leaving every other piece as it is. */
