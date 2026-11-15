@@ -11,7 +11,7 @@ export const COMPANY = {
 };
 
 /** The public address of the site, for search engines. Change it when a domain is connected. */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://kinu-snowy.vercel.app").replace(/\/+$/, "");
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://kinu.pro").replace(/\/+$/, "");
 
 /** Prices per agent seat per month, shown on the public site. Everything is included at one price. */
 export const PRICES = { monthly: 15, annual: 12.5, monthlyMinimum: 500, setupFrom: 1500 };
