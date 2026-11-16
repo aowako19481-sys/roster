@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light only">
+    <title>Your KINU sign-in code</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#d9dadc;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Your KINU sign-in code is {{ .Token }}. It works once and expires soon.</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#d9dadc;">
+      <tr>
+        <td align="center" style="padding:40px 16px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+            <tr>
+              <td align="center" style="padding:0 0 22px 0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:20px;letter-spacing:10px;color:#17181a;font-weight:400;">
+                KINU&nbsp;
+              </td>
+            </tr>
+            <tr>
+              <td style="background-color:#f4f4f5;border:1px solid #ffffff;border-radius:22px;padding:36px 32px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#17181a;">
+                <p style="margin:0 0 6px 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#5d5f64;">Sign-in code</p>
+                <h1 style="margin:0 0 14px 0;font-size:26px;line-height:1.15;font-weight:300;letter-spacing:-0.5px;color:#17181a;">Confirm it is you.</h1>
+                <p style="margin:0 0 24px 0;font-size:15px;line-height:1.55;color:#36373a;">Type this code on the KINU sign-in page to finish signing in.</p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td align="center" style="background-color:#101113;border-radius:16px;padding:22px 12px;font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:34px;letter-spacing:10px;color:#ffffff;font-weight:400;">
+                      {{ .Token }}
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:24px 0 0 0;font-size:13px;line-height:1.55;color:#5d5f64;">It works once and expires soon. KINU staff will never ask you for this code.</p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:22px 0 0 0;border-bottom:1px solid #d5d6d8;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+                <p style="margin:18px 0 0 0;font-size:13px;line-height:1.55;color:#5d5f64;">Did not try to sign in? You can ignore this email. Nobody can get in without the code and your password.</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:22px 12px 0 12px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#5d5f64;">
+                KINU handles everything in between.<br>kinu.pro
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
