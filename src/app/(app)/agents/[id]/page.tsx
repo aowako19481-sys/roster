@@ -8,10 +8,11 @@ import { Badge, ButtonLink, Card, Empty, PageHeader, Placeholder, Stat, ui } fro
 import { requireCap } from "@/lib/access";
 import { day, dayTime, money, moneyWhole, pct, titleCase, todayIso } from "@/lib/format";
 import { auditText, cohortLabel, daysBetween, docKind, maskTin, readTiers, tiersToText, UUID_RE } from "@/lib/ops";
+import { supportedState } from "@/lib/licence-states";
 import { createClient } from "@/lib/supabase/server";
 import { reissueInvite } from "../../invite/actions";
 import { draftRider, recordSignature } from "../../riders/actions";
-import { reviewLicence, saveAgentDetails } from "./actions";
+import { reviewLicence, saveAgentDetails, checkLicenceNow } from "./actions";
 
 export const metadata: Metadata = { title: "Agent card" };
 
@@ -36,7 +37,7 @@ export default async function AgentCardPage({ params }: Props) {
 
   // The full licence number is never read here: only the masked form is shown.
   const { data: agent } = await supabase.from("agents")
-    .select("id, full_name, email, phone, office, office_id, status, cohort, licence_masked, licence_state, licence_status, licence_note, licence_expires_on, licence_file_path, licence_checked_at, licence_checked_by, licence_source, w9_status, rider_status, onboarding_status, gci_ytd, joined_on, exited_on, invite_sent_at, invite_expires_at")
+    .select("id, full_name, email, phone, office, office_id, status, cohort, licence_masked, licence_state, licence_status, licence_note, licence_expires_on, licence_file_path, licence_checked_at, licence_checked_by, licence_source, licence_record, w9_status, rider_status, onboarding_status, gci_ytd, joined_on, exited_on, invite_sent_at, invite_expires_at")
     .eq("id", id).eq("workspace_id", ws).maybeSingle();
   if (!agent) notFound();
 
@@ -147,6 +148,10 @@ export default async function AgentCardPage({ params }: Props) {
             lookupUrl={lookupUrl}
             canSet={can("settings.manage")}
             today={todayIso(access.workspace.timezone)}
+            record={(agent.licence_record as StateRecordView | null) ?? null}
+            agentId={agent.id as string}
+            canCheck={can("riders.manage")}
+            stateChecked={Boolean(supportedState(licenceState))}
           />
           {can("riders.manage") && (
             <div className={ui.stack} style={{ marginTop: 18 }}>
@@ -472,8 +477,10 @@ const sameName = (a: string, b: string) => {
  * What Kinu can check by itself (it never contacts the state), and the way to
  * the state's own record for the person who confirms the licence.
  */
-function LicenceChecks({ state, masked, expires, hasPhoto, agentName, legalName, lookupUrl, canSet, today }: {
-  today: string; state: string; masked: string | null; expires: string | null; hasPhoto: boolean; agentName: string; legalName: string | null | undefined; lookupUrl: string | null; canSet: boolean;
+type StateRecordView = { name?: string; type?: string; status?: string; expires?: string | null; sponsor?: string | null; source?: string; refresh?: string; regulator?: string; checked?: string; reasons?: string[]; found?: boolean };
+
+function LicenceChecks({ state, masked, expires, hasPhoto, agentName, legalName, lookupUrl, canSet, today, record, agentId, canCheck, stateChecked }: {
+  record: StateRecordView | null; agentId: string; canCheck: boolean; stateChecked: boolean; today: string; state: string; masked: string | null; expires: string | null; hasPhoto: boolean; agentName: string; legalName: string | null | undefined; lookupUrl: string | null; canSet: boolean;
 }) {
   const daysLeft = expires ? daysBetween(today, expires) : null;
   const checks: { label: string; ok: boolean | null; note: string }[] = [
@@ -498,7 +505,41 @@ function LicenceChecks({ state, masked, expires, hasPhoto, agentName, legalName,
           </li>
         ))}
       </ul>
-      <p className={ui.help}>These catch typing mistakes. They are not a check against the state: a person confirms that below.</p>
+      <p className={ui.help}>These catch typing mistakes. They are not a check against the state.</p>
+      {stateChecked ? (
+        <div className={ui.stack} style={{ gap: 8 }}>
+          <p className={ui.strong}>The state’s own record</p>
+          {record ? (
+            <>
+              {record.found === false ? (
+                <p>Not found on the state’s published list.</p>
+              ) : (
+                <dl className={ui.kv}>
+                  <dt>Name on record</dt><dd>{record.name ?? "–"}</dd>
+                  <dt>Licence type</dt><dd>{record.type ?? "–"}</dd>
+                  <dt>Standing</dt><dd>{record.status ?? "–"}</dd>
+                  <dt>Expires</dt><dd>{record.expires ? day(record.expires) : "–"}</dd>
+                  {record.sponsor ? <><dt>Licensed under</dt><dd>{record.sponsor}</dd></> : null}
+                </dl>
+              )}
+              {(record.reasons ?? []).length ? (
+                <ul className={ui.list}>{(record.reasons ?? []).map((reason) => <li key={reason}><strong>✗ {reason}</strong></li>)}</ul>
+              ) : record.found === false ? null : <p>✓ In good standing, not expired, and in the same name.</p>}
+              <p className={ui.help}>
+                Source: {record.source ?? "state open data"}, {record.refresh ?? "updated daily"}. Last looked: {record.checked ? day(record.checked) : "–"}. State data can lag by a few days. If this is disputed or recently changed, {record.regulator ?? "the state regulator"} decides: use the state’s own look-up below.
+              </p>
+            </>
+          ) : <p className={ui.soft}>Not checked yet.</p>}
+          {canCheck ? (
+            <ActionForm action={checkLicenceNow} className={ui.inline}>
+              <input type="hidden" name="agent" value={agentId} />
+              <Submit small variant="plain" busy="Asking the state…">Check the state record now</Submit>
+            </ActionForm>
+          ) : null}
+        </div>
+      ) : (
+        <p className={ui.help}>{state || "This state"} does not publish a record Kinu can check, so a person confirms this licence against the state’s own look-up.</p>
+      )}
       {lookupUrl ? (
         <a className={`${ui.btn} ${ui.small}`} href={lookupUrl} target="_blank" rel="noopener noreferrer">
           Open the {state} state record (opens in a new tab)

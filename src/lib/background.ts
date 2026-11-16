@@ -5,6 +5,7 @@ import { documentReference, riderReference } from "@/lib/automation";
 import { SITE_URL } from "@/lib/company";
 import { documensoReady, envelopeState, remind } from "@/lib/documenso";
 import { newInviteToken, portalLink } from "@/lib/invite-token";
+import { refreshLicences } from "@/lib/licence-states";
 import { mailReady, sendLetter } from "@/lib/mail";
 import { settleDocuments, settleRiders } from "@/lib/sign-settle";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -190,8 +191,10 @@ export async function runDaily(now = Date.now()): Promise<Report | null> {
   const flags = new Map((flagRows ?? []).map((row) => [row.workspace_id as string, row as unknown as Flags]));
   const on = (flag: keyof Flags) => (ws: string) => workspaces.has(ws) && (flags.get(ws) ?? DEFAULTS)[flag];
   const collected = await collectSignatures(db, null);
+  const licenceRound = await refreshLicences(db);
   return {
     ...collected,
+    licencesChecked: licenceRound.checked, licencesFlagged: licenceRound.flagged, licencesConfirmed: licenceRound.confirmed,
     signatureReminders: await chase(db, on("chase_signatures"), now),
     onboardingReminders: await nudge(db, workspaces, on("nudge_onboarding"), now),
     licenceNotices: await licences(db, workspaces, on("licence_reminders"), now),

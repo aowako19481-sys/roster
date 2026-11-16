@@ -7,7 +7,7 @@ import { rulesOf } from "@/lib/automation";
 import { documensoReady } from "@/lib/documenso";
 import { readTiers, tiersToText } from "@/lib/ops";
 import { createClient } from "@/lib/supabase/server";
-import { saveAutomation, saveBackground, saveLicenceLookup } from "./actions";
+import { saveAutomation, saveBackground, saveLicenceAuto, saveLicenceLookup } from "./actions";
 
 export const metadata: Metadata = { title: "Automation" };
 
@@ -22,7 +22,7 @@ export default async function AutomationPage() {
   const invitePack = (packs ?? []).filter((row) => row.pack === "invite").map((row) => row.name as string);
   const exitPack = (packs ?? []).filter((row) => row.pack === "exit").map((row) => row.name as string);
   const signingOn = documensoReady();
-  const { data: quiet } = await supabase.from("automation").select("chase_signatures, nudge_onboarding, licence_reminders, weekly_summary").eq("workspace_id", access.workspace.id).maybeSingle();
+  const { data: quiet } = await supabase.from("automation").select("chase_signatures, nudge_onboarding, licence_reminders, weekly_summary, auto_confirm_licence").eq("workspace_id", access.workspace.id).maybeSingle();
   const background = { chase: quiet?.chase_signatures ?? true, nudge: quiet?.nudge_onboarding ?? true, licence: quiet?.licence_reminders ?? true, weekly: quiet?.weekly_summary ?? true };
   const { data: lookups } = await supabase.from("licence_lookups").select("state, url").eq("workspace_id", access.workspace.id).order("state");
 
@@ -120,7 +120,16 @@ export default async function AutomationPage() {
       <Card title="Licence checks" aside={<Badge tone="muted">A person confirms</Badge>}>
         <div className={ui.stack}>
           <p className={ui.help}>
-            Kinu runs its own checks on every licence and a person at your brokerage confirms it against the state’s public record. Save each state’s official look-up page once, and staff reach it in one click from the agent’s page. Kinu records who confirmed each licence, and when.
+            <strong>New York and Texas</strong> publish their licence records, so Kinu checks those itself: that the licence is on the state’s list, in good standing, not expired, and in the same name. It looks again every week, so a lapse or suspension is noticed. Anything that does not match goes to a person; it is never an automatic rejection. State data is updated daily and can lag by a few days, so if a record is disputed or recently changed, the state regulator’s own look-up decides.
+          </p>
+          <ActionForm action={saveLicenceAuto} className={ui.inline}>
+            <label className={ui.check}>
+              <input type="checkbox" name="auto_confirm" defaultChecked={quiet?.auto_confirm_licence ?? true} /> When the state record matches in full, confirm the licence without waiting for a person
+            </label>
+            <Submit small variant="plain">Save</Submit>
+          </ActionForm>
+          <p className={ui.help}>
+            <strong>Every other state:</strong> Kinu runs its own checks and a person at your brokerage confirms the licence against the state’s public record. Save each state’s official look-up page once, and staff reach it in one click from the agent’s page. Kinu records who confirmed each licence, and when.
           </p>
           {(lookups ?? []).length ? (
             <ul className={ui.list}>

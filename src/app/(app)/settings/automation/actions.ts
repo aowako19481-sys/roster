@@ -56,3 +56,14 @@ export async function saveBackground(_prev: Result, form: FormData): Promise<Res
   revalidatePath("/settings/automation");
   return done("Saved.");
 }
+
+/** Whether a licence that matches the state record in full is confirmed without a person. */
+export async function saveLicenceAuto(_prev: Result, form: FormData): Promise<Result> {
+  const gate = await actionAccess("settings.manage");
+  if ("denied" in gate) return fail(gate.denied);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_licence_auto", { ws: gate.access.workspace.id, confirm_by_itself: form.get("auto_confirm") === "on" });
+  if (error) return failure(error);
+  revalidatePath("/settings/automation");
+  return done("Saved.");
+}

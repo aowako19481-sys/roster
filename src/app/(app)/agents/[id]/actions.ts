@@ -1,5 +1,7 @@
 "use server";
 
+import { checkLicence } from "@/lib/licence-states";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { actionAccess } from "@/lib/access";
 import { EMAIL_RE } from "@/lib/ops";
@@ -60,4 +62,31 @@ export async function reviewLicence(_prev: Result, form: FormData): Promise<Resu
   revalidatePath("/agents");
   revalidatePath("/files");
   return done(verdict === "verified" ? "Licence confirmed." : "Licence flagged as a mismatch.");
+}
+
+/** Ask the state's published record about this licence now. Only for states that publish one. */
+export async function checkLicenceNow(_prev: Result, form: FormData): Promise<Result> {
+  const gate = await actionAccess("riders.manage");
+  if ("denied" in gate) return fail(gate.denied);
+  const agent = uuid(form, "agent");
+  if (!agent) return fail("That agent could not be found.");
+  const supabase = await createClient();
+  // As the signed-in person first: the agent must be one they are allowed to see.
+  const { data: found } = await supabase.from("agents").select("id").eq("id", agent).eq("workspace_id", gate.access.workspace.id).maybeSingle();
+  if (!found) return fail("That agent could not be found.");
+  const admin = createAdminClient();
+  if (!admin) return fail("State record checks are not switched on yet.");
+  const result = await checkLicence(admin, agent, true);
+  revalidatePath(`/agents/${agent}`);
+  revalidatePath("/agents");
+  const SAID: Record<string, string> = {
+    verified: "The state record matches in full. Licence confirmed.",
+    matched: "The state record matches in full. Confirm it below.",
+    review: "The state record does not match in full. See what differs below.",
+    unchanged: "Nothing has changed on the state record since the last check.",
+    unsupported: "This state does not publish a record Kinu can check. Use the state’s own look-up.",
+    unreachable: "The state’s service did not answer. Try again in a few minutes.",
+    nothing: "There is no licence number on file to check.",
+  };
+  return result === "unsupported" || result === "unreachable" || result === "nothing" ? fail(SAID[result]!) : done(SAID[result]);
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import { checkLicenceForLink } from "@/lib/licence-states";
 import { revalidatePath } from "next/cache";
 import { evidence } from "@/lib/esign";
 import { completeItem, loadPortal, saveDetails, saveLicence, saveW9, signRider } from "@/lib/portal";
@@ -23,6 +24,8 @@ export async function licenceStep(_prev: Result, form: FormData): Promise<Result
   const photo = form.get("photo");
   const { error } = await saveLicence(token, text(form, "number", 30), text(form, "state", 2) || "NY", expires, photo instanceof File ? photo : null);
   if (error) return failure(error);
+  // Where the state publishes its record, it is checked now. The agent is never held up by it.
+  await checkLicenceForLink(token);
   refresh(token);
   return done();
 }

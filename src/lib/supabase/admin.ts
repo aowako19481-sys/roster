@@ -7,6 +7,7 @@ import { supabaseEnv, supabaseSecretKey } from "./env";
  * signed-in user to act as, and check what the caller may do in code first:
  *   - src/lib/portal.ts (agent onboarding by private link)
  *   - creating a login for someone who was invited
+ *   - src/lib/licence-states.ts (checking a licence against a state's published record)
  *   - src/lib/background.ts (the daily timer and the signing service's call-in, each behind its own password)
  * Everything else must use the user's own client from ./server.
  */
