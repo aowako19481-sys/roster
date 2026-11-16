@@ -127,7 +127,9 @@ export const getAccess = cache(async (): Promise<Access | null> => {
     isFounder = consoleRole === "founder";
   }
 
-  const displayName = raw.display_name?.trim() || nameFromEmail(user.email);
+  // The name the person chose for themselves comes first; a name guessed from the email is the last resort.
+  const chosen = typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name.trim().slice(0, 120) : "";
+  const displayName = chosen || raw.display_name?.trim() || nameFromEmail(user.email);
   return {
     userId: user.id,
     email: user.email ?? "",

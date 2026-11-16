@@ -5,7 +5,7 @@ import { getUser } from "@/lib/supabase/server";
 import styles from "../sign-in/sign-in.module.css";
 import { PasswordForm } from "./PasswordForm";
 
-export const metadata: Metadata = { title: "Create your password" };
+export const metadata: Metadata = { title: "Set up your account" };
 
 /**
  * Shown straight after someone signs in with an emailed code alone: a new
@@ -25,7 +25,11 @@ export default async function SetPasswordPage() {
           <span className={styles.monogram} aria-hidden="true">
             {BRAND.charAt(0)}
           </span>
-          <PasswordForm email={user.email ?? ""} />
+          <PasswordForm
+            email={user.email ?? ""}
+            first={typeof user.user_metadata?.first_name === "string" ? user.user_metadata.first_name : ""}
+            last={typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name.split(" ").slice(1).join(" ") : ""}
+          />
         </main>
       </div>
     </div>

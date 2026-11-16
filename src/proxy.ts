@@ -23,6 +23,8 @@ function buildCsp(nonce: string) {
     // The browser never talks to Supabase or any third party; all data access
     // happens on the server.
     `connect-src 'self'${isDev ? " ws:" : ""}`,
+    // The PDF viewer draws pages in a background worker served from our own site.
+    "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

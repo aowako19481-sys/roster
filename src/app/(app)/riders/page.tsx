@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ActionForm, Submit } from "@/components/ActionForm";
+import { AutoCheck } from "@/components/AutoCheck";
+import { DropZone } from "@/components/DropZone";
+import { FilePreview } from "@/components/FilePreview";
 import { StatusBadge } from "@/components/ops/StatusBadge";
 import { Badge, Card, Empty, PageHeader, Placeholder, Stat, ui } from "@/components/ui";
 import { requireCap } from "@/lib/access";
@@ -142,6 +145,7 @@ export default async function RidersPage() {
         )}
       </Card>
 
+      {canSign && signingOn ? <AutoCheck action={checkSignatures} waiting={[...requestsOf.values()].flat().filter((request) => request.status === "sent" || request.status === "opened").length} /> : null}
       {canSign && (
         <Card title="Electronic signature" aside={signingOn ? <Badge tone="muted">On</Badge> : <Badge tone="muted">Not switched on</Badge>}>
           <div className={ui.stack}>
@@ -150,14 +154,15 @@ export default async function RidersPage() {
                 ? "Send a rider and each person gets an email to sign on screen. The signed copy and its certificate file themselves in the agent’s file."
                 : "Electronic signing is not switched on for Kinu yet. Until it is, record signatures by hand below."}
             </p>
-            <p>
-              <strong>Your rider document:</strong> {templateName ?? "none uploaded. Riders go out as a one-page Kinu rider."}
-            </p>
-            <ActionForm action={setRiderTemplate} className={ui.inline}>
-              <label className={ui.field}>
-                {templateName ? "Replace it with another PDF" : "Upload your own rider (PDF, up to 4 MB)"}
-                <input className={ui.input} type="file" name="file" required accept="application/pdf" style={{ paddingTop: 9 }} />
-              </label>
+            <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+              {templateName ? <FilePreview src="/riders/template" name={templateName} /> : null}
+              <p>
+                <strong>Your rider document:</strong> {templateName ?? "none uploaded. Riders go out as a one-page Kinu rider."}
+                {templateName ? <><br /><span className={ui.soft}>Click the picture to read it full size.</span></> : null}
+              </p>
+            </div>
+            <ActionForm action={setRiderTemplate} className={ui.stack}>
+              <DropZone name="file" label={templateName ? "Replace it with another PDF" : "Upload your own rider"} accept="application/pdf" hint="PDF, up to 4 MB" required />
               <Submit small busy="Uploading…">Save rider document</Submit>
             </ActionForm>
             <p className={ui.help}>Kinu adds one page after your document with the person’s split, tiers and the place to sign.</p>

@@ -7,6 +7,7 @@ const ICONS = {
   agents: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8",
   teams: "M12 3v5M5 13v-2h14v2M12 8v3M3 13h4v5H3zM10 13h4v5h-4zM17 13h4v5h-4z",
   riders: "M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4",
+  sign: "M4 20h16M6 16c2-6 4-9 6-9s1 5 3 5 2-3 5-3M17 4l3 3-8 8-4 1 1-4z",
   files: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
   reports: "M4 20V10M10 20V4M16 20v-7M22 20H2",
   overview: "M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z",
@@ -40,6 +41,7 @@ export function buildNav(access: Access): NavGroups {
     item("/teams", "Teams", ICONS.teams, has("agents.view")),
     item("/riders", "Riders", ICONS.riders, has("splits.view")),
     item("/packet", "Paperwork", ICONS.statements, has("agents.view")),
+    item("/sign", "Sign", ICONS.sign, has("files.view") || has("files.manage") || has("riders.manage")),
     item("/files", "Files", ICONS.files, has("files.view")),
     item("/reports", "Reports", ICONS.reports, has("reports.view")),
   ]);

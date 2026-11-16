@@ -15,45 +15,22 @@ const CARD_HEIGHT = 300; // tallest the card gets; used to keep it on screen
 
 function buildSteps(firstName: string): Step[] {
   return [
-    {
-      title: `Welcome to ${BRAND}, ${firstName}`,
-      body: "Here is a one-minute look at where everything lives. You can skip it at any time.",
-    },
-    {
-      target: "nav",
-      title: "Find your way around",
-      body: "Agents, teams, riders and files each have their own page here. Add-ons sit underneath.",
-    },
-    {
-      target: "live",
-      title: "Onboarding, live",
-      body: "How many invited agents are ready to go live right now. It re-reads every five minutes on its own.",
-    },
-    {
-      target: "rollers",
-      title: "Your top agents",
-      body: "The five highest earners this year. Use the arrows to see who is close behind.",
-    },
-    {
-      target: "tier",
-      title: "Tier clearance",
-      body: "When an agent crosses a tier, the new split waits here for a person to approve. Pay never changes on its own.",
-    },
-    {
-      target: "flags",
-      title: "Needs a human",
-      body: `Anything ${BRAND} could not settle by itself, like a licence number that does not match.`,
-    },
-    {
-      target: "advanced",
-      title: "Standard or Advanced",
-      body: "Switch to Advanced for a home screen: every tool as a tile, and a search that pulls up any agent\u2019s ID card. Switch back whenever you like.",
-    },
-    {
-      target: "jump",
-      title: "Quick actions",
-      body: "The jobs you will do most often, one tap away. That is the whole tour.",
-    },
+    { title: `Welcome to ${BRAND}, ${firstName}`, body: "This walk-through takes about two minutes and shows what each part does and where to start. You can skip it at any time and play it again from this screen." },
+    { target: "nav", title: "Your menu", body: "Everything is here. Ops at the top is for people: agents, teams, riders, paperwork and files. Finance is for money: deals, payments and payroll. You only see the parts your role allows." },
+    { target: "nav", title: "Agents", body: "Every agent in your brokerage. Invite one and they get a private link: they add their licence, tax details and bank details from their own phone. You watch it complete here." },
+    { target: "nav", title: "Paperwork", body: "The checklist every new agent works through: what to sign, what to read, what to upload. Set it once and every new agent gets the same list automatically." },
+    { target: "nav", title: "Sign", body: "Upload any PDF that needs a signature. Kinu finds where to sign and places the boxes; you check them and send. It comes back sealed and files itself in the agent\u2019s file." },
+    { target: "nav", title: "Riders", body: "Each agent\u2019s or team\u2019s split and tiers. Send a rider to be signed on screen. For a team, choose whether the lead signs or every member does." },
+    { target: "nav", title: "Files", body: "Every stored document, sorted into cabinets. Click the small picture of a file to read it full size without leaving Kinu." },
+    { target: "live", title: "Onboarding, live", body: "How many invited agents are ready to go live right now. It re-reads every five minutes on its own, so you never have to chase a status." },
+    { target: "rollers", title: "Your top agents", body: "The five highest earners this year. Use the arrows to see who is close behind." },
+    { target: "tier", title: "Tier clearance", body: "When an agent crosses a tier, the new split waits here for a person to approve. Pay never changes on its own." },
+    { target: "flags", title: "Needs a human", body: `Anything ${BRAND} could not settle by itself, like a licence number that does not match. Clear these and everything else runs without you.` },
+    { target: "nav", title: "Finance", body: "Enter a deal and Kinu works out each person\u2019s share from their signed rider and checks it. Record the payment, then release payroll when you are ready. Every change has a name beside it." },
+    { target: "nav", title: "Settings", body: "People and roles live here. Invite a colleague, choose what they can see and do, and they create their own password the first time they sign in." },
+    { title: "Kept safe for you", body: "Signing in needs your password and a code sent to your email. Kinu signs you out after 30 minutes without activity and when you close it, because these are private records." },
+    { target: "advanced", title: "Standard or Advanced", body: "Advanced shows the same dashboard with live trackers and a search that pulls up any agent\u2019s ID card. Switch back whenever you like; your choice is remembered." },
+    { target: "jump", title: "Where to start", body: "First: invite one agent. Second: set your paperwork checklist. Third: upload one document to sign. These shortcuts take you straight there. That is the whole tour." },
   ];
 }
 

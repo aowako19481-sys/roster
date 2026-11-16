@@ -163,6 +163,9 @@ export type PasswordState = { status: "idle" | "error"; message?: string };
 export async function setPassword(_prev: PasswordState, formData: FormData): Promise<PasswordState> {
   const password = formData.get("password");
   const again = formData.get("again");
+  const first = String(formData.get("first") ?? "").replace(/\s+/g, " ").trim().slice(0, 60);
+  const last = String(formData.get("last") ?? "").replace(/\s+/g, " ").trim().slice(0, 60);
+  if (first.length < 1 || last.length < 1) return { status: "error", message: "Enter your first and last name." };
   if (typeof password !== "string" || typeof again !== "string") return { status: "error", message: "Enter a password." };
   if (password.length < 10) return { status: "error", message: "Use at least 10 characters. A few words together works well." };
   if (password.length > 200) return { status: "error", message: "That password is too long." };
@@ -174,13 +177,16 @@ export async function setPassword(_prev: PasswordState, formData: FormData): Pro
   if (!who.user) redirect("/sign-in");
   const name = (who.user.email ?? "").split("@")[0]?.toLowerCase() ?? "";
   if (name.length >= 4 && password.toLowerCase().includes(name)) return { status: "error", message: "Do not use your email name in your password." };
-  const { error } = await supabase.auth.updateUser({ password, data: { has_password: true } });
+  const fullName = `${first} ${last}`;
+  const { error } = await supabase.auth.updateUser({ password, data: { has_password: true, full_name: fullName, first_name: first } });
   if (error) {
     if (error.code === "same_password") return { status: "error", message: "That is your current password. Choose a new one." };
     if (error.code === "weak_password") return { status: "error", message: "That password is too easy to guess. Try a longer one." };
     console.error("set-password: failed", error.status, error.code);
     return { status: "error", message: "We could not save your password just now. Please try again." };
   }
+  // So colleagues see the same name in lists. A person who is not in a brokerage yet simply has no rows to update.
+  await supabase.rpc("set_my_name", { full_name: fullName });
   redirect("/");
 }
 

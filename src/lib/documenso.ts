@@ -46,23 +46,26 @@ const json = (body: unknown): RequestInit => ({ method: "POST", headers: { "Cont
 /** A box on a page, in percent of the page from its top-left corner. */
 export type Box = { page: number; x: number; y: number; width: number; height: number };
 
-/** Creates the document with one signer and their three boxes, then emails it to them. */
-export async function sendForSignature(input: {
-  title: string; pdf: Uint8Array; signer: { name: string; email: string }; reference: string;
-  boxes: { signature: Box; name: Box; date: Box }; subject: string; message: string;
+export type BoxType = "signature" | "initials" | "name" | "date" | "text" | "email";
+export type PlacedBox = Box & { type: BoxType; label?: string; required?: boolean };
+
+/** Creates one document for one or more signers, each with their own boxes, then emails it to them. */
+export async function sendEnvelope(input: {
+  title: string; pdf: Uint8Array; reference: string; subject: string; message: string;
+  signers: { name: string; email: string; boxes: PlacedBox[] }[];
 }): Promise<string> {
-  const field = (type: string, box: Box) => ({ type, page: box.page, positionX: box.x, positionY: box.y, width: box.width, height: box.height });
+  const field = (box: PlacedBox) => ({
+    type: box.type.toUpperCase(), page: box.page, positionX: box.x, positionY: box.y, width: box.width, height: box.height,
+    ...(box.type === "text" ? { fieldMeta: { type: "text", label: (box.label ?? "").slice(0, 80), required: box.required !== false } } : {}),
+  });
   const form = new FormData();
   form.append("payload", JSON.stringify({
     title: input.title.slice(0, 250),
     type: "DOCUMENT",
     externalId: input.reference.slice(0, 250),
-    recipients: [{
-      email: input.signer.email, name: input.signer.name.slice(0, 250), role: "SIGNER",
-      fields: [field("SIGNATURE", input.boxes.signature), field("NAME", input.boxes.name), field("DATE", input.boxes.date)],
-    }],
+    recipients: input.signers.map((signer) => ({ email: signer.email, name: signer.name.slice(0, 250), role: "SIGNER", fields: signer.boxes.map(field) })),
   }));
-  form.append("files", new Blob([input.pdf as BlobPart], { type: "application/pdf" }), "rider.pdf");
+  form.append("files", new Blob([input.pdf as BlobPart], { type: "application/pdf" }), "document.pdf");
   const made = (await (await call("/envelope/create", { method: "POST", body: form })).json()) as { id?: unknown };
   if (typeof made.id !== "string" || !made.id) throw new SigningError("The signing service did not confirm the document. Please try again.");
   try {
@@ -75,11 +78,26 @@ export async function sendForSignature(input: {
   return made.id;
 }
 
-export type EnvelopeState = { status: "sent" | "opened" | "signed" | "declined" | "cancelled"; itemId: string | null; waiting: number[] };
+/** One signer with a signature, printed name and date: used for riders. */
+export async function sendForSignature(input: {
+  title: string; pdf: Uint8Array; signer: { name: string; email: string }; reference: string;
+  boxes: { signature: Box; name: Box; date: Box }; subject: string; message: string;
+}): Promise<string> {
+  return sendEnvelope({
+    title: input.title, pdf: input.pdf, reference: input.reference, subject: input.subject, message: input.message,
+    signers: [{ ...input.signer, boxes: [{ ...input.boxes.signature, type: "signature" }, { ...input.boxes.name, type: "name" }, { ...input.boxes.date, type: "date" }] }],
+  });
+}
+
+export type EnvelopeState = {
+  status: "sent" | "opened" | "signed" | "declined" | "cancelled"; itemId: string | null; waiting: number[];
+  /** Each signer, in the order they were sent. */
+  people: { email: string; status: "sent" | "opened" | "signed" | "declined" }[];
+};
 
 type Envelope = {
   status?: string; externalId?: string | null;
-  recipients?: { id?: number; signingStatus?: string; readStatus?: string; role?: string }[];
+  recipients?: { id?: number; email?: string; signingStatus?: string; readStatus?: string; role?: string; signingOrder?: number | null }[];
   envelopeItems?: { id?: string; order?: number }[];
 };
 
@@ -95,7 +113,11 @@ export async function envelopeState(envelopeId: string, reference: string): Prom
     : env.status === "REJECTED" || signers.some((r) => r.signingStatus === "REJECTED") ? "declined"
     : env.status === "CANCELLED" ? "cancelled"
     : signers.some((r) => r.readStatus === "OPENED") ? "opened" : "sent";
-  return { status, itemId: typeof item?.id === "string" ? item.id : null, waiting };
+  const people = [...signers].sort((a, b) => (a.id ?? 0) - (b.id ?? 0)).map((r) => ({
+    email: (r.email ?? "").toLowerCase(),
+    status: r.signingStatus === "SIGNED" ? "signed" as const : r.signingStatus === "REJECTED" ? "declined" as const : r.readStatus === "OPENED" ? "opened" as const : "sent" as const,
+  }));
+  return { status, itemId: typeof item?.id === "string" ? item.id : null, waiting, people };
 }
 
 /** Turns a download answer into the PDF's bytes, whichever way the service sends it. */

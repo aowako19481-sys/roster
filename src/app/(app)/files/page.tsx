@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ActionForm, Submit } from "@/components/ActionForm";
+import { DropZone } from "@/components/DropZone";
+import { FilePreview } from "@/components/FilePreview";
 import { StatusBadge } from "@/components/ops/StatusBadge";
 import { Badge, Card, Empty, PageHeader, ui } from "@/components/ui";
 import { requireCap } from "@/lib/access";
@@ -144,9 +146,7 @@ export default async function FilesPage({ searchParams }: Props) {
                       <td>{day(doc.created_at, tz)}</td>
                       <td>
                         {doc.path ? (
-                          <a href={`/files/${doc.id}`} className={ui.linkBtn} target="_blank" rel="noopener noreferrer" aria-label={`View ${doc.filename} (opens in a new tab)`}>
-                            View
-                          </a>
+                          <FilePreview src={`/files/${doc.id}`} name={doc.filename} kind={/\.pdf$/i.test(doc.path) ? "pdf" : "image"} width={64} />
                         ) : (
                           <span className={ui.soft}>Record only</span>
                         )}
@@ -194,10 +194,7 @@ export default async function FilesPage({ searchParams }: Props) {
           {canManage && (
             <Card title="Add a file">
               <ActionForm action={uploadFile} resetOnSuccess>
-                <label className={ui.field}>
-                  File (PDF, JPEG, PNG or WebP, up to 10 MB)
-                  <input className={ui.input} type="file" name="file" required accept="application/pdf,image/jpeg,image/png,image/webp" style={{ paddingTop: 9 }} />
-                </label>
+                <DropZone name="file" label="File" required />
                 <label className={ui.field}>
                   Cabinet
                   <select className={ui.select} name="kind" defaultValue={cabinet.kind} required>
