@@ -19,6 +19,8 @@ export async function saveAutomation(_prev: Result, form: FormData): Promise<Res
     pack_on_invite: form.get("pack_on_invite") === "on", rider_on_invite: form.get("rider_on_invite") === "on",
     rider_on_tier: form.get("rider_on_tier") === "on", team_mode: text(form, "team_mode", 10) === "members" ? "members" : "lead",
     prefill: form.get("prefill_splits") === "on",
+    open_by_itself: form.get("auto_open_payroll") === "on",
+    cutoff_by_itself: form.get("auto_cutoff") === "on",
   });
   if (error) return failure(error);
   revalidatePath("/settings/automation");

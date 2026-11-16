@@ -81,6 +81,19 @@ export default async function AutomationPage() {
           </div>
         </Card>
 
+        <Card title="Payroll">
+          <div className={ui.stack}>
+            <label className={ui.check}>
+              <input type="checkbox" name="auto_open_payroll" defaultChecked={rules.auto_open_payroll} /> Open the next payroll by itself on your pay days
+            </label>
+            <p className={ui.help}>Your pay days and cutoff time are set under <Link href="/settings">Settings</Link>.</p>
+            <label className={ui.check}>
+              <input type="checkbox" name="auto_cutoff" defaultChecked={rules.auto_cutoff} /> Run the cutoff by itself once the cutoff time has passed
+            </label>
+            <p className={ui.help}>Cleared deals go into the run and anything not cleared goes to the Held folder, exactly as when you press the button. Releasing the payroll always stays with a person.</p>
+          </div>
+        </Card>
+
         <Card title="When an agent leaves">
           <p className={ui.help}>
             {exitPack.length ? `Sent for signature when an agent is marked as leaving: ${exitPack.join(", ")}.` : "No documents are in the exit pack yet."}{" "}

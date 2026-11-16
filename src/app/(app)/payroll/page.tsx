@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ActionForm, Submit } from "@/components/ActionForm";
+import { AutoRun } from "@/components/AutoRun";
 import { Badge, Card, Empty, PageHeader, Placeholder, Stat, ui, type Tone } from "@/components/ui";
 import { requireCap } from "@/lib/access";
 import { BRAND } from "@/lib/brand";
 import { clock, dealTypeLabel, documentDeadline, groupBy, inBatches, upcomingPayDates, weekDay, weekdayName } from "@/lib/finance";
 import { dayTime, money, todayIso } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
-import { addToPayroll, closePayroll, openPayroll, releasePayroll, runCutoff } from "./actions";
+import { addToPayroll, autoPayroll, closePayroll, openPayroll, releasePayroll, runCutoff } from "./actions";
 
 export const metadata: Metadata = { title: "Payroll" };
 
@@ -60,6 +61,7 @@ export default async function PayrollPage() {
   return (
     <div className={ui.stack}>
       <PageHeader eyebrow="Finance" title="Payroll" sub="At cutoff, cleared deals go into the payroll. Everything else waits in the Held folder with its reason." />
+      {access.caps.has("payroll.manage") ? <AutoRun action={autoPayroll} /> : null}
 
       <Card>
         <p>
