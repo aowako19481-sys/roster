@@ -239,3 +239,23 @@ export async function cancelDocument(_prev: Result, form: FormData): Promise<Res
   revalidatePath("/sign");
   return done("Cancelled. Nobody can sign that copy now.");
 }
+
+/** Choose whether a document goes out by itself (when an agent is invited, or leaves) and who signs its other roles. */
+export async function setTemplatePack(_prev: Result, form: FormData): Promise<Result> {
+  const access = await gate();
+  if ("denied" in access) return fail(access.denied);
+  const template = uuid(form, "template");
+  if (!template) return fail("That document could not be found.");
+  const pack = text(form, "pack", 10);
+  if (!["none", "invite", "exit"].includes(pack)) return fail("Choose when this document is sent.");
+  const people: { name: string; email: string }[] = [];
+  for (let index = 1; index <= 5; index += 1) {
+    if (form.get(`signer_name_${index}`) === null) break;
+    people.push({ name: text(form, `signer_name_${index}`, 160), email: text(form, `signer_email_${index}`, 254).toLowerCase() });
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_template_pack", { ws: access.access.workspace.id, template, new_pack: pack, people });
+  if (error) return failure(error);
+  revalidatePath("/sign");
+  return done(pack === "invite" ? "Saved. This goes to every new agent as soon as they are invited." : pack === "exit" ? "Saved. This goes to an agent when they are marked as leaving." : "Saved. This is only sent when you choose to.");
+}

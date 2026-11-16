@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { actionAccess } from "@/lib/access";
+import { packOut } from "@/lib/automation";
 import { todayIso } from "@/lib/format";
 import { done, fail, failure, uuid, type Result } from "@/lib/result";
 import { createClient } from "@/lib/supabase/server";
@@ -24,8 +25,12 @@ export async function markExited(_prev: Result, form: FormData): Promise<Result>
     .eq("id", id).eq("workspace_id", ws.id).select("id");
   if (error) return failure(error);
   if (!data?.length) return fail("That agent could not be found.");
+  // The brokerage's exit documents, if it has chosen any, go out for signature by themselves.
+  const pack = await packOut(supabase, ws.id, ws.name, "exit", [id]).catch(() => ({ sent: 0, problems: [] as string[] }));
   revalidatePath("/exit-kit");
   revalidatePath("/agents");
   revalidatePath("/retention");
-  return done("Marked as exited today. Their onboarding link no longer works.");
+  revalidatePath("/sign");
+  const also = [pack.sent ? ` ${pack.sent} exit document${pack.sent === 1 ? "" : "s"} sent for signature automatically.` : "", pack.problems.length ? ` Not sent automatically: ${[...new Set(pack.problems)].slice(0, 3).join("; ")}.` : ""].join("");
+  return done(`Marked as exited today. Their onboarding link no longer works.${also}`);
 }

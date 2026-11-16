@@ -9,12 +9,12 @@ import { requireWorkspace } from "@/lib/access";
 import { documensoReady } from "@/lib/documenso";
 import { dayTime } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
-import { cancelDocument, checkDocuments, createTemplate, remindDocument, removeTemplate } from "./actions";
+import { cancelDocument, checkDocuments, createTemplate, remindDocument, removeTemplate, setTemplatePack } from "./actions";
 import styles from "./sign.module.css";
 
 export const metadata: Metadata = { title: "Documents to sign" };
 
-type Template = { id: string; name: string; page_count: number; roles: string[]; fields: { type: string }[]; updated_at: string };
+type Template = { id: string; name: string; page_count: number; roles: string[]; fields: { type: string }[]; updated_at: string; pack: string; default_signers: { name?: string; email?: string }[] };
 type Sent = { id: string; title: string; status: string; signers: { name: string; role: string; status: string }[]; sent_at: string; completed_at: string | null; file_path: string | null };
 const LABEL: Record<string, string> = { sent: "Sent", opened: "Opened", signed: "Signed", declined: "Declined", cancelled: "Cancelled" };
 
@@ -26,7 +26,7 @@ export default async function SignPage({ searchParams }: { searchParams: Promise
   const signingOn = documensoReady();
   const supabase = await createClient();
   const [templateRes, sentRes] = await Promise.all([
-    supabase.from("sign_templates").select("id, name, page_count, roles, fields, updated_at").eq("workspace_id", ws).eq("active", true).order("name").limit(200),
+    supabase.from("sign_templates").select("id, name, page_count, roles, fields, updated_at, pack, default_signers").eq("workspace_id", ws).eq("active", true).order("name").limit(200),
     supabase.from("sign_documents").select("id, title, status, signers, sent_at, completed_at, file_path").eq("workspace_id", ws).order("sent_at", { ascending: false }).limit(200),
   ]);
   const templates = (templateRes.data ?? []) as Template[];
@@ -66,6 +66,38 @@ export default async function SignPage({ searchParams }: { searchParams: Promise
                           <Submit small variant="link" aria-label={`Remove ${template.name}`}>Remove</Submit>
                         </ActionForm>
                       </div>
+                    ) : null}
+                    {canManage && signatures >= (template.roles ?? []).length ? (
+                      <details>
+                        <summary className={ui.linkBtn} style={{ cursor: "pointer" }}>
+                          Send automatically: {template.pack === "invite" ? "to every new agent" : template.pack === "exit" ? "when an agent leaves" : "never"}
+                        </summary>
+                        <ActionForm action={setTemplatePack} className={ui.stack} style={{ marginTop: 10 }}>
+                          <input type="hidden" name="template" value={template.id} />
+                          <label className={ui.field}>
+                            Send this by itself
+                            <select className={ui.select} name="pack" defaultValue={template.pack ?? "none"}>
+                              <option value="none">Never. Only when I choose to</option>
+                              <option value="invite">To every new agent, when they are invited</option>
+                              <option value="exit">To an agent, when they are marked as leaving</option>
+                            </select>
+                          </label>
+                          {(template.roles ?? []).slice(1).map((role, index) => (
+                            <div key={index} className={ui.grid2}>
+                              <label className={ui.field}>
+                                Who signs as {role}
+                                <input className={ui.input} name={`signer_name_${index + 1}`} maxLength={160} defaultValue={template.default_signers?.[index]?.name ?? ""} />
+                              </label>
+                              <label className={ui.field}>
+                                Their email
+                                <input className={ui.input} type="email" name={`signer_email_${index + 1}`} maxLength={254} defaultValue={template.default_signers?.[index]?.email ?? ""} />
+                              </label>
+                            </div>
+                          ))}
+                          <Submit small>Save</Submit>
+                          <p className={ui.help}>The first signer is always the agent. Everyone else is fixed here so nobody has to choose each time.</p>
+                        </ActionForm>
+                      </details>
                     ) : null}
                   </div>
                 </li>

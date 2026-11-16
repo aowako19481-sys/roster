@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import type { InviteResult, LinkResult } from "@/components/ops/types";
 import { actionAccess } from "@/lib/access";
+import { afterInvite } from "@/lib/automation";
 import { newInviteToken, portalLink } from "@/lib/invite-token";
 import { parseInviteLines, requestOrigin } from "@/lib/ops";
 import { failure, text, uuid } from "@/lib/result";
@@ -39,23 +40,31 @@ export async function inviteAgents(_prev: InviteResult, form: FormData): Promise
 
   const sent: NonNullable<InviteResult["sent"]> = [];
   const failed: NonNullable<InviteResult["failed"]> = [];
+  const invited: string[] = [];
   for (const row of rows) {
     const { token, hash } = newInviteToken();
-    const { error } = await supabase.rpc("invite_agent", {
+    const { data: agentId, error } = await supabase.rpc("invite_agent", {
       ws, agent_name: row.name, agent_email: row.email, agent_office: row.officeId, split: row.split, token_hash: hash,
     });
     if (error) failed.push({ name: row.name, email: row.email, reason: failure(error).message ?? "Could not be invited." });
-    else sent.push({ name: row.name, email: row.email, office: row.office, split: row.split, link: portalLink(origin, token) });
+    else {
+      sent.push({ name: row.name, email: row.email, office: row.office, split: row.split, link: portalLink(origin, token) });
+      if (typeof agentId === "string") invited.push(agentId);
+    }
   }
 
+  // Whatever this brokerage has set to happen by itself: its new-agent documents, and the first rider.
+  const also = await afterInvite(supabase, ws, gate.access.workspace.name, invited).catch(() => "");
+
   revalidatePath("/invite");
+  revalidatePath("/sign");
   revalidatePath("/agents");
   revalidatePath("/agent-onboarding");
   revalidatePath("/");
   if (!sent.length) return { ok: false, message: "Nobody was invited.", problems: failed.map((row) => `${row.name} (${row.email}): ${row.reason}`) };
   return {
     ok: true,
-    message: `${sent.length} ${sent.length === 1 ? "agent" : "agents"} invited. Each has a private link that works for 14 days.`,
+    message: `${sent.length} ${sent.length === 1 ? "agent" : "agents"} invited. Each has a private link that works for 14 days.${also ? ` ${also}` : ""}`,
     sent,
     failed,
   };
