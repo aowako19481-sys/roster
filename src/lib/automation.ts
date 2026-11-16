@@ -18,11 +18,11 @@ export const riderReference = (ws: string, rider: string, agent: string) => `kin
 export const documentReference = (ws: string) => `kinu:${ws}:document`;
 const problemOf = (error: unknown) => (error instanceof SigningError ? error.message : "please try again.");
 
-export type Rules = { default_tiers: unknown; send_pack_on_invite: boolean; send_rider_on_invite: boolean; send_rider_on_tier: boolean; team_rider_mode: "lead" | "members" };
-const STARTING: Rules = { default_tiers: null, send_pack_on_invite: true, send_rider_on_invite: false, send_rider_on_tier: false, team_rider_mode: "lead" };
+export type Rules = { default_tiers: unknown; send_pack_on_invite: boolean; send_rider_on_invite: boolean; send_rider_on_tier: boolean; team_rider_mode: "lead" | "members"; prefill_splits: boolean };
+const STARTING: Rules = { default_tiers: null, send_pack_on_invite: true, send_rider_on_invite: false, send_rider_on_tier: false, team_rider_mode: "lead", prefill_splits: true };
 
 export async function rulesOf(supabase: Db, ws: string): Promise<Rules> {
-  const { data } = await supabase.from("automation").select("default_tiers, send_pack_on_invite, send_rider_on_invite, send_rider_on_tier, team_rider_mode").eq("workspace_id", ws).maybeSingle();
+  const { data } = await supabase.from("automation").select("default_tiers, send_pack_on_invite, send_rider_on_invite, send_rider_on_tier, team_rider_mode, prefill_splits").eq("workspace_id", ws).maybeSingle();
   return data ? (data as Rules) : STARTING;
 }
 

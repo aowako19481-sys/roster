@@ -72,6 +72,15 @@ export default async function AutomationPage() {
           </div>
         </Card>
 
+        <Card title="When a deal is entered">
+          <div className={ui.stack}>
+            <label className={ui.check}>
+              <input type="checkbox" name="prefill_splits" defaultChecked={rules.prefill_splits} /> Fill in each agent’s split from their signed rider
+            </label>
+            <p className={ui.help}>The person entering the deal can still change it. A split that differs from the rider is flagged exactly as it is today, and the deal cannot be paid until it is fixed, approved or overridden.</p>
+          </div>
+        </Card>
+
         <Card title="When an agent leaves">
           <p className={ui.help}>
             {exitPack.length ? `Sent for signature when an agent is marked as leaving: ${exitPack.join(", ")}.` : "No documents are in the exit pack yet."}{" "}

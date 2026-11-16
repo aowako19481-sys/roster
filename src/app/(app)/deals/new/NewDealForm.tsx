@@ -13,7 +13,12 @@ type Fee = { key: number; kind: string; payee: string; amount: string };
 
 const START: DealFormState = { ok: null };
 
-export function NewDealForm({ agents, offices }: { agents: { id: string; label: string }[]; offices: { id: string; name: string }[] }) {
+type RiderSplits = Record<string, { individual: number | null; team: number | null }>;
+const amount = (value: string) => { const n = Number(value.replace(/[$,\s]/g, "")); return Number.isFinite(n) && n >= 0 ? n : 0; };
+const percent = (value: string) => { const n = Number(value.replace(/[%\s]/g, "")); return Number.isFinite(n) ? Math.min(100, Math.max(0, n)) : 0; };
+const cents = (n: number) => Math.round(n * 100) / 100;
+
+export function NewDealForm({ agents, offices, riders, prefill }: { agents: { id: string; label: string }[]; offices: { id: string; name: string }[]; riders: RiderSplits; prefill: boolean }) {
   const [state, action, pending] = useActionState(createDeal, START);
   const nextKey = useRef(1);
   const key = () => { nextKey.current += 1; return nextKey.current; };
@@ -43,6 +48,35 @@ export function NewDealForm({ agents, offices }: { agents: { id: string; label: 
   };
 
   const shareTotal = Math.round(lines.reduce((sum, line) => sum + (Number(line.share) || 0), 0) * 100) / 100;
+
+  const riderOf = (agent: string, basis: string) => (agent ? riders[agent]?.[basis === "team" ? "team" : "individual"] ?? null : null);
+  // Choosing an agent (or how they are paid) fills in their split from the signed rider, if this brokerage wants that.
+  const choose = (line: Line, change: { agent?: string; basis?: string }) => {
+    const next = { ...line, ...change };
+    const rider = riderOf(next.agent, next.basis);
+    const wasRider = line.split === "" || Number(line.split) === riderOf(line.agent, line.basis);
+    patch(setLines, line.key, { ...change, ...(prefill && rider !== null && wasRider ? { split: String(rider) } : {}) });
+  };
+  // Add an agent: the shares are spread evenly until someone types their own.
+  const even = lines.every((line, _, all) => line.share === "" || Math.abs(Number(line.share) - cents(100 / all.length)) < 0.02 || (all.length === 1 && line.share === "100"));
+  const addAgent = () => setLines((rows) => {
+    const count = rows.length + 1;
+    const each = String(cents(100 / count));
+    const spread = even ? rows.map((row) => ({ ...row, share: each })) : rows;
+    return [...spread, { key: key(), agent: "", basis: "individual", share: even ? String(cents(100 - Number(each) * (count - 1))) : "", split: "" }];
+  });
+
+  // Who gets what, worked out as the numbers are typed. The database works it out again when the deal is saved.
+  const gci = amount(basics.gci);
+  const feesTotal = cents(fees.reduce((sum, fee) => sum + amount(fee.amount), 0));
+  const net = Math.max(0, cents(gci - feesTotal));
+  const breakdown = lines.map((line) => {
+    const share = cents(net * percent(line.share) / 100);
+    const toAgent = cents(share * percent(line.split) / 100);
+    const rider = riderOf(line.agent, line.basis);
+    return { key: line.key, name: agents.find((agent) => agent.id === line.agent)?.label.split(" · ")[0] ?? "", share, split: percent(line.split), toAgent, toBrokerage: cents(share - toAgent), rider, differs: line.split !== "" && rider !== null && Number(line.split) !== rider };
+  });
+  const toAgents = cents(breakdown.reduce((sum, row) => sum + row.toAgent, 0));
   const duplicates = state.ok === false ? state.duplicates : undefined;
 
   return (
@@ -110,20 +144,22 @@ export function NewDealForm({ agents, offices }: { agents: { id: string; label: 
       <fieldset className={ui.form} style={{ border: 0, padding: 0, margin: 0 }}>
         <legend className={ui.h2}>Agents</legend>
         <p className={ui.help}>
-          Type each split exactly as it is on the notice of contract. It is never filled in from the rider: the rider is what it is checked against.
+          {prefill
+            ? "Each split is filled in from the agent’s signed rider. Change it if the notice of contract says something different: a difference is flagged for review."
+            : "Type each split exactly as it is on the notice of contract. The rider is what it is checked against."}
         </p>
         {lines.map((line, i) => (
           <div key={line.key} className={ui.inline}>
             <label className={ui.field} style={{ flex: "2 1 220px" }}>
               Agent {i + 1}
-              <select className={ui.select} name={`line${i}_agent`} value={line.agent} onChange={(e) => patch(setLines, line.key, { agent: e.target.value })} required>
+              <select className={ui.select} name={`line${i}_agent`} value={line.agent} onChange={(e) => choose(line, { agent: e.target.value })} required>
                 <option value="">Choose an agent…</option>
                 {agents.map((agent) => <option key={agent.id} value={agent.id}>{agent.label}</option>)}
               </select>
             </label>
             <label className={ui.field}>
               Paid as
-              <select className={ui.select} name={`line${i}_basis`} value={line.basis} onChange={(e) => patch(setLines, line.key, { basis: e.target.value })}>
+              <select className={ui.select} name={`line${i}_basis`} value={line.basis} onChange={(e) => choose(line, { basis: e.target.value })}>
                 <option value="individual">Individual</option>
                 <option value="team">Team</option>
               </select>
@@ -142,7 +178,7 @@ export function NewDealForm({ agents, offices }: { agents: { id: string; label: 
           </div>
         ))}
         <div className={ui.inline} style={{ alignItems: "center" }}>
-          <button type="button" className={`${ui.btn} ${ui.small}`} disabled={lines.length >= 40} onClick={() => setLines((rows) => [...rows, { key: key(), agent: "", basis: "individual", share: "", split: "" }])}>
+          <button type="button" className={`${ui.btn} ${ui.small}`} disabled={lines.length >= 40} onClick={addAgent}>
             Add an agent
           </button>
           <span className={ui.soft} role="status">
@@ -182,6 +218,35 @@ export function NewDealForm({ agents, offices }: { agents: { id: string; label: 
           </button>
         </div>
       </fieldset>
+
+      <section aria-labelledby="breakdown-title" className={ui.placeholder} style={{ borderStyle: "solid" }}>
+        <h3 id="breakdown-title" className={ui.h2}>Who gets what</h3>
+        <div className={ui.tableWrap} aria-live="polite">
+          <table className={ui.table}>
+            <tbody>
+              <tr><th scope="row">Gross commission (GCI)</th><td className={ui.num}>{money(gci)}</td><td /></tr>
+              {feesTotal > 0 ? <tr><th scope="row">Less referral and outside fees</th><td className={ui.num}>− {money(feesTotal)}</td><td /></tr> : null}
+              <tr><th scope="row">To be split</th><td className={ui.num}><strong>{money(net)}</strong></td><td /></tr>
+              {breakdown.map((row, index) => (
+                <tr key={row.key}>
+                  <th scope="row">
+                    {row.name || `Agent ${index + 1}`}
+                    <br />
+                    <span className={ui.soft}>
+                      {money(row.share)} share × {row.split}%
+                      {row.rider === null ? (row.name ? " · no signed rider on file" : "") : row.differs ? ` · signed rider says ${row.rider}%` : " · matches the signed rider"}
+                    </span>
+                  </th>
+                  <td className={ui.num}><strong>{money(row.toAgent)}</strong></td>
+                  <td className={ui.soft}>{row.differs ? "Will be flagged for review" : ""}</td>
+                </tr>
+              ))}
+              <tr><th scope="row">Brokerage keeps</th><td className={ui.num}><strong>{money(cents(net - toAgents))}</strong></td><td /></tr>
+            </tbody>
+          </table>
+        </div>
+        <p className={ui.help}>Worked out as you type. The final figures are calculated again and checked against each rider when you save.</p>
+      </section>
 
       {duplicates?.length ? (
         <section role="alert" aria-labelledby="dual-title" className={ui.placeholder} style={{ borderStyle: "solid" }}>

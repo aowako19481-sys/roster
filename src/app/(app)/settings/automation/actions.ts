@@ -18,6 +18,7 @@ export async function saveAutomation(_prev: Result, form: FormData): Promise<Res
     ws: gate.access.workspace.id, tiers: parsed.tiers,
     pack_on_invite: form.get("pack_on_invite") === "on", rider_on_invite: form.get("rider_on_invite") === "on",
     rider_on_tier: form.get("rider_on_tier") === "on", team_mode: text(form, "team_mode", 10) === "members" ? "members" : "lead",
+    prefill: form.get("prefill_splits") === "on",
   });
   if (error) return failure(error);
   revalidatePath("/settings/automation");
