@@ -42,3 +42,17 @@ export async function saveLicenceLookup(_prev: Result, form: FormData): Promise<
   revalidatePath("/agents");
   return done(url ? `Saved. Staff now reach the ${state} record in one click from any ${state} agent.` : `Removed the ${state} look-up.`);
 }
+
+/** What Kinu does on its own schedule, when nobody is signed in. */
+export async function saveBackground(_prev: Result, form: FormData): Promise<Result> {
+  const gate = await actionAccess("settings.manage");
+  if ("denied" in gate) return fail(gate.denied);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_background", {
+    ws: gate.access.workspace.id, chase: form.get("chase") === "on", nudge: form.get("nudge") === "on",
+    licence: form.get("licence") === "on", weekly: form.get("weekly") === "on",
+  });
+  if (error) return failure(error);
+  revalidatePath("/settings/automation");
+  return done("Saved.");
+}

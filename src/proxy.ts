@@ -5,7 +5,8 @@ import { sessionCookieOptions, supabaseEnv, untilBrowserCloses } from "@/lib/sup
 
 const PUBLIC_PATHS = new Set(["/sign-in"]);
 // Reachable while signed out, and left alone when signed in.
-const OPEN_PATHS = new Set(["/auth/callback", "/home", "/sitemap.xml"]);
+// The last two are called by machines, not people; each checks its own password.
+const OPEN_PATHS = new Set(["/auth/callback", "/home", "/sitemap.xml", "/api/cron/daily", "/api/documenso/webhook"]);
 // The public website: the landing page and the policy pages.
 const isSitePath = (pathname: string) => pathname === "/legal" || pathname.startsWith("/legal/");
 

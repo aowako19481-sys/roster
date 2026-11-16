@@ -4,14 +4,16 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { actionAccess } from "@/lib/access";
-import { SigningError, cancelEnvelope, documensoReady, downloadCertificate, downloadSigned, envelopeState, remind, sendEnvelope, type PlacedBox } from "@/lib/documenso";
+import { documentReference } from "@/lib/automation";
+import { SigningError, cancelEnvelope, documensoReady, envelopeState, remind, sendEnvelope, type PlacedBox } from "@/lib/documenso";
 import { done, fail, failure, text, uuid, type Result } from "@/lib/result";
 import { flattened, inspectPdf, readBoxes, type SignBox } from "@/lib/sign-fields";
+import { settleDocuments } from "@/lib/sign-settle";
 import { createClient } from "@/lib/supabase/server";
 
 const NOT_READY = "Electronic signing is not switched on yet.";
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const reference = (ws: string) => `kinu:${ws}:document`;
+const reference = documentReference;
 const problem = (error: unknown) => fail(error instanceof SigningError ? error.message : "That did not work. Please try again.");
 
 /** People who manage files or riders may prepare and send documents. */
@@ -155,53 +157,18 @@ export async function sendDocument(_prev: Result, form: FormData): Promise<Resul
 
 type OpenDoc = { id: string; envelope_id: string; status: string; signers: { email: string; status: string }[] };
 
-async function settle(supabase: Awaited<ReturnType<typeof createClient>>, ws: string, doc: OpenDoc): Promise<string> {
-  const state = await envelopeState(doc.envelope_id, reference(ws));
-  const states = doc.signers.map((signer, index) => state.people.find((person) => person.email === signer.email)?.status ?? state.people[index]?.status ?? signer.status);
-  if (state.status === doc.status && states.every((status, index) => status === doc.signers[index]!.status)) return state.status;
-  let signedPath: string | null = null, certificatePath: string | null = null;
-  if (state.status === "signed") {
-    if (!state.itemId) throw new SigningError("The signed document could not be collected yet.");
-    const pdf = await downloadSigned(state.itemId);
-    signedPath = `${ws}/sign/${doc.id}-signed.pdf`;
-    const stored = await supabase.storage.from("documents").upload(signedPath, pdf, { contentType: "application/pdf", upsert: true });
-    if (stored.error) throw new SigningError("The signed document could not be saved.");
-    const certificate = await downloadCertificate(doc.envelope_id);
-    if (certificate) {
-      certificatePath = `${ws}/sign/${doc.id}-certificate.pdf`;
-      const kept = await supabase.storage.from("documents").upload(certificatePath, certificate, { contentType: "application/pdf", upsert: true });
-      if (kept.error) certificatePath = null;
-    }
-  }
-  const { data, error } = await supabase.rpc("update_sign_document", { ws, doc: doc.id, new_status: state.status, signer_states: states, signed_file: signedPath, certificate_file: certificatePath });
-  if (error) throw new SigningError(failure(error).message ?? "That did not work.");
-  return (data as string) ?? state.status;
-}
-
 /** Check every document that is out for signature and file the finished ones. */
 export async function checkDocuments(): Promise<Result> {
   const access = await gate();
   if ("denied" in access) return fail(access.denied);
   if (!documensoReady()) return fail(NOT_READY);
   const supabase = await createClient();
-  const ws = access.access.workspace.id;
-  const { data } = await supabase.from("sign_documents").select("id, envelope_id, status, signers").eq("workspace_id", ws).in("status", ["sent", "opened"]).order("sent_at").limit(40);
-  const open = (data ?? []) as OpenDoc[];
-  if (!open.length) return done("Nothing is out for signature right now.");
-  let signed = 0, declined = 0, trouble = 0;
-  for (const doc of open) {
-    try {
-      const result = await settle(supabase, ws, doc);
-      if (result === "signed") signed += 1;
-      if (result === "declined") declined += 1;
-    } catch {
-      trouble += 1;
-    }
-  }
+  const result = await settleDocuments(supabase, access.access.workspace.id);
+  if (!result.checked) return done("Nothing is out for signature right now.");
   revalidatePath("/sign");
-  if (signed) revalidatePath("/agents");
-  const parts = [`${signed} newly signed`, declined ? `${declined} declined` : "", `${open.length - signed - declined - trouble} still waiting`, trouble ? `${trouble} could not be checked` : ""].filter(Boolean);
-  return done(`Checked ${open.length}: ${parts.join(", ")}.`);
+  if (result.signed) revalidatePath("/agents");
+  const parts = [`${result.signed} newly signed`, result.declined ? `${result.declined} declined` : "", `${result.checked - result.signed - result.declined - result.trouble} still waiting`, result.trouble ? `${result.trouble} could not be checked` : ""].filter(Boolean);
+  return done(`Checked ${result.checked}: ${parts.join(", ")}.`);
 }
 
 async function one(form: FormData) {

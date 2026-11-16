@@ -4,9 +4,10 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { actionAccess } from "@/lib/access";
 import { afterTierApproved, riderOut, riderReference } from "@/lib/automation";
-import { SigningError, cancelEnvelope, documensoReady, downloadCertificate, downloadSigned, envelopeState, remind } from "@/lib/documenso";
+import { SigningError, cancelEnvelope, documensoReady, envelopeState, remind } from "@/lib/documenso";
 import { parseTiers, readTiers, type Tier } from "@/lib/ops";
 import { riderPdf } from "@/lib/rider-pdf";
+import { settleRiders } from "@/lib/sign-settle";
 import { done, fail, failure, num, text, uuid, type Result } from "@/lib/result";
 import { createClient } from "@/lib/supabase/server";
 
@@ -121,52 +122,17 @@ export async function sendRider(_prev: Result, form: FormData): Promise<Result> 
   return result;
 }
 
-/** Reads one open request back from the signing service and files the signed copy when it is done. */
-async function settle(supabase: Awaited<ReturnType<typeof createClient>>, ws: string, request: OpenRequest): Promise<string> {
-  const state = await envelopeState(request.envelope_id, reference(ws, request.rider_id, request.agent_id));
-  if (state.status === request.status) return state.status;
-  let signedPath: string | null = null, certificatePath: string | null = null;
-  if (state.status === "signed") {
-    if (!state.itemId) throw new SigningError("The signed document could not be collected yet. Try again in a minute.");
-    const pdf = await downloadSigned(state.itemId);
-    signedPath = `${ws}/riders/${request.id}-signed.pdf`;
-    const stored = await supabase.storage.from("documents").upload(signedPath, pdf, { contentType: "application/pdf", upsert: true });
-    if (stored.error) throw new SigningError("The signed document could not be saved. Please try again.");
-    const certificate = await downloadCertificate(request.envelope_id);
-    if (certificate) {
-      certificatePath = `${ws}/riders/${request.id}-certificate.pdf`;
-      const kept = await supabase.storage.from("documents").upload(certificatePath, certificate, { contentType: "application/pdf", upsert: true });
-      if (kept.error) certificatePath = null;
-    }
-  }
-  const { data, error } = await supabase.rpc("update_sign_request", { ws, request: request.id, new_status: state.status, signed_file: signedPath, certificate_file: certificatePath });
-  if (error) throw new SigningError(failure(error).message ?? "That did not work.");
-  return (data as string) ?? state.status;
-}
-
 /** Check every rider that is out for signature, and file the ones that have been signed. */
 export async function checkSignatures(): Promise<Result> {
   const gate = await actionAccess("riders.manage");
   if ("denied" in gate) return fail(gate.denied);
   if (!documensoReady()) return fail(NOT_READY);
   const supabase = await createClient();
-  const ws = gate.access.workspace.id;
-  const { data } = await supabase.from("sign_requests").select("id, rider_id, agent_id, envelope_id, status").eq("workspace_id", ws).in("status", ["sent", "opened"]).order("sent_at").limit(40);
-  const open = (data ?? []) as OpenRequest[];
-  if (!open.length) return done("Nothing is out for signature right now.");
-  let signed = 0, declined = 0, trouble = 0;
-  for (const request of open) {
-    try {
-      const result = await settle(supabase, ws, request);
-      if (result === "signed" || result === "rider_signed") signed += 1;
-      if (result === "declined") declined += 1;
-    } catch {
-      trouble += 1;
-    }
-  }
+  const result = await settleRiders(supabase, gate.access.workspace.id);
+  if (!result.checked) return done("Nothing is out for signature right now.");
   refresh();
-  const parts = [`${signed} newly signed`, declined ? `${declined} declined` : "", `${open.length - signed - declined - trouble} still waiting`, trouble ? `${trouble} could not be checked` : ""].filter(Boolean);
-  return done(`Checked ${open.length}: ${parts.join(", ")}.`);
+  const parts = [`${result.signed} newly signed`, result.declined ? `${result.declined} declined` : "", `${result.checked - result.signed - result.declined - result.trouble} still waiting`, result.trouble ? `${result.trouble} could not be checked` : ""].filter(Boolean);
+  return done(`Checked ${result.checked}: ${parts.join(", ")}.`);
 }
 
 /** Email a reminder to everyone who has not signed a rider yet. */

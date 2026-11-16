@@ -7,7 +7,7 @@ import { rulesOf } from "@/lib/automation";
 import { documensoReady } from "@/lib/documenso";
 import { readTiers, tiersToText } from "@/lib/ops";
 import { createClient } from "@/lib/supabase/server";
-import { saveAutomation, saveLicenceLookup } from "./actions";
+import { saveAutomation, saveBackground, saveLicenceLookup } from "./actions";
 
 export const metadata: Metadata = { title: "Automation" };
 
@@ -22,6 +22,8 @@ export default async function AutomationPage() {
   const invitePack = (packs ?? []).filter((row) => row.pack === "invite").map((row) => row.name as string);
   const exitPack = (packs ?? []).filter((row) => row.pack === "exit").map((row) => row.name as string);
   const signingOn = documensoReady();
+  const { data: quiet } = await supabase.from("automation").select("chase_signatures, nudge_onboarding, licence_reminders, weekly_summary").eq("workspace_id", access.workspace.id).maybeSingle();
+  const background = { chase: quiet?.chase_signatures ?? true, nudge: quiet?.nudge_onboarding ?? true, licence: quiet?.licence_reminders ?? true, weekly: quiet?.weekly_summary ?? true };
   const { data: lookups } = await supabase.from("licence_lookups").select("state, url").eq("workspace_id", access.workspace.id).order("state");
 
   return (
@@ -103,6 +105,17 @@ export default async function AutomationPage() {
 
         <Submit>Save automation</Submit>
       </ActionForm>
+
+      <Card title="While nobody is signed in" aside={<Badge tone="muted">Once a day</Badge>}>
+        <ActionForm action={saveBackground} className={ui.stack}>
+          <label className={ui.check}><input type="checkbox" name="chase" defaultChecked={background.chase} /> Remind people who have not signed, up to three times</label>
+          <label className={ui.check}><input type="checkbox" name="nudge" defaultChecked={background.nudge} /> Email invited agents a fresh link if they have not finished, on days 2, 5 and 9</label>
+          <label className={ui.check}><input type="checkbox" name="licence" defaultChecked={background.licence} /> Tell agents 90, 60 and 30 days before their licence expires</label>
+          <label className={ui.check}><input type="checkbox" name="weekly" defaultChecked={background.weekly} /> Email your admins a summary every Monday, with who to check in with if you have Retention Insights</label>
+          <p className={ui.help}>Signed documents are also collected and filed without anyone having Kinu open. Emails go to people you invited and to your own admins, and to nobody else.</p>
+          <Submit small>Save</Submit>
+        </ActionForm>
+      </Card>
 
       <Card title="Licence checks" aside={<Badge tone="muted">A person confirms</Badge>}>
         <div className={ui.stack}>
