@@ -129,6 +129,14 @@ export default async function ReportsPage() {
             <Stat label="W-9 missing or mismatched" value={withoutW9.length} note="Fix these before January" />
             <Stat label="Ready" value={total ? `${Math.round((withW9.length / total) * 100)}%` : "–"} />
           </div>
+          {access.caps.has("payouts.view") || access.caps.has("statements.view") ? (
+            <p>
+              <a className={`${ui.btn} ${ui.small}`} href={`/reports/year-end?year=${year}`} download>Download each agent’s {year} earnings (CSV)</a>{" "}
+              <a className={ui.linkBtn} href={`/reports/year-end?year=${Number(year) - 1}`} download>{Number(year) - 1}</a>
+              <br />
+              <span className={ui.soft}>What each agent was paid from payrolls closed in the year. No tax numbers. A summary for your accountant, not a filing.</span>
+            </p>
+          ) : null}
           <Placeholder service="Compliance pack / e-file export">
             The filing-ready 1099 file for your accountant or e-file service will be made here once the compliance pack is
             connected, with payout totals matched to each W-9. This page shows who is ready; it does not file anything.

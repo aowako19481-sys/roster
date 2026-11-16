@@ -65,6 +65,7 @@ export default async function SettingsPage() {
             Set the checklist every new deal starts with, name the system your deal files live in, and lay out your own documents.
           </p>
           <div className={ui.inline}>
+            <ButtonLink href="/settings/setup">Get set up</ButtonLink>
             <ButtonLink href="/settings/automation">Automation</ButtonLink>
             <ButtonLink href="/settings/checklist">Deal checklist</ButtonLink>
             <ButtonLink href="/templates">Autofill documents</ButtonLink>

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { actionAccess } from "@/lib/access";
 import { packOut } from "@/lib/automation";
+import { cancelEnvelope, documensoReady } from "@/lib/documenso";
 import { todayIso } from "@/lib/format";
 import { done, fail, failure, uuid, type Result } from "@/lib/result";
 import { createClient } from "@/lib/supabase/server";
@@ -25,6 +26,12 @@ export async function markExited(_prev: Result, form: FormData): Promise<Result>
     .eq("id", id).eq("workspace_id", ws.id).select("id");
   if (error) return failure(error);
   if (!data?.length) return fail("That agent could not be found.");
+  // A rider still waiting for this person's signature is withdrawn: they are leaving.
+  const { data: waiting } = await supabase.from("sign_requests").select("id, envelope_id").eq("workspace_id", ws.id).eq("agent_id", id).in("status", ["sent", "opened"]);
+  for (const request of waiting ?? []) {
+    if (documensoReady()) await cancelEnvelope(request.envelope_id as string).catch(() => {});
+    await supabase.rpc("update_sign_request", { ws: ws.id, request: request.id, new_status: "cancelled", signed_file: null, certificate_file: null });
+  }
   // The brokerage's exit documents, if it has chosen any, go out for signature by themselves.
   const pack = await packOut(supabase, ws.id, ws.name, "exit", [id]).catch(() => ({ sent: 0, problems: [] as string[] }));
   revalidatePath("/exit-kit");

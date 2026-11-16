@@ -56,6 +56,21 @@ export async function changeChecklistItem(_prev: Result, form: FormData): Promis
   return done();
 }
 
+/** Choose what makes a box tick itself on a deal. */
+export async function setChecklistAuto(_prev: Result, form: FormData): Promise<Result> {
+  const gate = await actionAccess("payroll.manage");
+  if ("denied" in gate) return fail(gate.denied);
+  const id = uuid(form, "id");
+  const auto = text(form, "auto_tick", 10);
+  if (!id) return fail("That box could not be found.");
+  if (!["none", "payment", "proof", "receipt", "cleared"].includes(auto)) return fail("Choose when this box ticks itself.");
+  const supabase = await createClient();
+  const { error } = await supabase.from("checklist_items").update({ auto_tick: auto }).eq("id", id).eq("workspace_id", gate.access.workspace.id);
+  if (error) return failure(error);
+  refresh();
+  return done(auto === "none" ? "Saved. A person ticks this box." : "Saved. This box now ticks itself on every deal.");
+}
+
 /** Name the system the brokerage keeps its deal files in. */
 export async function saveDealSystem(_prev: Result, form: FormData): Promise<Result> {
   const gate = await actionAccess("payroll.manage");

@@ -4,7 +4,7 @@ import { Badge, ButtonLink, Card, Empty, PageHeader, ui } from "@/components/ui"
 import { requireCap } from "@/lib/access";
 import { DEFAULT_CHECKLIST } from "@/lib/finance";
 import { createClient } from "@/lib/supabase/server";
-import { addChecklistItem, changeChecklistItem, saveDealSystem } from "./actions";
+import { addChecklistItem, changeChecklistItem, saveDealSystem, setChecklistAuto } from "./actions";
 
 export const metadata: Metadata = { title: "Deal checklist" };
 
@@ -14,7 +14,7 @@ export default async function ChecklistSettingsPage() {
   const canManage = access.caps.has("payroll.manage");
   const supabase = await createClient();
   const [{ data: items }, { data: settings }] = await Promise.all([
-    supabase.from("checklist_items").select("id, label, active, position").eq("workspace_id", ws).order("position").limit(60),
+    supabase.from("checklist_items").select("id, label, active, position, auto_tick").eq("workspace_id", ws).order("position").limit(60),
     supabase.from("workspaces").select("deal_system").eq("id", ws).maybeSingle(),
   ]);
   const own = items ?? [];
@@ -52,6 +52,22 @@ export default async function ChecklistSettingsPage() {
                       )}
                     </span>
                   </div>
+                  {canManage && item.active ? (
+                    <ActionForm action={setChecklistAuto} className={ui.inline}>
+                      <input type="hidden" name="id" value={item.id} />
+                      <label className={ui.field}>
+                        <span className="sr-only">{item.label}: </span>Ticks itself
+                        <select className={ui.select} name="auto_tick" defaultValue={(item as { auto_tick?: string }).auto_tick ?? "none"}>
+                          <option value="none">Never. A person ticks it</option>
+                          <option value="payment">When a payment is recorded for the deal</option>
+                          <option value="proof">When proof of payment is attached</option>
+                          <option value="receipt">When a bank receipt is attached</option>
+                          <option value="cleared">When the deal is marked cleared</option>
+                        </select>
+                      </label>
+                      <Submit small variant="plain">Save</Submit>
+                    </ActionForm>
+                  ) : null}
                 </li>
               ))}
             </ul>
