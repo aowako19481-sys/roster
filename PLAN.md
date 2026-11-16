@@ -137,3 +137,53 @@ Vercel link opens the sign-in page, you sign in with a code sent to your email, 
 - Supabase's built-in email sender allows only a few emails per hour and may deliver only to your project's team addresses. Fine for you testing; Resend replaces it in step 2 or 3.
 - No two-factor yet. Blueprint requires it; it is the first item of step 2. Until then, test data only.
 - No rate limiting of our own on sign-in beyond Supabase's built-in limits. Step 2.
+
+---
+
+# Plan: Riders → Send for signature (Documenso)
+
+Status: waiting for the owner's OK. Nothing below is built yet.
+
+## Architect — what it does
+
+1. On the Riders page, each rider waiting for signature gets a **Send for signature** button.
+2. Kinu builds the rider PDF on our own server: the brokerage's rider PDF form if one is set up in Templates (filled in with the agent's split and tiers), otherwise a plain Kinu rider page.
+3. Kinu adds a signature page at the end (signature, printed name, date) and sends the PDF to the brokerage's Documenso (sign.kinu.pro) with the agent as signer.
+4. The agent gets an email from KINU and signs on sign.kinu.pro.
+5. When signing completes, Kinu downloads the sealed PDF and its certificate, files both in the agent's file, and marks the rider signed. The existing tier and payroll rules then treat it exactly like a rider signed today.
+6. Staff can see the state (sent, opened, signed, declined), resend, or cancel.
+
+Step 2 of this feature (later, separate OK): placing signature, initials and date boxes anywhere on the brokerage's own PDF inside Kinu.
+
+## Data
+
+- New table `sign_requests` (workspace, rider, agent, Documenso envelope id, status, sent/completed times, file paths). Row-level security like `riders`; only the server writes status.
+- One new migration, idempotent. No change to existing tables beyond a nullable link from `riders`.
+
+## Coder — commit sequence
+
+1. `src/lib/documenso.ts`: server-only client (create envelope, add recipient and fields, distribute, get status, download). Reads `DOCUMENSO_URL` and `DOCUMENSO_API_KEY`; if either is missing the button explains that instead of failing.
+2. Migration + `sendRider`, `refreshRider`, `cancelRider` actions (permission: the same capability that can record a rider signature today).
+3. Riders page UI: button, status, resend, cancel.
+4. `/api/documenso/webhook`: verifies the shared secret, then re-reads the envelope from Documenso before trusting anything. Status is also refreshed when staff open the page, so it works before the webhook is set up.
+5. Auto-file the sealed PDF and certificate into the agent file.
+
+## Tester — checks
+
+- Fake agents only, against a test envelope on sign.kinu.pro.
+- Send, sign, decline, cancel, resend; signed copy appears in the agent file; rider becomes current only after completion.
+- A second brokerage cannot see or act on the first brokerage's requests.
+- Missing key, wrong key, Documenso offline: clear message, nothing half-saved.
+
+## Security — review
+
+- API key and webhook secret are server-only settings; never sent to the browser, never logged.
+- The webhook is not trusted on its own: Kinu re-fetches the envelope by id and checks it belongs to the request on file.
+- Only the agent's name and email go to Documenso, plus the rider PDF. No tax or bank details.
+- No new package: plain `fetch` and the existing pdf-lib.
+
+## Needed from the owner
+
+1. OK on this plan.
+2. Who signs a team rider: every member, or the team lead only.
+3. Later: a webhook secret (one setting in Documenso and one in Vercel) and the signing certificate check.
