@@ -49,6 +49,7 @@ export const LEGAL_PAGES: LegalPage[] = [
           `${BRAND} does not move money. It is not a payroll provider, bank, escrow agent or money transmitter.`,
           `${BRAND} does not give legal, tax, accounting or employment advice, and does not file tax forms. Exports are prepared for your own accountant or filing service.`,
           `${BRAND} is not a real estate broker and does not supervise your agents.`,
+          `${BRAND} assists you in checking an agent's licence: it shows what the agent entered, its own consistency checks and a way to the state's public record. A person at your brokerage confirms each licence. ${BRAND} does not guarantee that any licence is valid, active or in good standing, and a difference it finds is never treated as a rejection by itself.`,
         ],
       ] },
       { heading: "3. Your data and your documents", body: [

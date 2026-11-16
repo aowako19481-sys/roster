@@ -7,7 +7,7 @@ import { rulesOf } from "@/lib/automation";
 import { documensoReady } from "@/lib/documenso";
 import { readTiers, tiersToText } from "@/lib/ops";
 import { createClient } from "@/lib/supabase/server";
-import { saveAutomation } from "./actions";
+import { saveAutomation, saveLicenceLookup } from "./actions";
 
 export const metadata: Metadata = { title: "Automation" };
 
@@ -22,6 +22,7 @@ export default async function AutomationPage() {
   const invitePack = (packs ?? []).filter((row) => row.pack === "invite").map((row) => row.name as string);
   const exitPack = (packs ?? []).filter((row) => row.pack === "exit").map((row) => row.name as string);
   const signingOn = documensoReady();
+  const { data: lookups } = await supabase.from("licence_lookups").select("state, url").eq("workspace_id", access.workspace.id).order("state");
 
   return (
     <div className={ui.stack}>
@@ -55,12 +56,12 @@ export default async function AutomationPage() {
           </div>
         </Card>
 
-        <Card title="When a tier move is approved">
+        <Card title="When a split changes">
           <div className={ui.stack}>
             <label className={ui.check}>
-              <input type="checkbox" name="rider_on_tier" defaultChecked={rules.send_rider_on_tier} /> Send the new rider to be signed for the record as soon as it is approved
+              <input type="checkbox" name="rider_on_tier" defaultChecked={rules.send_rider_on_tier} /> When a split changes to something that is not in the signed rider, send the new rider for signature
             </label>
-            <p className={ui.help}>The approval itself is what changes pay, as it does today. This adds the agent’s own signature to their file without making anyone wait for it.</p>
+            <p className={ui.help}>If the rider an agent signed already lists their tiers, moving up a tier was agreed in advance and nothing is sent. A new rider only goes out when the new split is outside what they signed.</p>
             <label className={ui.field}>
               A team rider is signed by
               <select className={ui.select} name="team_mode" defaultValue={rules.team_rider_mode}>
@@ -80,6 +81,30 @@ export default async function AutomationPage() {
 
         <Submit>Save automation</Submit>
       </ActionForm>
+
+      <Card title="Licence checks" aside={<Badge tone="muted">A person confirms</Badge>}>
+        <div className={ui.stack}>
+          <p className={ui.help}>
+            Kinu runs its own checks on every licence and a person at your brokerage confirms it against the state’s public record. Save each state’s official look-up page once, and staff reach it in one click from the agent’s page. Kinu records who confirmed each licence, and when.
+          </p>
+          {(lookups ?? []).length ? (
+            <ul className={ui.list}>
+              {(lookups ?? []).map((row) => <li key={row.state as string}><strong>{row.state as string}</strong>: <span className={ui.mono}>{row.url as string}</span></li>)}
+            </ul>
+          ) : <p className={ui.soft}>No state look-ups saved yet.</p>}
+          <ActionForm action={saveLicenceLookup} className={ui.inline} resetOnSuccess>
+            <label className={ui.field} style={{ flex: "0 0 90px" }}>
+              State
+              <input className={ui.input} name="state" required maxLength={2} placeholder="NY" autoCapitalize="characters" />
+            </label>
+            <label className={ui.field} style={{ flex: "1 1 320px" }}>
+              Address of the state’s official look-up page (leave empty to remove)
+              <input className={ui.input} name="url" type="url" maxLength={400} placeholder="https://" />
+            </label>
+            <Submit small>Save look-up</Submit>
+          </ActionForm>
+        </div>
+      </Card>
     </div>
   );
 }

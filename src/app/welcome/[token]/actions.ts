@@ -19,6 +19,7 @@ export async function licenceStep(_prev: Result, form: FormData): Promise<Result
   const token = text(form, "token", 64);
   const expires = isoDate(form, "expires");
   if (!expires) return { ok: false, message: "Enter the expiry date on your licence." };
+  if (form.get("agree") !== "on") return { ok: false, message: "Tick the box to confirm you understand your brokerage will verify your licence." };
   const photo = form.get("photo");
   const { error } = await saveLicence(token, text(form, "number", 30), text(form, "state", 2) || "NY", expires, photo instanceof File ? photo : null);
   if (error) return failure(error);

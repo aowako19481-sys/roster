@@ -23,3 +23,19 @@ export async function saveAutomation(_prev: Result, form: FormData): Promise<Res
   revalidatePath("/settings/automation");
   return done("Saved. These apply from the next agent you invite and the next tier you approve.");
 }
+
+/** Save (or clear) the address of a state's official licence look-up page. */
+export async function saveLicenceLookup(_prev: Result, form: FormData): Promise<Result> {
+  const gate = await actionAccess("settings.manage");
+  if ("denied" in gate) return fail(gate.denied);
+  const state = text(form, "state", 2).toUpperCase();
+  const url = text(form, "url", 400);
+  if (!/^[A-Z]{2}$/.test(state)) return fail("Use the two-letter state code, like NY.");
+  if (url && !/^https:\/\/\S{4,}$/.test(url)) return fail("Paste the full address of the state’s look-up page, starting with https://");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_licence_lookup", { ws: gate.access.workspace.id, lookup_state: state, lookup_url: url });
+  if (error) return failure(error);
+  revalidatePath("/settings/automation");
+  revalidatePath("/agents");
+  return done(url ? `Saved. Staff now reach the ${state} record in one click from any ${state} agent.` : `Removed the ${state} look-up.`);
+}

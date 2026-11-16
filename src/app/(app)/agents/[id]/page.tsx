@@ -6,8 +6,8 @@ import { NewLinkForm } from "@/components/ops/NewLinkForm";
 import { StatusBadge } from "@/components/ops/StatusBadge";
 import { Badge, ButtonLink, Card, Empty, PageHeader, Placeholder, Stat, ui } from "@/components/ui";
 import { requireCap } from "@/lib/access";
-import { day, dayTime, money, moneyWhole, pct, titleCase } from "@/lib/format";
-import { auditText, cohortLabel, docKind, maskTin, readTiers, tiersToText, UUID_RE } from "@/lib/ops";
+import { day, dayTime, money, moneyWhole, pct, titleCase, todayIso } from "@/lib/format";
+import { auditText, cohortLabel, daysBetween, docKind, maskTin, readTiers, tiersToText, UUID_RE } from "@/lib/ops";
 import { createClient } from "@/lib/supabase/server";
 import { reissueInvite } from "../../invite/actions";
 import { draftRider, recordSignature } from "../../riders/actions";
@@ -36,11 +36,16 @@ export default async function AgentCardPage({ params }: Props) {
 
   // The full licence number is never read here: only the masked form is shown.
   const { data: agent } = await supabase.from("agents")
-    .select("id, full_name, email, phone, office, office_id, status, cohort, licence_masked, licence_state, licence_status, licence_note, licence_expires_on, w9_status, rider_status, onboarding_status, gci_ytd, joined_on, exited_on, invite_sent_at, invite_expires_at")
+    .select("id, full_name, email, phone, office, office_id, status, cohort, licence_masked, licence_state, licence_status, licence_note, licence_expires_on, licence_file_path, licence_checked_at, licence_checked_by, licence_source, w9_status, rider_status, onboarding_status, gci_ytd, joined_on, exited_on, invite_sent_at, invite_expires_at")
     .eq("id", id).eq("workspace_id", ws).maybeSingle();
   if (!agent) notFound();
 
   const showDeals = can("deals.view") && access.workspace.hasFinance;
+  const licenceState = typeof agent.licence_state === "string" ? agent.licence_state.toUpperCase() : "";
+  const { data: lookup } = /^[A-Z]{2}$/.test(licenceState)
+    ? await supabase.from("licence_lookups").select("url").eq("workspace_id", ws).eq("state", licenceState).maybeSingle()
+    : { data: null };
+  const lookupUrl = typeof lookup?.url === "string" && lookup.url.startsWith("https://") ? lookup.url : null;
   const [memberRes, officeRes, docRes, riderRes, taxRes, lineRes, auditRes] = await Promise.all([
     supabase.from("team_members").select("team_id, role_label").eq("workspace_id", ws).eq("agent_id", id),
     can("agents.edit") ? supabase.from("offices").select("id, name").eq("workspace_id", ws).order("name") : none,
@@ -124,7 +129,25 @@ export default async function AgentCardPage({ params }: Props) {
             <dd>{day(agent.licence_expires_on)}</dd>
             <dt>Note</dt>
             <dd>{agent.licence_note ?? "–"}</dd>
+            <dt>Last checked</dt>
+            <dd>
+              {agent.licence_checked_at
+                ? `${dayTime(agent.licence_checked_at as string, access.workspace.timezone)} by ${agent.licence_checked_by ?? "brokerage staff"}`
+                : "Not checked yet"}
+              {agent.licence_source ? <><br /><span className={ui.soft}>{agent.licence_source as string}</span></> : null}
+            </dd>
           </dl>
+          <LicenceChecks
+            state={licenceState}
+            masked={(agent.licence_masked as string | null) ?? null}
+            expires={(agent.licence_expires_on as string | null) ?? null}
+            hasPhoto={Boolean(agent.licence_file_path)}
+            agentName={agent.full_name as string}
+            legalName={can("w9.view") ? ((taxRes.data?.legal_name as string | null | undefined) ?? null) : undefined}
+            lookupUrl={lookupUrl}
+            canSet={can("settings.manage")}
+            today={todayIso(access.workspace.timezone)}
+          />
           {can("riders.manage") && (
             <div className={ui.stack} style={{ marginTop: 18 }}>
               <ActionForm action={reviewLicence}>
@@ -146,10 +169,6 @@ export default async function AgentCardPage({ params }: Props) {
                   <Submit small variant="danger">Flag mismatch</Submit>
                 </div>
               </ActionForm>
-              <Placeholder service="State licence lookup">
-                The number will be checked against the state record automatically once a lookup service is connected. Until
-                then a person confirms it here.
-              </Placeholder>
             </div>
           )}
         </Card>
@@ -438,6 +457,57 @@ export default async function AgentCardPage({ params }: Props) {
             <Empty>Nothing recorded for this agent yet.</Empty>
           )}
         </Card>
+      )}
+    </div>
+  );
+}
+
+
+const sameName = (a: string, b: string) => {
+  const tidy = (value: string) => value.toLowerCase().replace(/[^a-z ]/g, " ").split(/\s+/).filter((part) => part.length > 1).sort().join(" ");
+  return tidy(a) === tidy(b);
+};
+
+/**
+ * What Kinu can check by itself (it never contacts the state), and the way to
+ * the state's own record for the person who confirms the licence.
+ */
+function LicenceChecks({ state, masked, expires, hasPhoto, agentName, legalName, lookupUrl, canSet, today }: {
+  today: string; state: string; masked: string | null; expires: string | null; hasPhoto: boolean; agentName: string; legalName: string | null | undefined; lookupUrl: string | null; canSet: boolean;
+}) {
+  const daysLeft = expires ? daysBetween(today, expires) : null;
+  const checks: { label: string; ok: boolean | null; note: string }[] = [
+    { label: "Licence number entered", ok: Boolean(masked), note: masked ? "On file" : "Missing" },
+    { label: "State", ok: /^[A-Z]{2}$/.test(state), note: /^[A-Z]{2}$/.test(state) ? state : "Missing" },
+    { label: "Expiry date", ok: daysLeft === null ? false : daysLeft > 30, note: daysLeft === null ? "Missing" : daysLeft < 0 ? "Expired" : daysLeft <= 30 ? `Expires in ${daysLeft} days` : `${daysLeft} days left` },
+    { label: "Photo of the licence", ok: hasPhoto ? true : null, note: hasPhoto ? "Attached" : "Not attached (optional)" },
+  ];
+  if (legalName !== undefined) {
+    checks.push(legalName
+      ? { label: "Name matches their W-9", ok: sameName(agentName, legalName), note: sameName(agentName, legalName) ? "Same name" : `W-9 says “${legalName}”` }
+      : { label: "Name matches their W-9", ok: null, note: "No W-9 yet" });
+  }
+  const search = `https://duckduckgo.com/?q=${encodeURIComponent(`${state || "state"} real estate license lookup official`)}`;
+  return (
+    <div className={ui.stack} style={{ marginTop: 16, gap: 10 }}>
+      <p className={ui.strong}>Kinu’s own checks</p>
+      <ul className={ui.list}>
+        {checks.map((check) => (
+          <li key={check.label}>
+            {check.ok === true ? "✓" : check.ok === false ? "✗" : "–"} {check.label}: <span className={check.ok === false ? ui.strong : ui.soft}>{check.note}</span>
+          </li>
+        ))}
+      </ul>
+      <p className={ui.help}>These catch typing mistakes. They are not a check against the state: a person confirms that below.</p>
+      {lookupUrl ? (
+        <a className={`${ui.btn} ${ui.small}`} href={lookupUrl} target="_blank" rel="noopener noreferrer">
+          Open the {state} state record (opens in a new tab)
+        </a>
+      ) : (
+        <p className={ui.help}>
+          <a href={search} target="_blank" rel="noopener noreferrer">Find the official {state || "state"} look-up (opens in a new tab)</a>.{" "}
+          {canSet ? <>Save its address once under <Link href="/settings/automation">Settings, Automation</Link> and it becomes a one-click button here.</> : "Ask an admin to save its address in Settings so it becomes a one-click button here."}
+        </p>
       )}
     </div>
   );

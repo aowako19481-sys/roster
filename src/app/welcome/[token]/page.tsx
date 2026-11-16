@@ -123,8 +123,8 @@ export default async function WelcomePage({ params }: Props) {
           <ActionForm action={licenceStep}>
             <h2 className={styles.h2}>Your licence</h2>
             <p className={ui.help}>
-              Enter the number and expiry date from your real estate licence and add a photo of it. Someone at your
-              brokerage checks it against the state record.
+              Enter the number and expiry date from your real estate licence and add a photo of it. Your brokerage
+              will verify your licence against the state’s public record.
             </p>
             <input type="hidden" name="token" value={token} />
             <div className={ui.formRow}>
@@ -144,6 +144,9 @@ export default async function WelcomePage({ params }: Props) {
             <label className={ui.field}>
               Photo of your licence (JPEG, PNG, WebP or PDF, up to 10 MB)
               <input className={styles.file} name="photo" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" />
+            </label>
+            <label className={ui.check}>
+              <input type="checkbox" name="agree" required /> I understand my brokerage will verify my licence against the state’s public record
             </label>
             <Submit busy="Saving…">Continue</Submit>
           </ActionForm>

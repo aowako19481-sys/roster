@@ -181,13 +181,23 @@ export async function afterInvite(supabase: Db, ws: string, brokerage: string, a
   return [said.length ? `Also done automatically: ${said.join(", ")}.` : "", unique.length ? `Not sent automatically: ${unique.join("; ")}.` : ""].filter(Boolean).join(" ");
 }
 
-/** After a tier move is approved: send the new rider for signature if the brokerage chose to. */
+/**
+ * After a tier move is approved. If the rider the agent already signed lists
+ * this tier, the move was agreed in advance and nothing new needs signing.
+ * Only a split that is outside the signed terms sends a new rider, and only
+ * if the brokerage chose that.
+ */
 export async function afterTierApproved(supabase: Db, ws: string, brokerage: string, approvalId: string): Promise<string> {
-  if (!documensoReady()) return "";
-  const rules = await rulesOf(supabase, ws);
-  if (!rules.send_rider_on_tier) return "";
-  const { data: approval } = await supabase.from("tier_approvals").select("rider_to_id").eq("id", approvalId).eq("workspace_id", ws).maybeSingle();
+  const { data: approval } = await supabase.from("tier_approvals").select("rider_from_id, rider_to_id, to_pct").eq("id", approvalId).eq("workspace_id", ws).maybeSingle();
   if (!approval?.rider_to_id) return "";
+  if (approval.rider_from_id) {
+    const { data: signed } = await supabase.from("riders").select("tiers, signed_at").eq("id", approval.rider_from_id as string).eq("workspace_id", ws).maybeSingle();
+    const agreed = readTiers(signed?.tiers).some((tier) => Math.abs(tier.pct - Number(approval.to_pct)) < 0.005);
+    if (agreed) return " No new signature is needed: this tier is already in the rider they signed.";
+  }
+  if (!documensoReady()) return " This split is outside the tiers in their signed rider, so a new rider should be signed.";
+  const rules = await rulesOf(supabase, ws);
+  if (!rules.send_rider_on_tier) return " This split is outside the tiers in their signed rider. Send the new rider for signature from this page.";
   const result = await riderOut(supabase, ws, brokerage, approval.rider_to_id as string, rules.team_rider_mode, true);
-  return result.ok ? ` The new rider was also sent to be signed for the record. ${result.message ?? ""}` : ` The new rider was not sent automatically: ${result.message ?? "please send it from this page."}`;
+  return result.ok ? ` This split is outside the tiers in their signed rider, so the new rider was sent to be signed. ${result.message ?? ""}` : ` The new rider was not sent automatically: ${result.message ?? "please send it from this page."}`;
 }
