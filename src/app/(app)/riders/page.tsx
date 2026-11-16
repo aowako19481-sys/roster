@@ -6,7 +6,8 @@ import { Badge, Card, Empty, PageHeader, Placeholder, Stat, ui } from "@/compone
 import { requireCap } from "@/lib/access";
 import { day, dayTime, pct } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
-import { decideTier, recordSignature } from "./actions";
+import { documensoReady } from "@/lib/documenso";
+import { cancelRiderSigning, checkSignatures, decideTier, recordSignature, remindRider, sendRider, setRiderTemplate } from "./actions";
 
 export const metadata: Metadata = { title: "Tier clearance" };
 
@@ -14,6 +15,8 @@ type Approval = {
   id: string; subject_kind: string; subject_name: string; reason: string; from_pct: number; to_pct: number; status: string;
   agent_id: string | null; team_id: string | null; decided_at: string | null; created_at: string | null;
 };
+type SignRequest = { id: string; rider_id: string; signer_name: string; status: string; sent_at: string };
+const SIGN_LABEL: Record<string, string> = { sent: "Sent", opened: "Opened", signed: "Signed", declined: "Declined", cancelled: "Cancelled" };
 type WaitingRider = { id: string; agent_id: string | null; team_id: string | null; version: number; split_pct: number; created_at: string };
 
 const ORDER: Record<string, number> = { waiting: 0, held: 1, approved: 2 };
@@ -27,7 +30,7 @@ export default async function RidersPage() {
   const canSign = access.caps.has("riders.manage");
   const supabase = await createClient();
 
-  const [approvalRes, riderRes, agentRes, teamRes] = await Promise.all([
+  const [approvalRes, riderRes, agentRes, teamRes, requestRes, workspaceRes] = await Promise.all([
     supabase.from("tier_approvals")
       .select("id, subject_kind, subject_name, reason, from_pct, to_pct, status, agent_id, team_id, decided_at, created_at")
       .eq("workspace_id", ws).order("position").limit(500),
@@ -35,7 +38,13 @@ export default async function RidersPage() {
       .order("created_at", { ascending: false }).limit(500),
     supabase.from("agents").select("id, full_name").eq("workspace_id", ws).limit(1000),
     supabase.from("teams").select("id, name, lead_agent_id").eq("workspace_id", ws).limit(500),
+    supabase.from("sign_requests").select("id, rider_id, signer_name, status, sent_at").eq("workspace_id", ws).order("sent_at").limit(1000),
+    supabase.from("workspaces").select("rider_template_name").eq("id", ws).maybeSingle(),
   ]);
+  const signingOn = documensoReady();
+  const templateName = (workspaceRes.data?.rider_template_name as string | null | undefined) ?? null;
+  const requestsOf = new Map<string, SignRequest[]>();
+  for (const request of (requestRes.data ?? []) as SignRequest[]) requestsOf.set(request.rider_id, [...(requestsOf.get(request.rider_id) ?? []), request]);
   const approvals = ((approvalRes.data ?? []) as Approval[]).sort((a, b) => (ORDER[a.status] ?? 9) - (ORDER[b.status] ?? 9));
   const waitingRiders = (riderRes.data ?? []) as WaitingRider[];
   const agentName = new Map((agentRes.data ?? []).map((agent) => [agent.id as string, agent.full_name as string]));
@@ -133,6 +142,42 @@ export default async function RidersPage() {
         )}
       </Card>
 
+      {canSign && (
+        <Card title="Electronic signature" aside={signingOn ? <Badge tone="muted">On</Badge> : <Badge tone="muted">Not switched on</Badge>}>
+          <div className={ui.stack}>
+            <p className={ui.help}>
+              {signingOn
+                ? "Send a rider and each person gets an email to sign on screen. The signed copy and its certificate file themselves in the agent’s file."
+                : "Electronic signing is not switched on for Kinu yet. Until it is, record signatures by hand below."}
+            </p>
+            <p>
+              <strong>Your rider document:</strong> {templateName ?? "none uploaded. Riders go out as a one-page Kinu rider."}
+            </p>
+            <ActionForm action={setRiderTemplate} className={ui.inline}>
+              <label className={ui.field}>
+                {templateName ? "Replace it with another PDF" : "Upload your own rider (PDF, up to 4 MB)"}
+                <input className={ui.input} type="file" name="file" required accept="application/pdf" style={{ paddingTop: 9 }} />
+              </label>
+              <Submit small busy="Uploading…">Save rider document</Submit>
+            </ActionForm>
+            <p className={ui.help}>Kinu adds one page after your document with the person’s split, tiers and the place to sign.</p>
+            <div className={ui.inline}>
+              {templateName ? (
+                <ActionForm action={setRiderTemplate} className={ui.inline}>
+                  <input type="hidden" name="remove" value="yes" />
+                  <Submit small variant="plain">Remove my rider document</Submit>
+                </ActionForm>
+              ) : null}
+              {signingOn ? (
+                <ActionForm action={checkSignatures} className={ui.inline}>
+                  <Submit small variant="plain" busy="Checking…">Check for new signatures</Submit>
+                </ActionForm>
+              ) : null}
+            </div>
+          </div>
+        </Card>
+      )}
+
       <Card title="Riders waiting for signature" aside={<span className={ui.soft}>{waitingRiders.length} waiting</span>}>
         {waitingRiders.length ? (
           <div className={ui.tableWrap}>
@@ -143,6 +188,7 @@ export default async function RidersPage() {
                   <th scope="col">Version</th>
                   <th scope="col" className={ui.num}>Split</th>
                   <th scope="col">Sent</th>
+                  <th scope="col">Electronic signature</th>
                   {canSign && <th scope="col">Record signature</th>}
                 </tr>
               </thead>
@@ -165,6 +211,56 @@ export default async function RidersPage() {
                       <td>v{rider.version}</td>
                       <td className={ui.num}>{pct(rider.split_pct)}</td>
                       <td>{day(rider.created_at, tz)}</td>
+                      <td>
+                        {(() => {
+                          const requests = (requestsOf.get(rider.id) ?? []).filter((request) => request.status !== "cancelled");
+                          const waiting = requests.some((request) => request.status === "sent" || request.status === "opened");
+                          return (
+                            <div className={ui.stack} style={{ gap: 8 }}>
+                              {requests.length ? (
+                                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                                  {requests.map((request) => (
+                                    <li key={request.id}>
+                                      {request.signer_name}: <strong>{SIGN_LABEL[request.status] ?? request.status}</strong>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <span className={ui.soft}>Not sent yet</span>
+                              )}
+                              {canSign && signingOn && !waiting && (
+                                <ActionForm action={sendRider} className={ui.inline}>
+                                  <input type="hidden" name="rider" value={rider.id} />
+                                  {rider.team_id ? (
+                                    <label className={ui.field}>
+                                      Who signs
+                                      <select className={ui.input} name="mode" defaultValue="lead">
+                                        <option value="lead">Team lead only</option>
+                                        <option value="members">Every team member</option>
+                                      </select>
+                                    </label>
+                                  ) : null}
+                                  <Submit small busy="Sending…" aria-label={`Send for signature: ${who ?? "rider"}, version ${rider.version}`}>
+                                    {requests.length ? "Send again" : "Send for signature"}
+                                  </Submit>
+                                </ActionForm>
+                              )}
+                              {canSign && waiting && (
+                                <div className={ui.inline}>
+                                  <ActionForm action={remindRider} className={ui.inline}>
+                                    <input type="hidden" name="rider" value={rider.id} />
+                                    <Submit small variant="plain" busy="Sending…" aria-label={`Remind: ${who ?? "rider"}`}>Remind</Submit>
+                                  </ActionForm>
+                                  <ActionForm action={cancelRiderSigning} className={ui.inline}>
+                                    <input type="hidden" name="rider" value={rider.id} />
+                                    <Submit small variant="danger" aria-label={`Cancel signing: ${who ?? "rider"}`}>Cancel</Submit>
+                                  </ActionForm>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </td>
                       {canSign && (
                         <td>
                           <ActionForm action={recordSignature} className={ui.inline}>

@@ -45,14 +45,15 @@ export function timeValue(value: string | null | undefined, fallback: string): s
 // ------------------------------------------------------ products and price --
 
 export const ADDONS = [
-  { key: "retention", label: "Retention Insights + Exit Kit", perAgent: 3.5 },
-  { key: "finance_shield", label: "Finance Shield", perAgent: 0.75 },
-  { key: "compliance", label: "Compliance pack", perAgent: 0.75 },
+  { key: "retention", label: "Retention Insights + Exit Kit", perAgent: 4 },
+  { key: "finance_shield", label: "Finance Shield", perAgent: 1.5 },
+  { key: "compliance", label: "Compliance pack", perAgent: 1.5 },
 ] as const;
 export type AddonKey = (typeof ADDONS)[number]["key"];
 
-export const PRODUCT_PRICE = { ops: 2, finance: 2 } as const;
-/** The blueprint's starting minimum, per month. */
+/** The month-to-month price of one agent seat. Ops and Finance are both included in it. */
+export const SEAT_PRICE = 15.99;
+/** The monthly minimum. */
 export const MONTHLY_MINIMUM = 500;
 
 export function addonLabel(key: string): string {
@@ -66,12 +67,11 @@ export function addonsField(form: FormData): AddonKey[] {
 
 export type PriceLine = { label: string; perAgent: number; monthly: number };
 
-/** Monthly estimate from the blueprint's starting prices. An estimate, not an invoice. */
+/** Monthly estimate at the public month-to-month prices. An estimate, not an invoice. */
 export function priceEstimate(ws: { hasOps: boolean; hasFinance: boolean; addons: string[] }, agents: number) {
   const lines: PriceLine[] = [];
   const add = (label: string, perAgent: number) => lines.push({ label, perAgent, monthly: Math.round(perAgent * agents * 100) / 100 });
-  if (ws.hasOps) add("Ops", PRODUCT_PRICE.ops);
-  if (ws.hasFinance) add("Finance", PRODUCT_PRICE.finance);
+  if (ws.hasOps || ws.hasFinance) add("Agent seat (Ops and Finance)", SEAT_PRICE);
   for (const addon of ADDONS) if (ws.addons.includes(addon.key)) add(addon.label, addon.perAgent);
   const subtotal = Math.round(lines.reduce((sum, line) => sum + line.monthly, 0) * 100) / 100;
   const perAgent = Math.round(lines.reduce((sum, line) => sum + line.perAgent, 0) * 100) / 100;
@@ -363,15 +363,15 @@ export const CHECK_IN_OUTCOMES = ["Open to a split review", "Happy, no action", 
 
 /** Every piece of the plan that staff can lock or unlock for a brokerage. */
 export const PLAN_PIECES = [
-  { key: "ops", label: "Ops", kind: "product", perAgent: PRODUCT_PRICE.ops,
+  { key: "ops", label: "Ops", kind: "product", perAgent: 0,
     locks: "Ops pages show as a locked preview in the navigation, and the database refuses inviting or editing agents, riders, teams and file changes for everyone in the brokerage." },
-  { key: "finance", label: "Finance", kind: "product", perAgent: PRODUCT_PRICE.finance,
+  { key: "finance", label: "Finance", kind: "product", perAgent: 0,
     locks: "Finance pages show as a locked preview in the navigation, and the database refuses deals, payments, payroll, payouts, statements and overrides for everyone in the brokerage." },
-  { key: "retention", label: "Retention Insights + Exit Kit", kind: "addon", perAgent: 3.5,
+  { key: "retention", label: "Retention Insights + Exit Kit", kind: "addon", perAgent: 4,
     locks: "Retention and Exit kit show as a locked preview in the navigation and open the “not in your plan” page instead." },
-  { key: "finance_shield", label: "Finance Shield", kind: "addon", perAgent: 0.75,
+  { key: "finance_shield", label: "Finance Shield", kind: "addon", perAgent: 1.5,
     locks: "Payout checks shows as a locked preview in the navigation and opens the “not in your plan” page instead." },
-  { key: "compliance", label: "Compliance pack", kind: "addon", perAgent: 0.75,
+  { key: "compliance", label: "Compliance pack", kind: "addon", perAgent: 1.5,
     locks: "The compliance pack pages (audit files and the year-end 1099 pack) open the “not in your plan” page instead." },
 ] as const;
 export type PlanPieceKey = (typeof PLAN_PIECES)[number]["key"];

@@ -226,7 +226,7 @@ export default async function BrokeragePage({ params, searchParams }: Props) {
             <li key={piece.key}>
               <div className={ui.inline}>
                 <span className={ui.strong}>{piece.label}</span>
-                <span className={ui.soft}>{piece.kind === "product" ? "Product" : "Add-on"} · {money(piece.perAgent)} per agent a month</span>
+                <span className={ui.soft}>{piece.kind === "product" ? "Product · included in the agent seat" : `Add-on · ${money(piece.perAgent)} per agent a month`}</span>
                 <PieceToggle brokerageId={ws.id} brokerageName={ws.name} piece={piece.key} label={piece.label} unlocked={pieceUnlocked(ws, piece.key)} />
               </div>
               <span className={ui.soft}>When locked: {piece.locks}</span>

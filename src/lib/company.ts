@@ -6,7 +6,7 @@
 export const COMPANY = {
   legalName: "",          // e.g. "Kinu Technologies LLC"
   address: "",            // e.g. "123 Example St, New York, NY 10001"
-  contactEmail: "",       // e.g. "hello@yourdomain.com"
+  contactEmail: "hello@kinu.pro",
   governingState: "",     // e.g. "New York"
 };
 

@@ -282,10 +282,13 @@ export const LEGAL_PAGES: LegalPage[] = [
       { heading: "In use today", body: [[
         "Supabase, Inc. Database, sign-in and private file storage.",
         "Vercel, Inc. Hosting of the website and application.",
+        "Resend (Plus Five Five, Inc.). Sending email: sign-in codes and requests to sign a document.",
+        "Railway Corporation. Hosting of our own electronic-signing service (open-source Documenso software that we run ourselves), which holds documents sent for signature and the signer's name and email.",
+        "Cloudflare, Inc. Our domain name, network routing and the forwarding of email sent to our own addresses.",
       ]] },
       { heading: "Planned, not yet in use", body: [
         "The following kinds of provider will be added as the related features are switched on. Each will be named here before it processes any brokerage data.",
-        ["An email delivery provider, for invitations, sign-in emails and reminders.", "A payments provider, for subscription billing.", "A tax-form provider, to collect and hold W-9 forms so that full taxpayer numbers never reach us."],
+        ["A payments provider, for subscription billing.", "A tax-form provider, to collect and hold W-9 forms so that full taxpayer numbers never reach us."],
       ] },
       { heading: "Changes to this list", body: [`We update this page before a new sub-processor starts processing brokerage data. A brokerage that objects on reasonable grounds may cancel the affected service. Questions: ${reach}.`] },
     ],
